@@ -261,6 +261,8 @@ Pages with `/extensions` in the URL are excluded from filtering and always retai
 python data/preprocessing/filter_processed_docs.py
 ```
 
+> **Note**: The HTML structure is preserved at this stage. It may be useful for extracting metadata (e.g. headings, lists) or applying chunking strategies. Full conversion to plain text is deferred to a later phase in the pipeline.
+
 #### Extra. `utils/` (Utility Package)
 
 This package contains shared utility functions used across the preprocessing scripts. It includes helpers for:
@@ -294,3 +296,13 @@ The plugin docs contain a wide range of formats and often include boilerplate or
 ```bash
 python data/preprocessing/preprocess_plugin_docs.py
 ```
+
+> **Note**: The HTML structure is preserved at this stage. It may be useful for extracting metadata (e.g. headings, lists) or applying chunking strategies. Full conversion to plain text is deferred to a later phase in the pipeline.
+
+### Discourse Topics
+
+Since the filtering and cleanup of threads happen during collection, no additional preprocessing is required at this stage. Enriching the threads with metadata or preparing them for vectorization will be done during the chunking stage.
+
+### StackOverflow Threads
+
+At this stage, no additional preprocessing is needed. The content is already filtered for accepted answers, scored positively, and includes only Jenkins-related threads. Further processing will occur during the chunking phase.
