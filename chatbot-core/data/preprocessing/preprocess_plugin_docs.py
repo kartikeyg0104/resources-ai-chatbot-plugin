@@ -4,16 +4,12 @@ from bs4 import BeautifulSoup
 from utils import (
     remove_tags,
     remove_html_comments,
+    get_visible_text_length
 )
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_PATH = os.path.join(SCRIPT_DIR, "..", "raw", "plugin_docs.json")
 OUTPUT_PATH = os.path.join(SCRIPT_DIR, "..", "processed", "processed_plugin_docs.json")
-
-def get_visible_text_length(html_content):
-    soup = BeautifulSoup(html_content, "html.parser")
-    text = soup.get_text(separator=" ", strip=True)
-    return len(text)
 
 def main():
     plugin_data = {}

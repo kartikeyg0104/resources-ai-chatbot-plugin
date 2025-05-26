@@ -15,6 +15,18 @@ INPUT_DOCS_PATH = os.path.join(SCRIPT_DIR, "..", "raw", "jenkins_docs.json")
 OUTPUT_PATH = os.path.join(SCRIPT_DIR, "..", "processed", "processed_jenkins_docs.json")
 
 def filter_content(urls, data, is_developer_content):
+    """
+    Filters HTML content for a list of URLs by extracting the main section
+    and cleaning out unwanted elements like TOC, scripts, images, nav blocks, and comments.
+
+    Parameters:
+    - urls (list): List of URLs to filter.
+    - data (dict): Dictionary of raw HTML content keyed by URL.
+    - is_developer_content (bool): Whether the content is from developer docs.
+
+    Returns:
+    - dict: Filtered HTML content keyed by URL.
+    """
     config = get_config(is_developer_content)
     filtered_contents = {}
 
@@ -41,6 +53,17 @@ def filter_content(urls, data, is_developer_content):
     return filtered_contents
 
 def get_config(is_developer_content):
+    """
+    Returns configuration options depending on doc type. Introduced to maintain in the future
+    a unique filter_content function, without hardcoding parameters whether it is a developer
+    content or not.
+
+    Parameters:
+    - is_developer_content (bool): Whether the content is from developer docs.
+
+    Returns:
+    - dict: Configuration dict with class name to extract.
+    """
     if is_developer_content:
         return {
             "class_to_extract": "col-8"

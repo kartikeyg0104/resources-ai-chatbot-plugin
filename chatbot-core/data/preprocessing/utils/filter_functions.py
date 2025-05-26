@@ -124,3 +124,17 @@ def remove_html_comments(content):
         comment.extract()
 
     return str(soup)
+
+def get_visible_text_length(html_content):
+    """
+    Calculates the length of visible text in the HTML content.
+
+    Parameters:
+    - html_content (str): Raw HTML content.
+
+    Returns:
+    - int: Number of visible text characters.
+    """
+    soup = BeautifulSoup(html_content, "html.parser")
+    text = soup.get_text(separator=" ", strip=True)
+    return len(text)

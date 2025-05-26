@@ -1,23 +1,39 @@
 from bs4 import BeautifulSoup
 import json
 import os
+from utils import(
+    get_visible_text_length
+)
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_PATH = os.path.join(SCRIPT_DIR, "..", "processed", "processed_jenkins_docs.json")
 OUTPUT_PATH = os.path.join(SCRIPT_DIR, "..", "processed", "filtered_jenkins_docs.json")
 
-def get_visible_text_length(html_content):
-    soup = BeautifulSoup(html_content, "html.parser")
-    text = soup.get_text(separator=" ", strip=True)
-    return len(text)
-
 def link_ratio(content):
+    """
+    Computes the ratio of <a> tags to visible text chunks (roughly per 7 chars).
+
+    Parameters:
+    - content (str): Raw HTML content.
+
+    Returns:
+    - float: Ratio of links to visible text size.
+    """
     soup = BeautifulSoup(content, "html.parser")
     links = soup.find_all("a")
     text = soup.get_text(separator=" ", strip=True)
     return len(links) / max(len(text) / 7 , 1)
 
 def normalize_url(url):
+    """
+    Normalizes a URL by removing trailing slashes and 'index.html'.
+
+    Parameters:
+    - url (str): Original URL.
+
+    Returns:
+    - str: Normalized URL.
+    """
     if url.endswith("index.html"):
         url = url[: -len("index.html")]
 
@@ -27,6 +43,15 @@ def normalize_url(url):
     return url
 
 def normalize_url_keys(doc_dict):
+    """
+    Applies URL normalization to the keys of a documentation dictionary.
+
+    Parameters:
+    - doc_dict (dict): Dictionary with URLs as keys.
+
+    Returns:
+    - dict: Dictionary with normalized URLs as keys.
+    """
     result = {}
     for url, content in doc_dict.items():
         normalized_url = normalize_url(url)        
