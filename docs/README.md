@@ -9,7 +9,9 @@ Below is a brief explanation of the key subdirectories:
 - `chatbot-core/`: Core logic of the chatbot.
   - `data/`: Data-related files and scripts.
     - `collection/`: Scripts to collect data from Jenkins Docs, Jenkins Plugins, Discourse, StackOverflow.
+    - `preprocessing/`: Scripts to clean, filter, the collected data before chunking.
     - `raw/`: Output directory for collected data.
+    - `processed/`: Output directory for cleaned and filtered data.
   - `requirements.txt`: Python dependencies.
 - `docs/`: Developer documentation.
 
