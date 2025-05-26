@@ -1,7 +1,16 @@
 from bs4 import BeautifulSoup, Comment
 
 def extract_page_content_container(soup, class_name):
-    """Extract content from the 'container' div class"""
+    """
+    Extracts the HTML content of the first div with the given class name.
+
+    Parameters:
+    - soup (BeautifulSoup): Parsed HTML document.
+    - class_name (str): Class name of the div to extract.
+
+    Returns:
+    - str: HTML string of the matching div, or empty string if not found.
+    """
     content_div = soup.find("div", class_=class_name)
     if content_div:
         return str(content_div)
@@ -12,6 +21,13 @@ def remove_container_by_class(content, class_name):
     """
     Given HTML content and a class name, removes the content inside the div
     with that class name and returns the remaining HTML.
+
+    Parameters:
+    - content (str): HTML string.
+    - class_name (str): Class name of the div to extract.
+
+    Returns:
+    - str: HTML filtered from the div with class class_name.
     """
     soup = BeautifulSoup(content, "html.parser")
     content_div = soup.find("div", class_=class_name)
@@ -45,8 +61,14 @@ def remove_tags(content, tags_to_remove=None):
 
 def remove_edge_navigation_blocks(content):
     """
-    Removes the first navigation block (if present at the top) and the last one (plus any following elements)
+    Removes the first navigation block and the last one (plus any following elements)
     from the direct children of `.col-lg-9`, based on expected structure.
+
+    Parameters:
+    - content (str): HTML string.
+
+    Returns:
+    - str: HTML filtered from any not wanted navigation elements.
     """
     soup = BeautifulSoup(content, "html.parser")
     container = soup.find("div", class_="col-lg-9")
@@ -61,20 +83,19 @@ def remove_edge_navigation_blocks(content):
             len(children) == 1 and
             children[0].name == "div" and
             "row" in children[0].get("class", []) and
-            "body" not in children[0].get("class", [])  # avoid the main body
+            "body" not in children[0].get("class", [])
         )
 
-    # Step 1: Remove top navigation block if it's the first direct child
+    # Remove top navigation block
     children = container.find_all(recursive=False)
     if children and is_navigation_block(children[0]):
         children[0].decompose()
 
-    # Step 2: Refresh children and find bottom nav (and remove everything after it)
+    # Refresh children and find bottom nav (and remove everything after it)
     children = container.find_all(recursive=False)
     is_navigation_block_found = False
     for i, div in enumerate(children):
         if is_navigation_block(div) or (div.name == "div" and div.get("id") == "feedback"):
-            # Remove this and everything after
             for div_to_remove in children[i:]:
                 div_to_remove.decompose()
             is_navigation_block_found = True
