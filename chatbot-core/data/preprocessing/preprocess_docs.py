@@ -50,8 +50,6 @@ def get_config(is_developer_content):
             "class_to_extract": "col-lg-9"
         }
 
-# TODO Replace code blocks with labels, and replace it again after splitting has been applied to avoid splitting pieces of code
-
 def main():
     data = []
 
