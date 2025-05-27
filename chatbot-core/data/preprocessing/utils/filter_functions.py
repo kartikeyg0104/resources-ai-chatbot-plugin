@@ -29,7 +29,7 @@ def remove_container_by_class(content, class_name):
     Returns:
     - str: HTML filtered from the div with class class_name.
     """
-    soup = BeautifulSoup(content, "html.parser")
+    soup = BeautifulSoup(content, "lxml")
     content_div = soup.find("div", class_=class_name)
 
     if content_div:
@@ -51,7 +51,7 @@ def remove_tags(content, tags_to_remove=None):
     if tags_to_remove is None:
         tags_to_remove = ["img", "script", "style", "iframe", "object", "embed", "form"]  # Default tags to remove
 
-    soup = BeautifulSoup(content, "html.parser")
+    soup = BeautifulSoup(content, "lxml")
 
     for tag in tags_to_remove:
         for element in soup.find_all(tag):
@@ -70,7 +70,7 @@ def remove_edge_navigation_blocks(content):
     Returns:
     - str: HTML filtered from any not wanted navigation elements.
     """
-    soup = BeautifulSoup(content, "html.parser")
+    soup = BeautifulSoup(content, "lxml")
     container = soup.find("div", class_="col-lg-9")
     if not container:
         return str(soup)
@@ -118,7 +118,7 @@ def remove_html_comments(content):
     Returns:
     - str: HTML with all comments removed.
     """
-    soup = BeautifulSoup(content, "html.parser")
+    soup = BeautifulSoup(content, "lxml")
 
     for comment in soup.find_all(string=lambda text: isinstance(text, Comment)):
         comment.extract()
@@ -135,6 +135,6 @@ def get_visible_text_length(html_content):
     Returns:
     - int: Number of visible text characters.
     """
-    soup = BeautifulSoup(html_content, "html.parser")
+    soup = BeautifulSoup(html_content, "lxml")
     text = soup.get_text(separator=" ", strip=True)
     return len(text)

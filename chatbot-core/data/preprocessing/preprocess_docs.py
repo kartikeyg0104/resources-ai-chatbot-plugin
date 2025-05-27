@@ -38,7 +38,7 @@ def filter_content(urls, data, is_developer_content):
             logger.warning(f"URL not found in data: {url}")
             continue
         content = data[url]
-        soup = BeautifulSoup(content, "html.parser")
+        soup = BeautifulSoup(content, "lxml")
 
         content_extracted = extract_page_content_container(soup, config["class_to_extract"])
         if content_extracted == "":
