@@ -34,6 +34,9 @@ def filter_content(urls, data, is_developer_content):
     filtered_contents = {}
 
     for url in urls:
+        if url not in data:
+            logger.warning(f"URL not found in data: {url}")
+            continue
         content = data[url]
         soup = BeautifulSoup(content, "html.parser")
 
