@@ -28,23 +28,24 @@ def split_type_docs(data, logger):
     - tuple: (developer_urls, non_developer_urls), both as lists of URLs.
     """
     logger.info(f'There are {len(data)} pages')
-    not_processed_urls = []
+
     non_developer_urls = []
     developer_urls = []
+    soups = {}
+
     # Every doc page that is not in the /developer part has the content in the col-lg-9 class 
     for url, content in data.items():
-        soup = BeautifulSoup(content, "html.parser")
+        soup = BeautifulSoup(content, "lxml")
         if extract_page_content_container(soup, "col-lg-9"):
             non_developer_urls.append(url)
         else:
-            not_processed_urls.append(url)
+            soups[url] = soup
     
     logger.info(f'Non-developer docs (col-lg-9): {len(non_developer_urls)}')
 
     # Every doc page that is in the /developer part has the content in the col-8 class 
-    for url in not_processed_urls:
-        soup = BeautifulSoup(data[url], "html.parser")
-        if extract_page_content_container(soup, "col-8"):
+    for url, soup_c in soups.items():
+        if extract_page_content_container(soup_c, "col-8"):
             developer_urls.append(url)
     
     logger.info(f'Developer docs (col-8): {len(developer_urls)}')
