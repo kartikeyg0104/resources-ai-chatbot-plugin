@@ -16,6 +16,20 @@ OUTPUT_PATH = os.path.join(SCRIPT_DIR, "..", "processed", "processed_plugin_docs
 
 MIN_VISIBLE_TEXT_LENGTH = 60
 
+def process_plugin_docs(plugin_docs):
+    processed_plugin_docs = {}
+
+    for plugin_name, html_content in plugin_docs.items():
+        cleaned_html = remove_tags(html_content)
+        content_without_comments = remove_html_comments(cleaned_html)
+
+        if get_visible_text_length(content_without_comments) > MIN_VISIBLE_TEXT_LENGTH:
+            processed_plugin_docs[plugin_name] = content_without_comments
+
+    logger.info(f"Processed {len(processed_plugin_docs)} plugins.")
+
+    return process_plugin_docs
+
 def main():
     plugin_data = {}
     
@@ -27,16 +41,8 @@ def main():
         return
 
     logger.info(f"Handling {len(plugin_data.keys())} plugin docs.")
-    processed_plugin_docs = {}
-
-    for plugin_name, html_content in plugin_data.items():
-        cleaned_html = remove_tags(html_content)
-        content_without_comments = remove_html_comments(cleaned_html)
-
-        if get_visible_text_length(content_without_comments) > MIN_VISIBLE_TEXT_LENGTH:
-            processed_plugin_docs[plugin_name] = content_without_comments
-
-    logger.info(f"Processed {len(processed_plugin_docs)} plugins.")
+    
+    processed_plugin_docs = process_plugin_docs(plugin_data)
 
     try:
         with open(OUTPUT_PATH, "w", encoding='utf-8') as f:
