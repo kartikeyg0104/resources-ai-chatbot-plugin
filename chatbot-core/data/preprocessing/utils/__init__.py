@@ -6,7 +6,8 @@ from .filter_functions import (
     extract_page_content_container,
     remove_html_comments,
     remove_edge_navigation_blocks,
-    get_visible_text_length
+    get_visible_text_length,
+    strip_html_body_wrappers
 )
 
 from .split_doc_types import(

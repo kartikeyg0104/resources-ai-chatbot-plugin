@@ -8,7 +8,8 @@ from utils import (
     remove_html_comments,
     remove_edge_navigation_blocks,
     split_type_docs,
-    get_logger
+    get_logger,
+    strip_html_body_wrappers
 )
 
 logger = get_logger()
@@ -54,7 +55,9 @@ def filter_content(urls, data, is_developer_content):
         # Remove eventually navigation blocks (for docs under /developer this is not necessary)
         content_without_navigation_blocks = content_filtered_by_tags if is_developer_content else remove_edge_navigation_blocks(content_filtered_by_tags)
 
-        filtered_contents[url] = remove_html_comments(content_without_navigation_blocks)
+        content_without_comments = remove_html_comments(content_without_navigation_blocks)
+
+        filtered_contents[url] = strip_html_body_wrappers(content_without_comments)
 
     return filtered_contents
 
@@ -78,6 +81,7 @@ def get_config(is_developer_content):
         return {
             "class_to_extract": "col-lg-9"
         }
+
 
 def main():
     try:

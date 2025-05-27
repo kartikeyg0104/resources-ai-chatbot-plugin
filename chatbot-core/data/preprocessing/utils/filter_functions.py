@@ -138,3 +138,18 @@ def get_visible_text_length(html_content):
     soup = BeautifulSoup(html_content, "lxml")
     text = soup.get_text(separator=" ", strip=True)
     return len(text)
+
+def strip_html_body_wrappers(html):
+    """
+    Removes the <html> and <body> wrapper tags from the given HTML content,
+    returning only the contents within the <body> tag.
+
+    Parameters:
+    - html (str): HTML string, typically a fragment that may have been wrapped by a parser.
+
+    Returns:
+    - str: HTML string containing only the inner contents of the <body> tag,
+           or the full HTML if no <body> is present.
+    """
+    soup = BeautifulSoup(html, "lxml")
+    return ''.join(str(child) for child in soup.body.contents) if soup.body else str(soup)
