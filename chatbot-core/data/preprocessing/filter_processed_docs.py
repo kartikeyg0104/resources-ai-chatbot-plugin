@@ -28,7 +28,10 @@ def link_ratio(content):
     soup = BeautifulSoup(content, "html.parser")
     links = soup.find_all("a")
     text = soup.get_text(separator=" ", strip=True)
-    return len(links) / max(len(text) / 7 , 1)
+    text_length = max(len(text), 1) 
+    chunks = max(text_length / 7, 1)
+    
+    return len(links) / chunks
 
 def normalize_url(url):
     """
