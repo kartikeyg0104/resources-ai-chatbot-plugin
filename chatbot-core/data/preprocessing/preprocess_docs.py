@@ -7,8 +7,11 @@ from utils import (
     extract_page_content_container,
     remove_html_comments,
     remove_edge_navigation_blocks,
-    split_type_docs
+    split_type_docs,
+    get_logger
 )
+
+logger = get_logger()
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_DOCS_PATH = os.path.join(SCRIPT_DIR, "..", "raw", "jenkins_docs.json")
@@ -36,7 +39,7 @@ def filter_content(urls, data, is_developer_content):
 
         content_extracted = extract_page_content_container(soup, config["class_to_extract"])
         if content_extracted == "":
-            print(f'NO {config["class_to_extract"]} FOUND IN A {"" if is_developer_content else "NON"} DEVELOPER PAGE! Skipping page: {url}')
+            logger.warning(f'NO {config["class_to_extract"]} FOUND IN A {"" if is_developer_content else "NON"} DEVELOPER PAGE! Skipping page: {url}')
             continue
         
         # Remove eventually toc(table of content)
@@ -79,11 +82,11 @@ def main():
     with open(INPUT_DOCS_PATH, "r", encoding='utf-8') as f:
         data = json.load(f)
 
-    developer_urls, non_developer_urls = split_type_docs(data)
+    developer_urls, non_developer_urls = split_type_docs(data, logger)
 
-    print("Processing Developer contents")
+    logger.info("Processing Developer contents")
     developer_content_filtered = filter_content(developer_urls, data, True)
-    print("Processing  Non Developer contents")
+    logger.info("Processing  Non Developer contents")
     non_developer_content_filtered = filter_content(non_developer_urls, data, False)
 
     output = {}

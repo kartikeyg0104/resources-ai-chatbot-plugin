@@ -3,7 +3,10 @@ import json
 import os
 from utils import(
     get_visible_text_length
+    get_logger
 )
+
+logger = get_logger()
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_PATH = os.path.join(SCRIPT_DIR, "..", "processed", "processed_jenkins_docs.json")
@@ -76,11 +79,11 @@ def main():
         if ('extensions' not in url) and (get_visible_text_length(content) < MIN_VISIBLE_TEXT_LENGTH or link_ratio(content) > MAX_LINK_RATIO):
             urls_to_remove.add(url)
 
-    print(f'There are {len(urls_to_remove)} urls to remove.')
+    logger.info(f'There are {len(urls_to_remove)} urls to remove.')
 
     cleaned_docs = {url: content for url, content in docs.items() if url not in urls_to_remove}
 
-    print(f"Cleaned docs contain {len(cleaned_docs)} pages after filtering.")
+    logger.info(f"Cleaned docs contain {len(cleaned_docs)} pages after filtering.")
 
     with open(OUTPUT_PATH, "w", encoding='utf-8') as f:
         json.dump(cleaned_docs, f, ensure_ascii=False, indent=2)

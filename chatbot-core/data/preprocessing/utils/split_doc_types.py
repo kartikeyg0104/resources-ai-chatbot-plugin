@@ -16,7 +16,7 @@ def extract_page_content_container(soup, class_name):
     content_div = soup.find("div", class_=class_name)
     return bool(content_div)
 
-def split_type_docs(data):
+def split_type_docs(data, logger):
     """
     Splits documentation pages into developer and non-developer types
     based on the presence of specific container classes.
@@ -27,7 +27,7 @@ def split_type_docs(data):
     Returns:
     - tuple: (developer_urls, non_developer_urls), both as lists of URLs.
     """
-    print(f'There are {len(data)} pages')
+    logger.info(f'There are {len(data)} pages')
     not_processed_urls = []
     non_developer_urls = []
     developer_urls = []
@@ -39,7 +39,7 @@ def split_type_docs(data):
         else:
             not_processed_urls.append(url)
     
-    print(f'With col-lg-9: {len(non_developer_urls)}')
+    logger.info(f'Non-developer docs (col-lg-9): {len(non_developer_urls)}')
 
     # Every doc page that is in the /developer part has the content in the col-8 class 
     for url in not_processed_urls:
@@ -47,6 +47,6 @@ def split_type_docs(data):
         if extract_page_content_container(soup, "col-8"):
             developer_urls.append(url)
     
-    print(f'With col-8: {len(developer_urls)}')
+    logger.info(f'Developer docs (col-8): {len(developer_urls)}')
 
     return developer_urls, non_developer_urls
