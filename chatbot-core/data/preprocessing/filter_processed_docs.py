@@ -9,6 +9,9 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_PATH = os.path.join(SCRIPT_DIR, "..", "processed", "processed_jenkins_docs.json")
 OUTPUT_PATH = os.path.join(SCRIPT_DIR, "..", "processed", "filtered_jenkins_docs.json")
 
+MIN_VISIBLE_TEXT_LENGTH = 300
+MAX_LINK_RATIO = 0.1
+
 def link_ratio(content):
     """
     Computes the ratio of <a> tags to visible text chunks (roughly per 7 chars).
@@ -68,9 +71,9 @@ def main():
         docs = developer_docs | non_developer_docs
 
     urls_to_remove = set()
-    # Filtering by the urls whose content size < 300 or has 'too many' links compared to the size of the content
+    # Filtering the urls whose content size < MIN_VISIBLE_TEXT_LENGTH or has 'too many' links compared to the size of the content(ratio > MAX_LINK_RATIO)
     for url, content in docs.items():
-        if ('extensions' not in url) and (get_visible_text_length(content) < 300 or link_ratio(content) > 0.1):
+        if ('extensions' not in url) and (get_visible_text_length(content) < MIN_VISIBLE_TEXT_LENGTH or link_ratio(content) > MAX_LINK_RATIO):
             urls_to_remove.add(url)
 
     print(f'There are {len(urls_to_remove)} urls to remove.')
