@@ -80,10 +80,12 @@ def get_config(is_developer_content):
         }
 
 def main():
-    data = []
-
-    with open(INPUT_DOCS_PATH, "r", encoding='utf-8') as f:
-        data = json.load(f)
+    try:
+        with open(INPUT_DOCS_PATH, "r", encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception as e:
+        logger.error(f"Unexpected error while reading from {INPUT_DOCS_PATH}: {e}")
+        return
 
     developer_urls, non_developer_urls = split_type_docs(data, logger)
 
@@ -96,8 +98,12 @@ def main():
     output["developer_docs"] = developer_content_filtered
     output["non_developer_docs"] = non_developer_content_filtered
 
-    with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
-        json.dump(output, f, ensure_ascii=False, indent=4)
+    try:
+        with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
+            json.dump(output, f, ensure_ascii=False, indent=4)
+    except Exception as e:
+        logger.error(f"Unexpected error writing to {OUTPUT_PATH}: {e}")
+        return
 
 if __name__ == "__main__":
     main()

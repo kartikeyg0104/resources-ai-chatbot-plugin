@@ -18,8 +18,13 @@ MIN_VISIBLE_TEXT_LENGTH = 60
 
 def main():
     plugin_data = {}
-    with open(INPUT_PATH, "r", encoding='utf-8') as f:
-        plugin_data = json.load(f)
+    
+    try:
+        with open(INPUT_PATH, "r", encoding='utf-8') as f:
+            plugin_data = json.load(f)
+    except Exception as e:
+        logger.error(f"Unexpected error while reading from {INPUT_PATH}: {e}")
+        return
 
     logger.info(f"Handling {len(plugin_data.keys())} plugin docs.")
     processed_plugin_docs = {}
@@ -33,8 +38,12 @@ def main():
 
     logger.info(f"Processed {len(processed_plugin_docs)} plugins.")
 
-    with open(OUTPUT_PATH, "w", encoding='utf-8') as f:
-        json.dump(processed_plugin_docs, f, ensure_ascii=False, indent=2)
+    try:
+        with open(OUTPUT_PATH, "w", encoding='utf-8') as f:
+            json.dump(processed_plugin_docs, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.error(f"Unexpected error while writing to {OUTPUT_PATH}: {e}")
+        return
 
     logger.info("Saved processed plugins.")
 

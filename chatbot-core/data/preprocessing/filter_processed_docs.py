@@ -70,11 +70,15 @@ def normalize_url_keys(doc_dict):
 def main():
     docs = {}
 
-    with open(INPUT_PATH, "r", encoding='utf-8') as f:
-        data = json.load(f)
-        developer_docs = normalize_url_keys(data["developer_docs"])
-        non_developer_docs = normalize_url_keys(data["non_developer_docs"])
-        docs = developer_docs | non_developer_docs
+    try:
+        with open(INPUT_PATH, "r", encoding='utf-8') as f:
+            data = json.load(f)
+            developer_docs = normalize_url_keys(data["developer_docs"])
+            non_developer_docs = normalize_url_keys(data["non_developer_docs"])
+            docs = developer_docs | non_developer_docs
+    except Exception as e:
+        logger.error(f"Unexpected error while reading from {INPUT_PATH}: {e}")
+        return
 
     urls_to_remove = set()
     # Filtering the urls whose content size < MIN_VISIBLE_TEXT_LENGTH or has 'too many' links compared to the size of the content(ratio > MAX_LINK_RATIO)
@@ -88,8 +92,12 @@ def main():
 
     logger.info(f"Cleaned docs contain {len(cleaned_docs)} pages after filtering.")
 
-    with open(OUTPUT_PATH, "w", encoding='utf-8') as f:
-        json.dump(cleaned_docs, f, ensure_ascii=False, indent=2)
+    try:
+        with open(OUTPUT_PATH, "w", encoding='utf-8') as f:
+            json.dump(cleaned_docs, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.error(f"Unexpected error while writing to {OUTPUT_PATH}: {e}")
+        return
 
 
 if __name__ == "__main__":
