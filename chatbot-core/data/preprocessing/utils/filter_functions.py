@@ -97,7 +97,7 @@ def remove_edge_navigation_blocks(content):
     for i, div in enumerate(children):
         if is_navigation_block(div) or (div.name == "div" and div.get("id") == "feedback"):
             for div_to_remove in children[i:]:
-                div_to_remove.decompose()
+                div_to_remove.extract()
             is_navigation_block_found = True
             break
     

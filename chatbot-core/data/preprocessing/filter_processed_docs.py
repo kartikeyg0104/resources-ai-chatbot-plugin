@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import json
 import os
 from utils import(
-    get_visible_text_length
+    get_visible_text_length,
     get_logger
 )
 
@@ -63,7 +63,9 @@ def normalize_url_keys(doc_dict):
     """
     result = {}
     for url, content in doc_dict.items():
-        normalized_url = normalize_url(url)        
+        normalized_url = normalize_url(url)
+        if normalized_url in result:
+            logger.warning(f"Duplicate normalized URL found: {normalized_url}.")        
         result[normalized_url] = content
     return result
 
@@ -84,6 +86,7 @@ def main():
     # Filtering the urls whose content size < MIN_VISIBLE_TEXT_LENGTH or has 'too many' links compared to the size of the content(ratio > MAX_LINK_RATIO)
     for url, content in docs.items():
         if ('extensions' not in url) and (get_visible_text_length(content) < MIN_VISIBLE_TEXT_LENGTH or link_ratio(content) > MAX_LINK_RATIO):
+            logger.info(f"Filtering the url: {url}.")
             urls_to_remove.add(url)
 
     logger.info(f'There are {len(urls_to_remove)} urls to remove.')
