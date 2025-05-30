@@ -1,6 +1,20 @@
 import re
 
 def extract_title(soup):
+    """
+    Extracts the title from a BeautifulSoup-parsed HTML document.
+
+    Priority:
+    1. <h1> element if present
+    2. <title> tag as fallback
+    3. Returns "Untitled" if neither is found
+
+    Args:
+        soup (BeautifulSoup): Parsed HTML document.
+
+    Returns:
+        str: The extracted title string.
+    """
     h1 = soup.find("h1")
     if h1 and h1.get_text(strip=True):
         return h1.get_text(strip=True)
@@ -9,6 +23,17 @@ def extract_title(soup):
     return "Untitled"
 
 def extract_code_blocks(soup, tag):
+    """
+    Extracts all code blocks of a specified HTML tag (e.g., <pre>, <code>),
+    replaces them with numbered placeholders, and returns the list of raw code strings.
+
+    Args:
+        soup (BeautifulSoup): Parsed HTML content.
+        tag (str): HTML tag to search for (e.g., "pre", "code").
+
+    Returns:
+        list[str]: A list of code block strings, in the order they were found.
+    """
     code_blocks = []
     for i, code_block in enumerate(soup.find_all(tag)):
         placeholder = f"[[CODE_BLOCK_{i}]]"

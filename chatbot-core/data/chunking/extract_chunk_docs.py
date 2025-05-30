@@ -20,6 +20,21 @@ CHUNK_SIZE = 500
 CHUNK_OVERLAP = 100
 
 def process_page(url, html, text_splitter):
+    """
+    Processes a single Jenkins documentation page:
+    - Parses the HTML
+    - Extracts title and code blocks
+    - Converts to plain text and splits into chunks
+    - Reassigns code blocks to appropriate chunks
+
+    Args:
+        url (str): Source URL of the documentation page.
+        html (str): Raw HTML content of the page.
+        text_splitter (RecursiveCharacterTextSplitter): LangChain text splitter instance.
+
+    Returns:
+        list[dict]: A list of chunk dictionaries with text, metadata, and code blocks.
+    """
     soup = BeautifulSoup(html, "lxml")
     title = extract_title(soup)
     code_blocks = extract_code_blocks(soup, "pre")
@@ -44,6 +59,15 @@ def process_page(url, html, text_splitter):
     ]
 
 def extract_chunks(docs):
+    """
+    Processes all Jenkins documentation pages by chunking their content.
+
+    Args:
+        docs (dict): A dictionary mapping URLs to raw HTML strings.
+
+    Returns:
+        list[dict]: A list of all processed chunks across all docs.
+    """
     all_chunks = []
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=CHUNK_SIZE,

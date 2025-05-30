@@ -19,9 +19,33 @@ CHUNK_SIZE = 500
 CHUNK_OVERLAP = 100
 
 def clean_html(html):
+    """
+    Parses and cleans HTML content using BeautifulSoup.
+
+    Args:
+        html (str): Raw HTML string containing question and answer.
+
+    Returns:
+        BeautifulSoup: Parsed HTML object.
+    """
     return BeautifulSoup(html, "lxml")
 
 def process_thread(thread, text_splitter):
+    """
+    Processes a single StackOverflow Q&A thread:
+    - Combines question and answer bodies
+    - Parses HTML
+    - Extracts code blocks and replaces them with placeholders
+    - Splits plain text into overlapping chunks
+    - Assigns relevant code blocks to each chunk
+
+    Args:
+        thread (dict): StackOverflow thread dictionary.
+        text_splitter (RecursiveCharacterTextSplitter): Chunking utility.
+
+    Returns:
+        list[dict]: List of chunk objects with text, metadata, and code blocks.
+    """
     question_id = thread.get("Question ID")
     title = thread.get("Question Title", "Untitled")
     tags = thread.get("Tags", "")
@@ -50,6 +74,7 @@ def process_thread(thread, text_splitter):
             "id": str(uuid.uuid4()),
             "chunk_text": chunk["chunk_text"],
             "metadata": {
+                "data_source": "stackoverflow_threads",
                 "question_id": question_id,
                 "title": title,
                 "tags": tags,
@@ -63,6 +88,15 @@ def process_thread(thread, text_splitter):
     ]
 
 def extract_chunks(threads):
+    """
+    Processes a list of StackOverflow threads into structured chunks.
+
+    Args:
+        threads (list): List of StackOverflow thread dicts.
+
+    Returns:
+        list[dict]: All extracted chunks from all threads.
+    """
     all_chunks = []
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=CHUNK_SIZE,

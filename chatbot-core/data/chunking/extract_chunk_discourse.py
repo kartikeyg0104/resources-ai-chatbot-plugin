@@ -18,7 +18,18 @@ CHUNK_SIZE = 500
 CHUNK_OVERLAP = 100
 
 def extract_code_blocks(text):
-    """Extracts and replaces code blocks with indexed placeholders."""
+    """
+    Extracts code blocks and replaces them with indexed placeholders.
+    Supports both triple-backtick code blocks and inline code in backticks.
+
+    Args:
+        text (str): Raw text including code blocks.
+
+    Returns:
+        tuple:
+            - List of extracted code blocks (in order of appearance).
+            - Modified text with placeholders inserted in place of code.
+    """
     code_blocks = []
     placeholder_counter = 0
 
@@ -48,6 +59,16 @@ def extract_code_blocks(text):
 
 
 def process_thread(thread, text_splitter):
+    """
+    Processes a single Discourse thread into structured chunks.
+
+    Args:
+        thread (dict): Thread data including topic ID, title, and post texts.
+        text_splitter (RecursiveCharacterTextSplitter): Chunking utility.
+
+    Returns:
+        list[dict]: List of chunk objects with text, metadata, and associated code blocks.
+    """
     topic_id = thread.get("topic_id")
     title = thread.get("title", "Untitled")
     posts = thread.get("posts", [])
@@ -75,6 +96,15 @@ def process_thread(thread, text_splitter):
     ]
 
 def extract_chunks(threads):
+    """
+    Processes all Discourse threads into a flat list of chunks.
+
+    Args:
+        threads (list): List of Discourse thread dicts.
+
+    Returns:
+        list[dict]: All chunks extracted from all threads.
+    """
     all_chunks = []
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=CHUNK_SIZE,

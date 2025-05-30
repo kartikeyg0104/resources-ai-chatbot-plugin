@@ -19,6 +19,21 @@ CHUNK_SIZE = 500
 CHUNK_OVERLAP = 100
 
 def process_plugin(plugin_name, html, text_splitter):
+    """
+    Process a single Jenkins plugin documentation HTML:
+    - Extracts code blocks
+    - Converts content to plain text
+    - Splits it into overlapping chunks
+    - Reassigns code blocks to the appropriate chunks
+
+    Args:
+        plugin_name (str): Name of the Jenkins plugin (used as metadata title).
+        html (str): Raw HTML content of the plugin documentation.
+        text_splitter (RecursiveCharacterTextSplitter): Text splitter to use for chunking.
+
+    Returns:
+        list[dict]: List of chunk dictionaries with text, metadata, and code blocks.
+    """
     soup = BeautifulSoup(html, "lxml")
     code_blocks = extract_code_blocks(soup, "pre")
 
@@ -41,6 +56,15 @@ def process_plugin(plugin_name, html, text_splitter):
     ]
 
 def extract_chunks(plugin_docs):
+    """
+    Process all Jenkins plugin documentation files by extracting and chunking them.
+
+    Args:
+        plugin_docs (dict): Mapping from plugin name to HTML content.
+
+    Returns:
+        list[dict]: All processed chunks for all plugins.
+    """
     all_chunks = []
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=CHUNK_SIZE,
