@@ -2,6 +2,8 @@
 
 import re
 
+PLACEHOLDER_TEMPLATE = "[[CODE_BLOCK_{}]]"
+
 def extract_title(soup):
     """
     Extracts the title from a BeautifulSoup-parsed HTML document.
@@ -38,7 +40,7 @@ def extract_code_blocks(soup, tag):
     """
     code_blocks = []
     for i, code_block in enumerate(soup.find_all(tag)):
-        placeholder = f"[[CODE_BLOCK_{i}]]"
+        placeholder = PLACEHOLDER_TEMPLATE.format(i)
         code_blocks.append(code_block.get_text(strip=True))
         code_block.replace_with(placeholder)
     return code_blocks
