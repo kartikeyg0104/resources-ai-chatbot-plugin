@@ -1,3 +1,5 @@
+"""Chunk StackOverflow threads into structured blocks with metadata."""
+
 import os
 import json
 import uuid
@@ -47,16 +49,14 @@ def process_thread(thread, text_splitter):
         list[dict]: List of chunk objects with text, metadata, and code blocks.
     """
     question_id = thread.get("Question ID")
-    title = thread.get("Question Title", "Untitled")
-    tags = thread.get("Tags", "")
-    creation_date = thread.get("CreationDate", "")
-    question_score = thread.get("Question Score", 0)
-    answer_score = thread.get("Answer Score", 0)
     question_body = thread.get("Question Body", "")
     answer_body = thread.get("Answer Body", "")
 
     if question_body == "" or answer_body == "":
-        logger.warning(f"Question {question_id} is missing question/answer content. Extracting 0 chunks from it.")
+        logger.warning(
+            "Question %d is missing question/answer content. Extracting 0 chunks from it.", 
+            question_id
+        )
         return []
 
     question_and_answer = f"<div>{question_body}</div><div>{answer_body}</div>"
@@ -67,7 +67,7 @@ def process_thread(thread, text_splitter):
     full_text = soup.get_text(separator=" ", strip=True)
 
     chunks = text_splitter.split_text(full_text)
-    processed_chunks = assign_code_blocks_to_chunks(chunks, code_blocks, r"\[\[CODE_BLOCK_(\d+)\]\]")
+    processed_chunks = assign_code_blocks_to_chunks(chunks,code_blocks, r"\[\[CODE_BLOCK_(\d+)\]\]")
 
     return [
         {
@@ -76,11 +76,11 @@ def process_thread(thread, text_splitter):
             "metadata": {
                 "data_source": "stackoverflow_threads",
                 "question_id": question_id,
-                "title": title,
-                "tags": tags,
-                "creation_date": creation_date,
-                "question_score": question_score,
-                "answer_score": answer_score
+                "title": thread.get("Question Title", "Untitled"),
+                "tags": thread.get("Tags", ""),
+                "creation_date": thread.get("CreationDate", ""),
+                "question_score": thread.get("Question Score", 0),
+                "answer_score": thread.get("Answer Score", 0)
             },
             "code_blocks": chunk["code_blocks"]
         }
@@ -107,28 +107,32 @@ def extract_chunks(threads):
     for thread in threads:
         chunks = process_thread(thread, text_splitter)
         all_chunks.extend(chunks)
-    
+
     return all_chunks
 
 def main():
+    """Main entry point."""
     try:
         with open(INPUT_PATH, "r", encoding="utf-8") as f:
             threads = json.load(f)
-    except Exception as e:
-        logger.error(f"Unexpected error while reading from {INPUT_PATH}: {e}")
+    except (FileNotFoundError, OSError) as e:
+        logger.error("File error while reading %s: %s", INPUT_PATH, e)
+        return
+    except json.JSONDecodeError as e:
+        logger.error("JSON decode error in %s: %s", INPUT_PATH, e)
         return
 
-    logger.info(f"Chunking from {len(threads)} stackoverflow threads.")
+    logger.info("Chunking from %d stackoverflow threads.", len(threads))
     all_chunks = extract_chunks(threads)
 
     try:
         with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
             json.dump(all_chunks, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        logger.error(f"Unexpected error while writing to {OUTPUT_PATH}: {e}")
+    except OSError as e:
+        logger.error("File error while  writing %s: %s", OUTPUT_PATH, e)
         return
 
-    logger.info(f"Written {len(all_chunks)} StackOverflow chunks to {OUTPUT_PATH}")
+    logger.info("Saved %d thread chunks to %s", len(all_chunks), OUTPUT_PATH)
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,5 @@
+"""Chunk Discourse threads into structured content blocks with metadata."""
+
 import os
 import json
 import uuid
@@ -79,7 +81,10 @@ def process_thread(thread, text_splitter):
     code_blocks, clean_text = extract_code_blocks(full_text)
     chunks = text_splitter.split_text(clean_text)
 
-    processed_chunks = assign_code_blocks_to_chunks(chunks, code_blocks, r"\[\[(?:CODE_BLOCK|CODE_SNIPPET)_(\d+)\]\]")
+    processed_chunks = assign_code_blocks_to_chunks(
+        chunks,
+        code_blocks, r"\[\[(?:CODE_BLOCK|CODE_SNIPPET)_(\d+)\]\]"
+    )
 
     return [
         {
@@ -115,28 +120,32 @@ def extract_chunks(threads):
     for thread in threads:
         thread_chunks = process_thread(thread, text_splitter)
         all_chunks.extend(thread_chunks)
-    
+
     return all_chunks
 
 def main():
+    """Main entry point."""
     try:
         with open(INPUT_PATH, "r", encoding="utf-8") as f:
             threads = json.load(f)
-    except Exception as e:
-        logger.error(f"Unexpected error while reading from {INPUT_PATH}: {e}")
+    except (FileNotFoundError, OSError) as e:
+        logger.error("File error while reading %s: %s ", INPUT_PATH, e)
+        return
+    except json.JSONDecodeError as e:
+        logger.error("JSON decode error in %s: %s", INPUT_PATH, e)
         return
 
-    logger.info(f"Chunking from {len(threads)} discourse threads.")
+    logger.info("Chunking %d Discourse threads.", len(threads))
     all_chunks = extract_chunks(threads)
 
     try:
         with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
             json.dump(all_chunks, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        logger.error(f"Unexpected error while writing to {OUTPUT_PATH}: {e}")
+    except OSError as e:
+        logger.error("File error while  writing %s: %s ", OUTPUT_PATH, e)
         return
 
-    logger.info(f"Written {len(all_chunks)} Discourse chunks to {OUTPUT_PATH}.")
+    logger.info("Written %d Discourse chunks to %s.", len(all_chunks), OUTPUT_PATH)
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,5 @@
+"""Utility functions for extracting titles, code blocks, and logging."""
+
 from .extract_functions import(
     extract_title,
     extract_code_blocks,

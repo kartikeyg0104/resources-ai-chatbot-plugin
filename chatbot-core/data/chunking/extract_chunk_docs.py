@@ -1,3 +1,5 @@
+"""Script to chunk Jenkins HTML documentation into text blocks with metadata."""
+
 import os
 import json
 import uuid
@@ -42,7 +44,7 @@ def process_page(url, html, text_splitter):
     text = soup.get_text(separator=" ", strip=True)
     chunks = text_splitter.split_text(text)
 
-    processed_chunks = assign_code_blocks_to_chunks(chunks, code_blocks, r"\[\[CODE_BLOCK_(\d+)\]\]")
+    processed_chunks = assign_code_blocks_to_chunks(chunks,code_blocks, r"\[\[CODE_BLOCK_(\d+)\]\]")
 
     return [
         {
@@ -78,28 +80,32 @@ def extract_chunks(docs):
     for url, html in docs.items():
         page_chunks = process_page(url, html, text_splitter)
         all_chunks.extend(page_chunks)
-    
+
     return all_chunks
 
 def main():
+    """Main entry point."""
     try:
         with open(INPUT_PATH, "r", encoding="utf-8") as f:
             docs = json.load(f)
-    except Exception as e:
-        logger.error(f"Unexpected error while reading from {INPUT_PATH}: {e}")
+    except (FileNotFoundError, OSError) as e:
+        logger.error("File error while reading %s:%s", INPUT_PATH, e)
         return
-    
-    logger.info(f"Chunking from {len(docs.keys())} page docs.")
+    except json.JSONDecodeError as e:
+        logger.error("JSON decode error in %s: %s", INPUT_PATH, e)
+        return
+
+    logger.info("Chunking from %d page docs.", len(docs.keys()))
     all_chunks = extract_chunks(docs)
 
     try:
         with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
             json.dump(all_chunks, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        logger.error(f"Unexpected error while writing to {OUTPUT_PATH}: {e}")
+    except OSError as e:
+        logger.error("File error while  writing %s:%s", OUTPUT_PATH, e)
         return
 
-    logger.info(f"Written {len(all_chunks)} docs chunks to {OUTPUT_PATH}")
+    logger.info("Written %d docs chunks to %s", len(all_chunks), OUTPUT_PATH)
 
 if __name__ == "__main__":
     main()

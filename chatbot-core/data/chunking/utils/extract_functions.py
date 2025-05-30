@@ -1,3 +1,5 @@
+"""Functions for extracting titles and code blocks from HTML content."""
+
 import re
 
 def extract_title(soup):
@@ -48,7 +50,7 @@ def assign_code_blocks_to_chunks(chunks, code_blocks, placeholder_pattern):
     Args:
         chunks: List of text chunks (strings).
         code_blocks: List of all extracted code blocks.
-        placeholder_pattern: Regex pattern to find placeholder indices (e.g., r"\[\[CODE_BLOCK_(\d+)\]\]").
+        placeholder_pattern: Regex pattern to find placeholder indices
 
     Returns:
         A list of dicts with 'chunk_text' and corresponding 'code_blocks'.
