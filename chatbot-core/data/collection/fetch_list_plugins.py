@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+import os
 
 URL = "https://updates.jenkins.io/experimental/latest/"
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
