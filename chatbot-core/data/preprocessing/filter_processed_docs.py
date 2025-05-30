@@ -82,8 +82,11 @@ def main():
             developer_docs = normalize_url_keys(data["developer_docs"])
             non_developer_docs = normalize_url_keys(data["non_developer_docs"])
             docs = developer_docs | non_developer_docs
-    except Exception as e:
-        logger.error("Unexpected error while reading from %s: %s", INPUT_PATH, e)
+    except (FileNotFoundError, OSError) as e:
+        logger.error("File error while reading %s: %s", INPUT_PATH, e)
+        return
+    except json.JSONDecodeError as e:
+        logger.error("JSON decode error in %s: %s", INPUT_PATH, e)
         return
 
     urls_to_remove = set()
@@ -102,8 +105,8 @@ def main():
     try:
         with open(OUTPUT_PATH, "w", encoding='utf-8') as f:
             json.dump(cleaned_docs, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        logger.error("Unexpected error while writing to %s: %s", OUTPUT_PATH, e)
+    except OSError as e:
+        logger.error("File error while writing %s: %s", OUTPUT_PATH, e)
         return
 
 

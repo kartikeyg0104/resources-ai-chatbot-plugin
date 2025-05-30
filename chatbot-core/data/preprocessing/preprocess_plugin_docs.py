@@ -63,8 +63,11 @@ def main():
     try:
         with open(INPUT_PATH, "r", encoding='utf-8') as f:
             plugin_data = json.load(f)
-    except Exception as e:
-        logger.error("Error reading from %s: %s", INPUT_PATH, e)
+    except (FileNotFoundError, OSError) as e:
+        logger.error("File error while reading from %s: %s", INPUT_PATH, e)
+        return
+    except json.JSONDecodeError as e:
+        logger.error("JSON decode error in %s: %s", INPUT_PATH, e)
         return
 
     logger.info("Handling %d plugin docs.", len(plugin_data))
@@ -74,8 +77,8 @@ def main():
     try:
         with open(OUTPUT_PATH, "w", encoding='utf-8') as f:
             json.dump(processed_plugin_docs, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        logger.error("Error writing to %s: %s", OUTPUT_PATH, e)
+    except OSError as e:
+        logger.error("File error while writing to %s: %s", OUTPUT_PATH, e)
         return
 
     logger.info("Saved processed plugins to %s.", OUTPUT_PATH)

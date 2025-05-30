@@ -14,9 +14,6 @@ visited_urls = set()
 # Key: url ; Value: content of that page
 page_content = {}
 
-# Number of failed links
-FAILED_LINKS = 0
-
 non_canonic_content_urls = set()
 
 def is_valid_url(url):
@@ -36,8 +33,6 @@ def extract_page_content_container(soup):
 
 def crawl(url):
     """Recursively crawl documentation pages starting from the base URL"""
-
-    global FAILED_LINKS
 
     # Avoid multiple visits
     if url in visited_urls:
@@ -69,7 +64,6 @@ def crawl(url):
                 crawl(full_url)
 
     except requests.RequestException as e:
-        FAILED_LINKS += 1
         print(f"Error accessing {url}: {e}")
 
 def start_crawl():
@@ -78,7 +72,6 @@ def start_crawl():
     crawl(BASE_URL)
     print(f"Total pages found: {len(visited_urls)}")
     print(f"Total pages with content: {len(page_content)}")
-    print(f"Number of bad links: {FAILED_LINKS}")
     print("Non canonic content page structure links:")
     print(non_canonic_content_urls)
     print("Crawling ended")
