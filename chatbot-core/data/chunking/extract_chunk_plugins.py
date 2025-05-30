@@ -80,7 +80,7 @@ def extract_chunks(plugin_docs):
 def main():
     """Main entry point."""
     plugin_docs = read_json_file(INPUT_PATH, logger)
-    if plugin_docs is None:
+    if not plugin_docs:
         return
 
     logger.info("Chunking from %d plugin docs.", len(plugin_docs.keys()))

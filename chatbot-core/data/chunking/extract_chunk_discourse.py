@@ -123,7 +123,7 @@ def extract_chunks(threads):
 def main():
     """Main entry point."""
     threads = read_json_file(INPUT_PATH, logger)
-    if threads is None:
+    if not threads:
         return
 
     logger.info("Chunking %d Discourse threads.", len(threads))

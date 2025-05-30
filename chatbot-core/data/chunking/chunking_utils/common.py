@@ -22,7 +22,7 @@ def read_json_file(input_path, logger):
         logger.error("File error while reading %s: %s", input_path, e)
     except json.JSONDecodeError as e:
         logger.error("JSON decode error in %s: %s", input_path, e)
-    return None
+    return []
 
 def build_chunk_dict(chunk_text, metadata, code_blocks):
     """Create a standardized chunk dictionary."""

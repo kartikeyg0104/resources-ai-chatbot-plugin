@@ -83,7 +83,7 @@ def extract_chunks(docs):
 def main():
     """Main entry point."""
     docs = read_json_file(INPUT_PATH, logger)
-    if docs is None:
+    if not docs:
         return
 
     logger.info("Chunking from %d page docs.", len(docs.keys()))
