@@ -1,7 +1,9 @@
-import requests
-from bs4 import BeautifulSoup
+"""Script to fetch and save Jenkins plugin names from the experimental update site."""
+
 import json
 import os
+import requests
+from bs4 import BeautifulSoup
 
 URL = "https://updates.jenkins.io/experimental/latest/"
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -15,7 +17,7 @@ def fetch_plugin_names():
         List[str]: List of raw plugin file names (e.g., 'git.hpi', 'docker-slaves.hpi').
     """
     print("Fetching plugin index page...")
-    response = requests.get(URL)
+    response = requests.get(URL, timeout=10)
     response.raise_for_status()
 
     soup = BeautifulSoup(response.content, "html.parser")
@@ -35,6 +37,11 @@ def fetch_plugin_names():
     return plugin_list
 
 def save_plugin_names(plugin_names_with_extension):
+    """Remove `.hpi` extensions and save plugin names to a JSON file.
+
+    Args:
+        plugin_names_with_extension (list[str]): List of plugin filenames with `.hpi` extension.
+    """
     plugin_names = [plugin_name[0:-4] for plugin_name in plugin_names_with_extension]
 
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
