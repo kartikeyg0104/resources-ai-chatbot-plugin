@@ -3,7 +3,7 @@
 
 import os
 import re
-from utils import(
+from chunking_utils import(
     get_logger,
     assign_code_blocks_to_chunks,
     save_chunks,

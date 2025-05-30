@@ -3,7 +3,7 @@
 
 import os
 from bs4 import BeautifulSoup
-from utils import(
+from chunking_utils import(
     extract_code_blocks,
     extract_title,
     get_logger,
