@@ -1,14 +1,16 @@
 """Chunk StackOverflow threads into structured blocks with metadata."""
+# pylint: disable=R0801
 
 import os
-import json
-import uuid
 from bs4 import BeautifulSoup
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from utils import(
     extract_code_blocks,
     get_logger,
-    assign_code_blocks_to_chunks
+    assign_code_blocks_to_chunks,
+    save_chunks,
+    read_json_file,
+    build_chunk_dict,
+    get_text_splitter
 )
 
 logger = get_logger()
@@ -70,10 +72,9 @@ def process_thread(thread, text_splitter):
     processed_chunks = assign_code_blocks_to_chunks(chunks,code_blocks, r"\[\[CODE_BLOCK_(\d+)\]\]")
 
     return [
-        {
-            "id": str(uuid.uuid4()),
-            "chunk_text": chunk["chunk_text"],
-            "metadata": {
+        build_chunk_dict(
+            chunk["chunk_text"],
+            {
                 "data_source": "stackoverflow_threads",
                 "question_id": question_id,
                 "title": thread.get("Question Title", "Untitled"),
@@ -82,8 +83,8 @@ def process_thread(thread, text_splitter):
                 "question_score": thread.get("Question Score", 0),
                 "answer_score": thread.get("Answer Score", 0)
             },
-            "code_blocks": chunk["code_blocks"]
-        }
+            chunk["code_blocks"]
+        )
         for chunk in processed_chunks
     ]
 
@@ -98,11 +99,7 @@ def extract_chunks(threads):
         list[dict]: All extracted chunks from all threads.
     """
     all_chunks = []
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=CHUNK_SIZE,
-        chunk_overlap= CHUNK_OVERLAP,
-        separators=["\n\n", "\n", " ", ""]
-    )
+    text_splitter = get_text_splitter(CHUNK_SIZE, CHUNK_OVERLAP)
 
     for thread in threads:
         chunks = process_thread(thread, text_splitter)
@@ -112,27 +109,14 @@ def extract_chunks(threads):
 
 def main():
     """Main entry point."""
-    try:
-        with open(INPUT_PATH, "r", encoding="utf-8") as f:
-            threads = json.load(f)
-    except (FileNotFoundError, OSError) as e:
-        logger.error("File error while reading %s: %s", INPUT_PATH, e)
-        return
-    except json.JSONDecodeError as e:
-        logger.error("JSON decode error in %s: %s", INPUT_PATH, e)
+    threads = read_json_file(INPUT_PATH, logger)
+    if threads is None:
         return
 
     logger.info("Chunking from %d stackoverflow threads.", len(threads))
     all_chunks = extract_chunks(threads)
 
-    try:
-        with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
-            json.dump(all_chunks, f, ensure_ascii=False, indent=2)
-    except OSError as e:
-        logger.error("File error while  writing %s: %s", OUTPUT_PATH, e)
-        return
-
-    logger.info("Saved %d thread chunks to %s", len(all_chunks), OUTPUT_PATH)
+    save_chunks(OUTPUT_PATH, all_chunks, logger)
 
 if __name__ == "__main__":
     main()
