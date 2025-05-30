@@ -1,5 +1,7 @@
 export interface Message {
     id: number;
-    sender: 'user' | 'jenkins-bot';
+    sender: Sender;
     text: string;
 }
+
+export type Sender = 'user' | 'jenkins-bot';

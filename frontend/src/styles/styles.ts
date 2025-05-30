@@ -1,0 +1,74 @@
+import { type CSSProperties } from 'react';
+
+export const chatbotStyles = {  
+  toggleButton: {
+    position: 'fixed',
+    bottom: '3rem',
+    right: '2rem',
+    zIndex: 1000,
+    borderRadius: '50%',
+    width: '60px',
+    height: '60px',
+    backgroundColor: '#0073e6',
+    color: 'white',
+    fontSize: '24px',
+    border: 'none',
+    cursor: 'pointer',
+  } as CSSProperties,
+
+  container: {
+    position: 'fixed',
+    bottom: '6rem',
+    right: '2rem',
+    width: '360px',
+    height: '480px',
+    backgroundColor: 'white',
+    border: '1px solid #ccc',
+    borderRadius: '10px',
+    display: 'flex',
+    flexDirection: 'column',
+    zIndex: 999,
+    boxShadow: '0 0 20px rgba(0,0,0,0.2)',
+  } as CSSProperties,
+
+  input: {
+    width: '100%',
+    padding: '0.5rem',
+    borderRadius: '6px',
+    border: '1px solid #ccc',
+    fontSize: '14px',
+  } as CSSProperties,
+
+  chatbotHeader: {
+    padding: '1rem',
+    borderBottom: '1px solid #eee',
+    fontWeight: 'bold',
+    fontSize: '16px',
+    backgroundColor: '#f5f5f5',
+  } as CSSProperties,
+
+  messagesMain: {
+    flex: 1,
+    padding: '0.75rem',
+    overflowY: 'auto',
+    fontSize: '14px',
+  } as CSSProperties,
+
+  messageContainer: (sender: 'user' | 'jenkins-bot'): CSSProperties => ({
+    marginBottom: '0.5rem',
+    textAlign: sender === 'user' ? 'right' : 'left',
+  } as CSSProperties),
+
+  messageBubble: (sender: 'user' | 'jenkins-bot'): CSSProperties => ({
+    display: 'inline-block',
+    padding: '0.5rem 0.75rem',
+    borderTopLeftRadius: sender === 'user' ? 20 : 6,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: sender === 'user' ? 6 : 20,
+    backgroundColor: sender === 'user' ? '#0073e6' : '#2d2d2d',
+    color: sender === 'user' ? '#fff' : '#f0f0f0',
+    maxWidth: '80%',
+    wordWrap: 'break-word',
+  } as CSSProperties),
+};
