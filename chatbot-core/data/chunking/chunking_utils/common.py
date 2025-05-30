@@ -33,13 +33,15 @@ def build_chunk_dict(chunk_text, metadata, code_blocks):
         "code_blocks": code_blocks
     }
 
-def get_text_splitter(chunk_size, chunk_overlap):
+def get_text_splitter(chunk_size, chunk_overlap, separators=None):
     """
     Creates and returns a RecursiveCharacterTextSplitter with given parameters.
 
     Args:
         chunk_size (int): Maximum size of each text chunk.
         chunk_overlap (int): Number of overlapping characters between chunks.
+        separators (list[str], optional): Custom list of separators for splitting.
+                                          If None or empty, uses a default strategy.
 
     Returns:
         RecursiveCharacterTextSplitter: Configured text splitter instance.
@@ -47,5 +49,5 @@ def get_text_splitter(chunk_size, chunk_overlap):
     return RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
-        separators=["\n\n", "\n", " ", ""]
+        separators=separators or ["\n\n", "\n", " ", ""]
     )
