@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { type Message } from '../model/Message';
+import { type Message, type Sender } from '../model/Message';
 import { chatbotStyles } from '../styles/styles';
 import { getChatbotText } from '../data/chatbotTexts';
 
@@ -15,7 +15,7 @@ export const Messages = ({ messages, loading }: MessagesProps) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const renderMessage = (text: string, sender: 'user' | 'jenkins-bot', key: React.Key) => (
+  const renderMessage = (text: string, sender: Sender, key: React.Key) => (
     <div key={key} style={chatbotStyles.messageContainer(sender)}>
       <span style={chatbotStyles.messageBubble(sender)}>
         {text.split('\n').map((line, i) => (

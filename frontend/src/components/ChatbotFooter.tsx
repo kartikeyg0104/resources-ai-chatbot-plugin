@@ -6,6 +6,7 @@ import { Messages } from './Messages';
 import { Input } from './Input';
 import { chatbotStyles } from '../styles/styles';
 import { getChatbotText } from '../data/chatbotTexts';
+import { v4 as uuidv4 } from 'uuid';
 
 export const ChatbotFooter = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +23,7 @@ export const ChatbotFooter = () => {
     if (!trimmed) return;
 
     const userMessage: Message = {
-      id: messages.length + 1,
+      id: uuidv4(),
       sender: 'user',
       text: trimmed,
     };
@@ -49,9 +50,7 @@ export const ChatbotFooter = () => {
         <div
            style={chatbotStyles.container}
         >
-          <Header 
-            clearMessages={clearMessages}
-          />
+          <Header clearMessages={clearMessages} />
           <Messages messages={messages} loading={loading} />
           <Input input={input} setInput={setInput} onSend={sendMessage} />
         </div>

@@ -4,5 +4,7 @@
   "placeholder": "Type your message...",
   "noInputWarningMessage": "Please enter a message before sending.",
   "generatingMessage": "Generating...",
-  "clearChat": "Clear chat"
+  "clearChat": "Clear chat",
+  "errorMessage": "Sorry, I had trouble responding.",
+  "noResponseMessage": "No response"
 }
