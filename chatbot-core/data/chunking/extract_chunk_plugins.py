@@ -50,14 +50,15 @@ def process_plugin(plugin_name, html, text_splitter):
             "Extracted %d code blocks for %s but no placeholders found in text. "
             "Possible issue with placeholder insertion.",
             len(code_blocks),
-            url
+            plugin_name
         )
     chunks = text_splitter.split_text(text)
 
     processed_chunks = assign_code_blocks_to_chunks(
         chunks,
         code_blocks,
-        CODE_BLOCK_PLACEHOLDER_PATTERN
+        CODE_BLOCK_PLACEHOLDER_PATTERN,
+        logger
     )
 
     return [

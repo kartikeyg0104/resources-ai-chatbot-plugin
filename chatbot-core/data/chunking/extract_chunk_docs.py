@@ -59,7 +59,8 @@ def process_page(url, html, text_splitter):
     processed_chunks = assign_code_blocks_to_chunks(
         chunks,
         code_blocks,
-        CODE_BLOCK_PLACEHOLDER_PATTERN
+        CODE_BLOCK_PLACEHOLDER_PATTERN,
+        logger
     )
 
     return [

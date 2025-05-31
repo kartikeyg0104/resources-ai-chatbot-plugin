@@ -44,7 +44,7 @@ def extract_code_blocks(soup, tag, placeholder_template):
         code_block.replace_with(NavigableString(placeholder))
     return code_blocks
 
-def assign_code_blocks_to_chunks(chunks, code_blocks, placeholder_pattern):
+def assign_code_blocks_to_chunks(chunks, code_blocks, placeholder_pattern, logger):
     """
     Assigns relevant code blocks to each chunk based on placeholder references.
     
@@ -60,8 +60,25 @@ def assign_code_blocks_to_chunks(chunks, code_blocks, placeholder_pattern):
 
     for chunk in chunks:
         matches = re.findall(placeholder_pattern, chunk)
-        indices = sorted(set(int(i) for i in matches))
-        chunk_code_blocks = [code_blocks[i] for i in indices if i < len(code_blocks)]
+        indices = set()
+
+        for match in matches:
+            try:
+                idx = int(match)
+                if idx < len(code_blocks):
+                    indices.add(idx)
+                else:
+                    logger.warning(
+                        "Placeholder index %d out of range (max index %d). Skipping.",
+                        idx, len(code_blocks) - 1
+                    )
+            except ValueError:
+                logger.warning(
+                    "Malformed placeholder index: '%s'. Skipping.",
+                    match
+                )
+
+        chunk_code_blocks = [code_blocks[i] for i in sorted(indices)]
 
         processed_chunks.append({
             "chunk_text": chunk,
