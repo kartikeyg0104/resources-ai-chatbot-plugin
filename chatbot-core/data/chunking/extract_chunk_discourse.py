@@ -47,7 +47,7 @@ def extract_code_blocks(text):
         placeholder_counter += 1
         return placeholder
 
-    text = re.sub(r"```(.*?)```", replace_triple, text, flags=re.DOTALL)
+    text = re.sub(r"```(?:\w+\n)?(.*?)```", replace_triple, text, flags=re.DOTALL)
 
     # Replace inline backtick code with indexed placeholders
     def replace_inline(match):

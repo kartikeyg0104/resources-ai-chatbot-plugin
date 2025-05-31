@@ -44,7 +44,7 @@ def process_page(url, html, text_splitter):
     title = extract_title(soup)
     code_blocks = extract_code_blocks(soup, "pre")
 
-    text = soup.get_text(separator=" ", strip=True)
+    text = soup.get_text(separator="\n", strip=True)
     chunks = text_splitter.split_text(text)
 
     processed_chunks = assign_code_blocks_to_chunks(

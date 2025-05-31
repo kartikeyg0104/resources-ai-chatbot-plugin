@@ -67,7 +67,7 @@ def process_thread(thread, text_splitter):
 
     code_blocks = extract_code_blocks(soup, "code")
 
-    full_text = soup.get_text(separator=" ", strip=True)
+    full_text = soup.get_text(separator="\n", strip=True)
 
     chunks = text_splitter.split_text(full_text)
     processed_chunks = assign_code_blocks_to_chunks(
