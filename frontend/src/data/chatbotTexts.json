@@ -6,5 +6,6 @@
   "generatingMessage": "Generating...",
   "clearChat": "Clear chat",
   "errorMessage": "Sorry, I had trouble responding.",
-  "noResponseMessage": "No response"
+  "noResponseMessage": "No response",
+  "sendMessage": "Send"
 }

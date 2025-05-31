@@ -40,11 +40,14 @@ export const chatbotStyles = {
   // Input
   inputContainer: {
     padding: '0.75rem',
-    borderTop: '1px solid #eee' 
-  },
+    borderTop: '1px solid #eee',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  } as CSSProperties,
 
   input: {
-    width: '100%',
+    width: '85%',
     padding: '0.5rem',
     borderRadius: '6px',
     border: '1px solid #ccc',
@@ -59,6 +62,17 @@ export const chatbotStyles = {
     overflow: 'auto',
     lineHeight: '1.5',
   } as CSSProperties,
+
+  sendButton: (input: string): CSSProperties => ({
+    width: '14%',
+    padding: '0.5rem 1rem',
+    backgroundColor: '#0073e6',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: input.trim() ? 'pointer' : 'not-allowed',
+    opacity: input.trim() ? 1 : 0.5,
+  }) as CSSProperties,
 
   //Header
 

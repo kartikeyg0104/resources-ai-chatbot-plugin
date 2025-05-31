@@ -364,7 +364,7 @@ To build and run the frontend as part of the Jenkins plugin:
 
 ### Using the Chatbot in Jenkins
 
-Once Jenkins is running at [http://localhost:8080](http://localhost:8080):
+Once Jenkins is running:
 
 - Look for a 💬 button in the **bottom-right corner**.
 - Click it to toggle the chatbot panel.
@@ -375,3 +375,34 @@ Once Jenkins is running at [http://localhost:8080](http://localhost:8080):
   - Clear the conversation with the **"Clear chat"** button in the header
 - Messages **persist on page refresh** (within the same session) but are **cleared when the tab or browser is closed**.
 
+### UI Integration in Jenkins
+
+To inject the React-based chatbot into the Jenkins interface, the plugin uses a `PageDecorator` extension along with a Jelly template. In this way the chatbot is injected globally across all pages in Jenkins.
+
+#### `ChatbotGlobalDecorator.java`
+
+This java file is placed in:
+
+```
+src/main/java/io/jenkins/plugins/chatbot/ChatbotGlobalDecorator.java
+```
+
+The `ChatbotGlobalDecorator` is a Jenkins extension that allows injecting custom HTML or scripts into the global page layout.
+
+This registers a decorator that looks for a corresponding Jelly template to render additional content on all pages.
+
+#### Jelly: `footer.jelly`
+
+The Jelly file is placed in:
+
+```
+src/main/resources/io/jenkins/plugins/chatbot/ChatbotGlobalDecorator/footer.jelly
+```
+
+Its purpose is to inject the React root element and the compiled JavaScript bundle (built with Vite) into the page:
+
+- `<div id="chatbot-root"></div>` serves as the mount point for the React application.
+- The script loads the compiled JavaScript file from the plugin's static resources:
+  ```
+  src/main/webapp/static/assets/index.js
+  ```

@@ -33,6 +33,13 @@ export const Input = ({ input, setInput, onSend }: InputProps) => {
         onKeyDown={handleKeyDown}
         style={chatbotStyles.input}
       />
+      <button
+        onClick={onSend}
+        disabled={!input.trim()}
+        style={chatbotStyles.sendButton(input)}
+      >
+        {getChatbotText('sendMessage')}
+      </button>
     </div>
   );
 };
