@@ -3,11 +3,20 @@ import { type Message, type Sender } from '../model/Message';
 import { chatbotStyles } from '../styles/styles';
 import { getChatbotText } from '../data/chatbotTexts';
 
+/**
+ * Props for the Messages component.
+ */
 interface MessagesProps {
   messages: Message[];
   loading: boolean;
 }
 
+/**
+ * Messages is responsible for rendering the chat conversation thread,
+ * including both user and bot messages. It also displays the loading message
+ * message when the bot is generating a response and automatically scrolls
+ * to the newest message on update.
+ */
 export const Messages = ({ messages, loading }: MessagesProps) => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 

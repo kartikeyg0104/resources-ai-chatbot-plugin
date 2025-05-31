@@ -1,7 +1,12 @@
 import { type CSSProperties } from 'react';
 
+/**
+ * Styles used throughout the chatbot UI components.
+ * These are organized by component responsibility
+ * (e.g. Chatbot, Input, Header, Messages).
+ */
 export const chatbotStyles = {  
-  // ChatbotFooter
+  // Chatbot
   toggleButton: {
     position: 'fixed',
     bottom: '3rem',

@@ -8,9 +8,17 @@ import { chatbotStyles } from '../styles/styles';
 import { getChatbotText } from '../data/chatbotTexts';
 import { v4 as uuidv4 } from 'uuid';
 
-export const ChatbotFooter = () => {
+/**
+ * Chatbot is the core component responsible for managing the chatbot display.
+ */
+export const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
+
+  /**
+   * Messages shown in the chat.
+   * Initialized from sessionStorage to keep messages between refreshes.
+   */
   const [messages, setMessages] = useState<Message[]>(() => {
     const saved = sessionStorage.getItem('chatbot-messages');
     return saved ? JSON.parse(saved) : [];
