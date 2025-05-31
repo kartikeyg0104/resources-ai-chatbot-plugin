@@ -3,5 +3,7 @@
   "title": "Jenkins AI Assistant",
   "placeholder": "Type your message...",
   "botReplyPrefix": "🤖 You said: ",
-  "noInputWarningMessage": "Please enter a message before sending."
+  "noInputWarningMessage": "Please enter a message before sending.",
+  "generatingMessage": "Generating...",
+  "clearChat": "Clear chat"
 }

@@ -5,6 +5,7 @@ import { Header } from './Header';
 import { Messages } from './Messages';
 import { Input } from './Input';
 import { chatbotStyles } from '../styles/styles';
+import { getChatbotText } from '../data/chatbotTexts';
 
 export const ChatbotFooter = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +42,7 @@ export const ChatbotFooter = () => {
         onClick={() => setIsOpen(!isOpen)}
         style={chatbotStyles.toggleButton}
       >
-        💬
+        {getChatbotText("toggleButtonLabel")}
       </button>
 
       {isOpen && (

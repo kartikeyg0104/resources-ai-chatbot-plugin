@@ -17,20 +17,13 @@ export const Input = ({ input, setInput, onSend }: InputProps) => {
   };
 
   return (
-    <div style={{ padding: '0.75rem', borderTop: '1px solid #eee' }}>
+    <div style={chatbotStyles.inputContainer}>
       <textarea
         value={input}
         placeholder={getChatbotText('placeholder')}
         onChange={e => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
-        style={{
-          ...chatbotStyles.input,
-          minHeight: '60px',
-          maxHeight: '150px',
-          resize: 'none',
-          overflow: 'auto',
-          lineHeight: '1.5',
-        }}
+        style={chatbotStyles.input}
       />
     </div>
   );

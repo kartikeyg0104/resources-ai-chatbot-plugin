@@ -12,15 +12,9 @@ export const Header = ({ clearMessages }: HeaderProps) => (
       <p>{getChatbotText('title')}</p>
       <button
         onClick={clearMessages}
-        style={{
-          backgroundColor: 'transparent',
-          border: 'none',
-          color: 'black',
-          cursor: 'pointer',
-          fontSize: '14px',
-        }}
+        style={chatbotStyles.clearButton}
       >
-        Clear chat
+        {getChatbotText("clearChat")}
     </button>
   </div>
 );

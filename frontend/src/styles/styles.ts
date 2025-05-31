@@ -31,6 +31,11 @@ export const chatbotStyles = {
     boxShadow: '0 0 20px rgba(0,0,0,0.2)',
   } as CSSProperties,
 
+  inputContainer: {
+    padding: '0.75rem',
+    borderTop: '1px solid #eee' 
+  },
+
   input: {
     width: '100%',
     padding: '0.5rem',
@@ -41,6 +46,11 @@ export const chatbotStyles = {
     boxSizing: 'border-box',
     scrollbarWidth: 'none',
     msOverflowStyle: 'none',
+    minHeight: '60px',
+    maxHeight: '150px',
+    resize: 'none',
+    overflow: 'auto',
+    lineHeight: '1.5',
   } as CSSProperties,
 
   chatbotHeader: {
@@ -53,6 +63,14 @@ export const chatbotStyles = {
     fontSize: '16px',
     backgroundColor: '#f5f5f5',
   } as CSSProperties,
+
+  clearButton: {
+    backgroundColor: 'transparent',
+    border: 'none',
+    color: 'black',
+    cursor: 'pointer',
+    fontSize: '14px',
+  },
 
   messagesMain: {
     flex: 1,

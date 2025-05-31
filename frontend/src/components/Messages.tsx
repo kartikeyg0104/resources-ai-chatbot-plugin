@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { type Message } from '../model/Message';
 import { chatbotStyles } from '../styles/styles';
+import { getChatbotText } from '../data/chatbotTexts';
 
 interface MessagesProps {
   messages: Message[];
@@ -42,7 +43,7 @@ export const Messages = ({ messages, loading }: MessagesProps) => {
           <span
             style={chatbotStyles.messageBubble('jenkins-bot')}
           >
-            Generating...
+            {getChatbotText("generatingMessage")}
           </span>
         </div>
       }
