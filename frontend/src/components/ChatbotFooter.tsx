@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { type Message } from '../model/Message';
 import { fetchChatbotReply } from '../api/chatbot';
 import { Header } from './Header';
@@ -11,8 +11,15 @@ import { v4 as uuidv4 } from 'uuid';
 export const ChatbotFooter = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const saved = sessionStorage.getItem('chatbot-messages');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    sessionStorage.setItem('chatbot-messages', JSON.stringify(messages));
+  }, [messages]);
 
   const clearMessages = () => {
     setMessages([]);
