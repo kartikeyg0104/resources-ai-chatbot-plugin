@@ -23,6 +23,7 @@ OUTPUT_PATH = os.path.join(SCRIPT_DIR, "..", "processed", "chunks_docs.json")
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 100
 CODE_BLOCK_PLACEHOLDER_PATTERN = r"\[\[CODE_BLOCK_(\d+)\]\]"
+PLACEHOLDER_TEMPLATE = "[[CODE_BLOCK_{}]]"
 
 def process_page(url, html, text_splitter):
     """
@@ -42,9 +43,17 @@ def process_page(url, html, text_splitter):
     """
     soup = BeautifulSoup(html, "lxml")
     title = extract_title(soup)
-    code_blocks = extract_code_blocks(soup, "pre")
+    code_blocks = extract_code_blocks(soup, "pre", PLACEHOLDER_TEMPLATE)
 
     text = soup.get_text(separator="\n", strip=True)
+    # Validate that the placeholders are not removed if code blocks were extracted
+    if code_blocks and PLACEHOLDER_TEMPLATE.format(0) not in text:
+        logger.warning(
+            "Extracted %d code blocks for %s but no placeholders found in text. "
+            "Possible issue with placeholder insertion.",
+            len(code_blocks),
+            url
+        )
     chunks = text_splitter.split_text(text)
 
     processed_chunks = assign_code_blocks_to_chunks(

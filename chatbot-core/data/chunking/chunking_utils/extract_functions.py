@@ -1,8 +1,7 @@
 """Functions for extracting titles and code blocks from HTML content."""
 
 import re
-
-PLACEHOLDER_TEMPLATE = "[[CODE_BLOCK_{}]]"
+from bs4 import NavigableString
 
 def extract_title(soup):
     """
@@ -26,7 +25,7 @@ def extract_title(soup):
         return soup.title.get_text(strip=True)
     return "Untitled"
 
-def extract_code_blocks(soup, tag):
+def extract_code_blocks(soup, tag, placeholder_template):
     """
     Extracts all code blocks of a specified HTML tag (e.g., <pre>, <code>),
     replaces them with numbered placeholders, and returns the list of raw code strings.
@@ -40,9 +39,9 @@ def extract_code_blocks(soup, tag):
     """
     code_blocks = []
     for i, code_block in enumerate(soup.find_all(tag)):
-        placeholder = PLACEHOLDER_TEMPLATE.format(i)
+        placeholder = placeholder_template.format(i)
         code_blocks.append(code_block.get_text(strip=True))
-        code_block.replace_with(placeholder)
+        code_block.replace_with(NavigableString(placeholder))
     return code_blocks
 
 def assign_code_blocks_to_chunks(chunks, code_blocks, placeholder_pattern):

@@ -21,6 +21,8 @@ OUTPUT_PATH = os.path.join(SCRIPT_DIR, "..", "processed", "chunks_discourse_docs
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 100
 CODE_BLOCK_PLACEHOLDER_PATTERN = r"\[\[(?:CODE_BLOCK|CODE_SNIPPET)_(\d+)\]\]"
+TRIPLE_BACKTICK_CODE_PATTERN = r"```(?:\w+\n)?(.*?)```"
+INLINE_BACKTICK_CODE_PATTERN = r"`([^`\n]+?)`"
 
 def extract_code_blocks(text):
     """
@@ -47,7 +49,7 @@ def extract_code_blocks(text):
         placeholder_counter += 1
         return placeholder
 
-    text = re.sub(r"```(?:\w+\n)?(.*?)```", replace_triple, text, flags=re.DOTALL)
+    text = re.sub(TRIPLE_BACKTICK_CODE_PATTERN, replace_triple, text, flags=re.DOTALL)
 
     # Replace inline backtick code with indexed placeholders
     def replace_inline(match):
@@ -58,7 +60,7 @@ def extract_code_blocks(text):
         placeholder_counter += 1
         return placeholder
 
-    text = re.sub(r"`([^`\n]+?)`", replace_inline, text)
+    text = re.sub(INLINE_BACKTICK_CODE_PATTERN, replace_inline, text)
 
     return code_blocks, text
 
