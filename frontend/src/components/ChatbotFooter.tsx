@@ -16,6 +16,7 @@ export const ChatbotFooter = () => {
 
   const clearMessages = () => {
     setMessages([]);
+    // Once backend is ready, add logic to clear history chat
   };
 
   const sendMessage = async () => {

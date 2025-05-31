@@ -92,7 +92,7 @@ export const chatbotStyles = {
 
   messageBubble: (sender: 'user' | 'jenkins-bot'): CSSProperties => ({
     display: 'inline-block',
-    padding: '0.5rem 0.75rem',
+    padding: '0.75rem 1rem',
     borderTopLeftRadius: sender === 'user' ? 20 : 6,
     borderTopRightRadius: 20,
     borderBottomLeftRadius: 20,
@@ -101,5 +101,6 @@ export const chatbotStyles = {
     color: sender === 'user' ? '#fff' : '#f0f0f0',
     maxWidth: '80%',
     wordWrap: 'break-word',
+    fontSize: '1rem'
   } as CSSProperties),
 };
