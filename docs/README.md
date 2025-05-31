@@ -330,8 +330,9 @@ The chatbot UI is built using the following technologies:
   - `package.json`: NPM metadata and scripts
 
 ### Setup and Use
-
-> These steps will build the React frontend and launch the Jenkins plugin locally with the chatbot integrated.
+> **Note**:  
+> It is encouraged to use the latest**Node.js LTS** (project built with Node 24).  
+> Ensure `npm` is available in your environment.
 
 To build and run the frontend as part of the Jenkins plugin:
 
