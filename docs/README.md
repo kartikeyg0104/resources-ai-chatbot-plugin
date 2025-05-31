@@ -334,6 +334,7 @@ This script performs chunking on the Jenkins documentation using a recursive spl
 
 - Uses `RecursiveCharacterTextSplitter` from LangChain.
 - Chunks are approximately **500 characters long** with **100 characters of overlap**.
+- HTML is parsed with BeautifulSoup, and the text is extracted using `get_text()`, with separator as `\n`.
 - Splitting is done using a hierarchy of separators: `\n\n`, `\n`, space, and character level.
 
 #### Code Block Handling
@@ -375,6 +376,7 @@ This script processes the pre-cleaned plugin documentation and splits it into co
 
 - Uses `RecursiveCharacterTextSplitter` from LangChain.
 - Chunks are roughly **500 characters** long with **100 characters of overlap**.
+- HTML is parsed with BeautifulSoup, and the text is extracted using `get_text()`, with separator as `\n`.
 - Splits text using prioritized separators: paragraph breaks (`\n\n`), single newlines (`\n`), spaces, and individual characters.
 
 #### Code Block Handling
@@ -420,6 +422,7 @@ This script processes cleaned Discourse threads by concatenating the posts, extr
 - The script identifies both:
   - **Multiline code blocks** 
   - **Inline code snippets**
+- Code blocks are identified using regex patterns.
 - Code blocks are replaced with placeholder tokens before chunking.
 - Code blocks are listed under the `code_blocks` field in each chunk.
 
@@ -453,7 +456,7 @@ This script takes the filtered StackOverflow data, parses the HTML from both que
 #### Chunking Strategy
 
 - Questions and accepted answers are concatenated into a single text block.
-- HTML is parsed with BeautifulSoup, and the text is extracted using `get_text()`.
+- HTML is parsed with BeautifulSoup, and the text is extracted using `get_text()`, with separator as `\n`.
 - Uses `RecursiveCharacterTextSplitter` from LangChain to generate chunks:
   - **500 characters per chunk**
   - **100 character overlap**
@@ -462,7 +465,7 @@ This script takes the filtered StackOverflow data, parses the HTML from both que
 #### Code Block Handling
 
 - Extracts `<code>` blocks from the HTML content.
-- Code blocks are temporarily replaced with placeholders (`[[CODE_BLOCK_n]]`) before chunking.
+- Code blocks are temporarily replaced with placeholders (the format is defined by `PLACEHOLDER_TEMPLATE`; e.g `[[CODE_BLOCK_n]]`) before chunking.
 - Post-chunking, the placeholders are matched back to their original code snippets and added under `code_blocks`.
 
 #### Metadata Included in Each Chunk
