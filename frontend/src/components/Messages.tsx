@@ -15,38 +15,23 @@ export const Messages = ({ messages, loading }: MessagesProps) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const renderMessage = (text: string, sender: 'user' | 'jenkins-bot', key: React.Key) => (
+    <div key={key} style={chatbotStyles.messageContainer(sender)}>
+      <span style={chatbotStyles.messageBubble(sender)}>
+        {text.split('\n').map((line, i) => (
+          <React.Fragment key={i}>
+            {line}
+            <br />
+          </React.Fragment>
+        ))}
+      </span>
+    </div>
+  );
+
   return (
-    <div
-      style={chatbotStyles.messagesMain}
-    >
-      {messages.map(msg => (
-        <div
-          key={msg.id}
-          style={chatbotStyles.messageContainer(msg.sender)}
-        >
-          <span
-            style={chatbotStyles.messageBubble(msg.sender)}
-          >
-            {msg.text.split('\n').map((line, i) => (
-            <React.Fragment key={i}>
-              {line}
-              <br />
-            </React.Fragment>
-          ))}
-          </span>
-        </div>
-      ))}
-      {loading &&
-        <div
-          style={chatbotStyles.messageContainer('jenkins-bot')}
-        >
-          <span
-            style={chatbotStyles.messageBubble('jenkins-bot')}
-          >
-            {getChatbotText("generatingMessage")}
-          </span>
-        </div>
-      }
+    <div style={chatbotStyles.messagesMain}>
+      {messages.map(msg => renderMessage(msg.text, msg.sender, msg.id))}
+      {loading && renderMessage(getChatbotText('generatingMessage'), 'jenkins-bot', 'loading')}
       <div ref={messagesEndRef} />
     </div>
   );

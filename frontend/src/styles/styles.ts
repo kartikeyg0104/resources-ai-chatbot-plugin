@@ -1,6 +1,7 @@
 import { type CSSProperties } from 'react';
 
 export const chatbotStyles = {  
+  // ChatbotFooter
   toggleButton: {
     position: 'fixed',
     bottom: '3rem',
@@ -31,6 +32,7 @@ export const chatbotStyles = {
     boxShadow: '0 0 20px rgba(0,0,0,0.2)',
   } as CSSProperties,
 
+  // Input
   inputContainer: {
     padding: '0.75rem',
     borderTop: '1px solid #eee' 
@@ -53,6 +55,8 @@ export const chatbotStyles = {
     lineHeight: '1.5',
   } as CSSProperties,
 
+  //Header
+
   chatbotHeader: {
     display: 'flex',
     flexDirection: 'row',
@@ -71,6 +75,8 @@ export const chatbotStyles = {
     cursor: 'pointer',
     fontSize: '14px',
   },
+
+  // Messages
 
   messagesMain: {
     flex: 1,
