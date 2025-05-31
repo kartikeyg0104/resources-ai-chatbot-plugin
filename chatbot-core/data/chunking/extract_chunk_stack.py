@@ -21,6 +21,7 @@ OUTPUT_PATH = os.path.join(SCRIPT_DIR, "..", "processed", "chunks_stackoverflow_
 
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 100
+CODE_BLOCK_PLACEHOLDER_PATTERN = r"\[\[CODE_BLOCK_(\d+)\]\]"
 
 def clean_html(html):
     """
@@ -69,7 +70,11 @@ def process_thread(thread, text_splitter):
     full_text = soup.get_text(separator=" ", strip=True)
 
     chunks = text_splitter.split_text(full_text)
-    processed_chunks = assign_code_blocks_to_chunks(chunks,code_blocks, r"\[\[CODE_BLOCK_(\d+)\]\]")
+    processed_chunks = assign_code_blocks_to_chunks(
+        chunks,
+        code_blocks,
+        CODE_BLOCK_PLACEHOLDER_PATTERN
+    )
 
     return [
         build_chunk_dict(
