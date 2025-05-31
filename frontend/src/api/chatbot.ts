@@ -17,7 +17,7 @@ export const fetchChatbotReply = async (userMessage: string): Promise<Message> =
     const data = await response.json();
 
     return {
-      id: Date.now(), // You could use UUID or server-generated ID if needed
+      id: Date.now(), // Later use UUID
       sender: 'jenkins-bot',
       text: data.reply || 'No response',
     };
