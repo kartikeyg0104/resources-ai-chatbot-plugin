@@ -7,8 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "build:jenkins": "npm run build && cp -r dist/* ../src/main/webapp/static/"
+    "preview": "vite preview"
   },
   "dependencies": {
     "react": "^19.1.0",

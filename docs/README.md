@@ -532,7 +532,7 @@ To build and run the frontend as part of the Jenkins plugin:
 
 3. Build the frontend and copy the output to Jenkins:
     ```bash
-    npm run build:jenkins
+    npm run build
     ```
 
     This command builds the frontend using Vite and copies the compiled assets to:
