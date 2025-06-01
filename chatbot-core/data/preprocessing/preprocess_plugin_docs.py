@@ -3,7 +3,7 @@
 import json
 import os
 from bs4 import BeautifulSoup
-from preprocessing_utils import (
+from data.preprocessing.preprocessing_utils import (
     remove_tags,
     remove_html_comments,
     get_visible_text_length,

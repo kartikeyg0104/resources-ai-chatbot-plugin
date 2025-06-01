@@ -3,7 +3,7 @@
 
 import os
 from bs4 import BeautifulSoup
-from chunking_utils import(
+from data.chunking.chunking_utils import(
     extract_code_blocks,
     extract_title,
     assign_code_blocks_to_chunks,

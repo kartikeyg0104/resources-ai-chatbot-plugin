@@ -3,7 +3,7 @@
 
 import os
 import re
-from chunking_utils import(
+from data.chunking.chunking_utils import(
     assign_code_blocks_to_chunks,
     save_chunks,
     read_json_file,
