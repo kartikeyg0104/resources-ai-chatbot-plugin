@@ -10,11 +10,12 @@ from preprocessing_utils import (
     remove_html_comments,
     remove_edge_navigation_blocks,
     split_type_docs,
-    get_logger,
     strip_html_body_wrappers
 )
+from utils import LoggerFactory
 
-logger = get_logger()
+logger_factory = LoggerFactory.instance()
+logger = logger_factory.get_logger("preprocessing")
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_DOCS_PATH = os.path.join(SCRIPT_DIR, "..", "raw", "jenkins_docs.json")
