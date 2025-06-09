@@ -17,6 +17,13 @@ Below is a brief explanation of the key subdirectories:
     - `embedding/`: Scripts to embed the chunks.
     - `vectorestore/`: Scripts to store the embeddings into a vector database.
     - `retrieval/`: Scripts to perform the semantic research across the vectore database.
+  - `api/`: FastAPI application that exposes the chatbot via a REST API.
+    - `main.py`: Entry point to run the FastAPI app.
+    - `routes/`: Defines the HTTP endpoints.
+    - `services/`: Contains the business logic, representing the service layer .
+    - `models/`: Contains schemas and LLM interface.
+    - `prompts/`: Utilities for prompt formatting and construction.
+    - `config/`: Loads and provides application configuration (YAML-based).
   - `requirements.txt`: Python dependencies.
 - `docs/`: Developer documentation.
 - `frontend/`: Directory for the frontend React application.
@@ -501,190 +508,6 @@ python data/chunking/extract_chunk_stack.py
 
 Several of the chunking scripts rely on shared helper functions to handle common tasks such as code block extraction, chunk-to-code matching, and title parsing. These utilities are defined in:`chatbot-core/data/chunking/utils/`.
 
-## Chunking
-
-After collecting and preprocessing the raw content from various sources, the next step in the RAG pipeline is **chunking**. This phase involves splitting the cleaned text into smaller, semantically meaningful units that are suitable for embedding and retrieval by the chatbot.
-
-All chunking scripts are located under the directory:`chatbot-core/data/chunking/`
-
-
-Below are the chunking procedures for each data source.
-
----
-
-### Jenkins Documentation
-
-#### Script: `extract_chunk_docs.py`
-
-This script performs chunking on the Jenkins documentation using a recursive splitting strategy and enriches the chunks with extracted code blocks and metadata.
-
-- **Input**:  
-  `filtered_jenkins_docs.json` — Preprocessed Jenkins documentation (in `chatbot-core/data/processed/`)
-
-- **Output**:  
-  `chunks_docs.json` — Chunked documentation with metadata and code snippets (stored in `chatbot-core/data/processed/`)
-
-#### Chunking Strategy
-
-- Uses `RecursiveCharacterTextSplitter` from LangChain.
-- Chunks are approximately **500 characters long** with **100 characters of overlap**.
-- HTML is parsed with BeautifulSoup, and the text is extracted using `get_text()`, with separator as `\n`.
-- Splitting is done using a hierarchy of separators: `\n\n`, `\n`, space, and character level.
-
-#### Code Block Handling
-
-- Code blocks are extracted from `<pre>` tags using BeautifulSoup.
-- The script attempts to reassign these code snippets to the most relevant text chunks using a regex-based system.
-- Each chunk includes a list of its associated `code_blocks`.
-
-#### Metadata Included in Each Chunk
-
-- `chunk_text`: The chunked text.
-- `metadata`: Contains:
-  - `data_source`: `"jenkins_documentation"`
-  - `source_url`: URL of the original documentation page.
-  - `title`: Extracted page title.
-- `code_blocks`: Extracted code snippets relevant to this chunk.
-
-#### To run:
-
-```bash
-python data/chunking/extract_chunk_docs.py
-```
-> **Note**:
-> Ensure `langchain` and the other dependencies in the `requirements.txt` are met in your environment.
-
-### Jenkins Plugin Documentation
-
-#### Script: `extract_chunk_plugins.py`
-
-This script processes the pre-cleaned plugin documentation and splits it into consistent text chunks. It also extracts and associates code blocks with the corresponding text segments when available.
-
-- **Input**:  
-  `processed_plugin_docs.json` — Cleaned plugin documentation HTML (in `chatbot-core/data/processed/`)
-
-- **Output**:  
-  `chunks_plugin_docs.json` — A list of chunked plugin docs with associated metadata (stored in `chatbot-core/data/processed/`)
-
-#### Chunking Strategy
-
-- Uses `RecursiveCharacterTextSplitter` from LangChain.
-- Chunks are roughly **500 characters** long with **100 characters of overlap**.
-- HTML is parsed with BeautifulSoup, and the text is extracted using `get_text()`, with separator as `\n`.
-- Splits text using prioritized separators: paragraph breaks (`\n\n`), single newlines (`\n`), spaces, and individual characters.
-
-#### Code Block Handling
-
-- `<pre>` tags are parsed using BeautifulSoup to extract code snippets.
-- Extracted blocks are reattached to the most relevant chunk using a positional and regex marker strategy.
-- Each chunk includes a `code_blocks` field listing relevant snippets.
-
-#### Metadata Included in Each Chunk
-
-- `chunk_text`: The chunked body of text.
-- `metadata`: Contains:
-  - `data_source`: `"jenkins_plugins_documentation"`
-  - `title`: Plugin name as inferred from the source key.
-- `code_blocks`: Any code blocks found in the original plugin doc and matched to this chunk.
-
-#### To run:
-
-```bash
-python data/chunking/extract_chunk_plugins.py
-```
-
-### Discourse Topics
-
-#### Script: `extract_chunk_discourse.py`
-
-This script processes cleaned Discourse threads by concatenating the posts, extracting code snippets, and splitting the text into semantically coherent chunks. It preserves conversational flow while enriching each chunk with contextual metadata.
-
-- **Input**:  
-  `topics_with_posts.json` — A list of Discourse threads with collected question and answer posts (found in `chatbot-core/data/raw/`)
-
-- **Output**:  
-  `chunks_discourse_docs.json` — List of processed thread chunks, stored in `chatbot-core/data/processed/`
-
-#### Chunking Strategy
-
-- Combines all posts from a thread into a single text block.
-- Uses `RecursiveCharacterTextSplitter` from LangChain to split the content into chunks of roughly **500 characters** with **100 characters overlap**.
-- Text is chunked using prioritized separators: double newline, single newline, space, and then character-level.
-
-#### Code Block Handling
-
-- The script identifies both:
-  - **Multiline code blocks** 
-  - **Inline code snippets**
-- Code blocks are identified using regex patterns.
-- Code blocks are replaced with placeholder tokens before chunking.
-- Code blocks are listed under the `code_blocks` field in each chunk.
-
-#### Metadata Included in Each Chunk
-
-- `chunk_text`: The text content of the chunk.
-- `metadata`: Includes:
-  - `data_source`: `"discourse_threads"`
-  - `topic_id`: Discourse topic ID
-  - `title`: Title of the thread
-- `code_blocks`: Extracted code snippets from the thread text, if any.
-
-#### To run:
-
-```bash
-python data/chunking/extract_chunk_discourse.py
-```
-
-### StackOverflow Threads
-
-#### Script: `extract_chunk_stack.py`
-
-This script takes the filtered StackOverflow data, parses the HTML from both questions and answers, extracts code snippets, and chunks the content into structured units.
-
-- **Input**:  
-  `stack_overflow_threads.json` — Contains structured Q&A pairs with metadata, located in `chatbot-core/data/raw/`
-
-- **Output**:  
-  `chunks_stackoverflow_threads.json` — A list of chunked question-answer pairs, saved in `chatbot-core/data/processed/`
-
-#### Chunking Strategy
-
-- Questions and accepted answers are concatenated into a single text block.
-- HTML is parsed with BeautifulSoup, and the text is extracted using `get_text()`, with separator as `\n`.
-- Uses `RecursiveCharacterTextSplitter` from LangChain to generate chunks:
-  - **500 characters per chunk**
-  - **100 character overlap**
-  - Splitting hierarchy: paragraph (`\n\n`), newline (`\n`), space, and character.
-
-#### Code Block Handling
-
-- Extracts `<code>` blocks from the HTML content.
-- Code blocks are temporarily replaced with placeholders (the format is defined by `PLACEHOLDER_TEMPLATE`; e.g `[[CODE_BLOCK_n]]`) before chunking.
-- Post-chunking, the placeholders are matched back to their original code snippets and added under `code_blocks`.
-
-#### Metadata Included in Each Chunk
-
-- `chunk_text`: Combined question and answer content, chunked.
-- `metadata`: Includes:
-  - `data_source`: `"stackoverflow_threads"`,
-  - `question_id`: StackOverflow question ID
-  - `title`: Question title
-  - `tags`: StackOverflow tags
-  - `creation_date`: Question creation date
-  - `question_score`: Score of the question
-  - `answer_score`: Score of the accepted answer
-- `code_blocks`: Relevant code blocks extracted from the thread
-
-#### To run:
-
-```bash
-python data/chunking/extract_chunk_stack.py
-```
-
-### Utility Functions
-
-Several of the chunking scripts rely on shared helper functions to handle common tasks such as code block extraction, chunk-to-code matching, and title parsing. These utilities are defined in:`chatbot-core/data/chunking/utils/`.
-
 ## Embedding
 
 The embedding-related scripts are located in: `chatbot-core/rag/embedding/`
@@ -798,6 +621,120 @@ Given a query string, this script:
 Provides helper functions for:
 - Loading the FAISS index and associated metadata from disk
 - Performing vector search using a query embedding
+
+## API
+
+This section documents the API component of the chatbot. It exposes the functionality as a RESTful service using FastAPI.
+
+### Starting the server
+
+Before launching the FastAPI server, you must first install the required GGUF model:
+
+1. Download the **Mistral 7B Instruct (v0.2 Q4_K_M)** model from Hugging Face:
+   [https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF](https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF)
+
+2. Place the downloaded `.gguf` file in:
+   ```
+   api/models/mistral/
+   ```
+
+Once the model is in place:
+
+3. Navigate to the project root:
+   ```bash
+   cd chatbot-core
+   ```
+
+4. Activate the virtual environment:
+   ```bash
+   source venv/bin/activate
+   ```
+
+5. Start the server with Uvicorn:
+   ```bash
+   uvicorn api.main:app --reload
+   ```
+
+By default, the API will be available at `http://127.0.0.1:8000`.
+
+### Available Endpoints
+
+Here’s a summary of the API routes and their expected request/response structures:
+
+#### `POST /api/chatbot/sessions`
+
+Creates a new chat session.
+
+**Response:**
+```json
+{
+  "session_id": "string"
+}
+```
+
+#### `POST /api/chatbot/sessions/{session_id}/message`
+
+Sends a user message to the chatbot and receives a generated response.
+
+**Request body:**
+```json
+{
+  "message": "string"
+}
+```
+
+**Response:**
+```json
+{
+  "reply": "string"
+}
+```
+
+---
+
+#### `DELETE /api/chatbot/sessions/{session_id}`
+
+Deletes an existing session.
+
+**Response:**
+```json
+{
+  "message": "Session {session_id} deleted."
+}
+```
+
+### Architecture Overview
+
+The API is organized with a clean separation of concerns:
+
+- **Controller layer** (`api/routes/`): Defines FastAPI routes. Responsible for request validation, status code handling, and delegating logic to services.
+- **Service layer** (`api/services/`): Implements the core logic of chat handling, including memory management, retrieval, and LLM generation.
+- **Model/schema definitions** (`api/models/`): Contains Pydantic classes for request/response models and the LLM abstraction interface.
+- **Prompt builder** (`api/prompts/`): Contains utilities to structure LLM prompts in a consistent format.
+- **Configuration** (`api/config/`): Handles loading configuration from `config.yml`.
+
+### Session Memory Management
+
+Chat memory is managed **in-memory** using LangChain's `ConversationBufferMemory`, stored in a module-level dictionary keyed by `session_id`.
+
+This allows the assistant to maintain conversation history across multiple chats.
+
+Future improvements may include:
+- Persisting memory to Redis
+- Supporting timeout or expiration per session
+
+### LLM Abstraction and Extensibility
+
+The API uses an abstract base class (`LLMProvider`) to decouple the chatbot logic from the underlying language model.
+
+Currently, it is implemented by `llama_cpp__provider` that runs a local GGUF model(Mistral 7B Instruct)
+
+**Future provider options could include:**
+- OpenAI's `gpt-3.5` or `gpt-4` via API
+- Google's Gemini via API
+- Any model served over an external endpoint
+
+This is useful to give users with computing resources constraints the possibility to eventually use their API keys.
 
 ## User Interface
 
