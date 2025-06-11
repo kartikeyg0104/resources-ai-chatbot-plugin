@@ -26,6 +26,10 @@ chatbot-core/data/embeddings/*
 # Local model
 chatbot-core/api/models/**/*.gguf
 
+# Built frontend files
+src/main/webapp/static/*
+!src/main/webapp/static/.gitkeep
+
 # Eclipse project files
 .settings
 .classpath
