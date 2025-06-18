@@ -4,6 +4,7 @@ import { type ChatSession } from '../model/ChatSession';
 import { fetchChatbotReply, createChatSession, deleteChatSession } from '../api/chatbot';
 import { Header } from './Header';
 import { Messages } from './Messages';
+import { Sidebar } from './Sidebar';
 import { Input } from './Input';
 import { chatbotStyles } from '../styles/styles';
 import { getChatbotText } from '../data/chatbotTexts';
@@ -17,16 +18,12 @@ export const Chatbot = () => {
   const [input, setInput] = useState('');
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  const [isChat, setIsChat] = useState<boolean>(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   /**
    * Messages shown in the chat.
    * Initialized from sessionStorage to keep messages between refreshes.
    */
-  const [messages, setMessages] = useState<Message[]>(() => {
-    const saved = sessionStorage.getItem('chatbot-messages');
-    return saved ? JSON.parse(saved) : [];
-  });
   const [loading, setLoading] = useState(false);
 
   /**
@@ -50,17 +47,12 @@ export const Chatbot = () => {
         setSessions(parsed);
         if (parsed.length > 0) {
           setCurrentSessionId(parsed[0].id);
-          setIsChat(true);
         }
       } catch (e) {
         console.error("Failed to parse saved chat sessions", e);
       }
     }
   }, []);
-
-  useEffect(() => {
-    //sessionStorage.setItem('chatbot-messages', JSON.stringify(messages));
-  }, [currentSessionId, sessions]);
 
   const getSessionMessages = (sessionId: string | null)  => {
     if (currentSessionId === null){
@@ -87,7 +79,6 @@ export const Chatbot = () => {
     const updatedSessions = sessions.filter(s => s.id !== currentSessionId);
     setSessions(updatedSessions)
     if (updatedSessions.length === 0) {
-      setIsChat(false)
       setCurrentSessionId(null);
     } else {
       setCurrentSessionId(updatedSessions[0].id)
@@ -104,7 +95,6 @@ export const Chatbot = () => {
     const newSession: ChatSession = { id, messages: [], createdAt: new Date().toISOString() };
     setSessions(prev => [newSession, ...prev]);
     setCurrentSessionId(id);
-    setIsChat(true)
   };
 
   const appendMessageToCurrentSession = (message: Message) => {
@@ -138,6 +128,15 @@ export const Chatbot = () => {
     appendMessageToCurrentSession(botReply);
   };
 
+  const openSideBar = () => {
+    setIsSidebarOpen(!isSidebarOpen)
+  }
+
+  const onSwitchChat = (chatSessionId: string) => {
+    openSideBar();
+    setCurrentSessionId(chatSessionId)
+  }
+
   return (
     <>
       <button
@@ -149,10 +148,19 @@ export const Chatbot = () => {
 
       {isOpen && (
         <div
-           style={chatbotStyles.container}
+           style={{...chatbotStyles.container}}
         >
-          <Header clearMessages={handleDeleteChat} />
-          {isChat ?
+          {isSidebarOpen && (
+            <Sidebar
+              onClose={() => setIsSidebarOpen(false)}
+              onCreateChat={handleNewChat}
+              onSwitchChat={onSwitchChat}
+              chatList={sessions}
+              activeChatId={currentSessionId}
+            />
+          )}
+          <Header isChat={currentSessionId !== null} openSideBar={openSideBar} clearMessages={handleDeleteChat} />
+          {(currentSessionId !== null) ?
             <>
               <Messages messages={getSessionMessages(currentSessionId)} loading={loading} />
               <Input input={input} setInput={setInput} onSend={sendMessage} />
