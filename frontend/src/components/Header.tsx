@@ -22,15 +22,10 @@ export const Header = ({ isChat, clearMessages, openSideBar }: HeaderProps) => {
   >
       <button
         onClick={openSideBar}
-        style={{
-          background: 'transparent',
-          border: 'none',
-          fontSize: '1.5rem',
-          cursor: 'pointer',
-        }}
+        style={chatbotStyles.openSidebarButton}
         aria-label="Toggle sidebar"
       >
-        ☰
+        {getChatbotText("sidebarLabel")}
       </button>
       {isChat && 
       <button

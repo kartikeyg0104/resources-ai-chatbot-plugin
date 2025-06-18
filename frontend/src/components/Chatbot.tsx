@@ -41,7 +41,7 @@ export const Chatbot = () => {
    */
   useEffect(() => {
     const saved = sessionStorage.getItem('chatbot-sessions');
-    if (saved) {
+    if (saved && saved.length > 0) {
       try {
         const parsed = JSON.parse(saved);
         setSessions(parsed);
@@ -54,12 +54,17 @@ export const Chatbot = () => {
     }
   }, []);
 
+  /**
+   * Returns the messages of a chat session.
+   * @param sessionId The sessionId of the chat session.
+   * @returns The messages of the chat with id equals to sessionId
+   */
   const getSessionMessages = (sessionId: string | null)  => {
     if (currentSessionId === null){
       console.error("No current session")
       return []
     }
-    let chatSession = sessions.find(item => item.id === sessionId);
+    const chatSession = sessions.find(item => item.id === sessionId);
 
     if (chatSession){
       return chatSession.messages;
@@ -69,6 +74,9 @@ export const Chatbot = () => {
     return []
   }
 
+  /**
+   * Handles the delete process of a chat session.
+   */
   const handleDeleteChat = async () => {
     if (currentSessionId === null){
       console.error("No current session active")
@@ -85,10 +93,13 @@ export const Chatbot = () => {
     }
   };
 
+  /**
+   * Handles the creation process of a chat session.
+   */
   const handleNewChat = async () => {
     const id = await createChatSession();
     
-    if (id === "") {//TODO
+    if (id === "") {
       console.error("Add error showage for a couple of seconds.")
       return
     }
@@ -107,6 +118,9 @@ export const Chatbot = () => {
     );
   };
 
+  /**
+   * Handles the send process in a chat session.
+   */
   const sendMessage = async () => {
     const trimmed = input.trim();
     if (!trimmed || !currentSessionId) {
@@ -137,6 +151,24 @@ export const Chatbot = () => {
     setCurrentSessionId(chatSessionId)
   }
 
+  const getWelcomePage = () => {
+    return(
+      <div
+        style={chatbotStyles.containerWelcomePage}
+      >
+        <div style={chatbotStyles.boxWelcomePage}>
+          <h2 style={chatbotStyles.welcomePageH2}>{getChatbotText("welcomeMessage")}</h2>
+          <p>{getChatbotText("welcomeDescription")}</p>
+          <button style={chatbotStyles.welcomePageNewChatButton}
+          onClick={handleNewChat}
+          >
+            {getChatbotText("createNewChat")}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <>
       <button
@@ -165,32 +197,7 @@ export const Chatbot = () => {
               <Messages messages={getSessionMessages(currentSessionId)} loading={loading} />
               <Input input={input} setInput={setInput} onSend={sendMessage} />
             </>
-            :
-            <div
-              style={{
-                height: '70%',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <div style={{ textAlign: 'center', color: '#888' }}>
-                <h2 style={{ marginBottom: '0.5rem' }}>Welcome to Jenkins AI Assistant</h2>
-                <p>Create a new chat to get started.</p>
-                <button style={{
-                  backgroundColor:"#0073e6",
-                  padding: "1rem",
-                  borderRadius: "1rem",
-                  color: '#ffffff',
-                  cursor: 'pointer',
-                  border: 0
-                }}
-                onClick={handleNewChat}
-                >
-                  Start Chatting
-                </button>
-              </div>
-            </div>
+            : getWelcomePage()
           }
         </div>
       )}
