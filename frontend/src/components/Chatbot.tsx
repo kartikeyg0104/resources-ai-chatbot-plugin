@@ -22,12 +22,6 @@ export const Chatbot = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   /**
-   * Messages shown in the chat.
-   * Initialized from sessionStorage to keep messages between refreshes.
-   */
-  const [loading, setLoading] = useState(false);
-
-  /**
    * Saving the chat sessions in the session storage only 
    * when the component umounts to avoid continuos savings.
    */
@@ -93,7 +87,7 @@ export const Chatbot = () => {
       console.error("Add error showage for a couple of seconds.")
       return
     }
-    const newSession: ChatSession = { id, messages: [], createdAt: new Date().toISOString() };
+    const newSession: ChatSession = { id, messages: [], createdAt: new Date().toISOString(), isLoading: false };
     setSessions(prev => [newSession, ...prev]);
     setCurrentSessionId(id);
   };
@@ -128,13 +122,31 @@ export const Chatbot = () => {
     };
 
     setInput('');
-    setLoading(true);
+    setSessions(prevSessions =>
+      prevSessions.map(session =>
+        session.id === currentSessionId
+          ? { ...session, isLoading: true }
+          : session
+      )
+    );
     appendMessageToCurrentSession(userMessage);
 
     const botReply = await fetchChatbotReply(currentSessionId!, trimmed);
-    setLoading(false);
+    setSessions(prevSessions =>
+      prevSessions.map(session =>
+        session.id === currentSessionId
+          ? { ...session, isLoading: false }
+          : session
+      )
+    );
     appendMessageToCurrentSession(botReply);
   };
+
+  const getChatLoading = () : boolean => {
+    const currentChat = sessions.find(chat => chat.id === currentSessionId);
+
+    return currentChat ? currentChat.isLoading : false;
+  }
 
   const openSideBar = () => {
     setIsSidebarOpen(!isSidebarOpen)
@@ -188,7 +200,7 @@ export const Chatbot = () => {
           <Header isChat={currentSessionId !== null} openSideBar={openSideBar} clearMessages={handleDeleteChat} />
           {(currentSessionId !== null) ?
             <>
-              <Messages messages={getSessionMessages(currentSessionId)} loading={loading} />
+              <Messages messages={getSessionMessages(currentSessionId)} loading={getChatLoading()} />
               <Input input={input} setInput={setInput} onSend={sendMessage} />
             </>
             : getWelcomePage()
