@@ -8,6 +8,7 @@ import { Sidebar } from './Sidebar';
 import { Input } from './Input';
 import { chatbotStyles } from '../styles/styles';
 import { getChatbotText } from '../data/chatbotTexts';
+import { loadChatbotSessions, loadChatbotLastSessionId } from '../utils/chatbotStorage';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -16,8 +17,8 @@ import { v4 as uuidv4 } from 'uuid';
 export const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
-  const [sessions, setSessions] = useState<ChatSession[]>([]);
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [sessions, setSessions] = useState<ChatSession[]>(loadChatbotSessions);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(loadChatbotLastSessionId);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   /**
@@ -31,28 +32,17 @@ export const Chatbot = () => {
    * when the component umounts to avoid continuos savings.
    */
   useEffect(() => {
-    return () => {
+    const handleBeforeUnload = () => {
       sessionStorage.setItem('chatbot-sessions', JSON.stringify(sessions));
+      sessionStorage.setItem('chatbot-last-session-id', currentSessionId || '');
     };
-  }, [sessions]);
 
-  /**
-   * Loading the chat sessions from the session storage at mount time.
-   */
-  useEffect(() => {
-    const saved = sessionStorage.getItem('chatbot-sessions');
-    if (saved && saved.length > 0) {
-      try {
-        const parsed = JSON.parse(saved);
-        setSessions(parsed);
-        if (parsed.length > 0) {
-          setCurrentSessionId(parsed[0].id);
-        }
-      } catch (e) {
-        console.error("Failed to parse saved chat sessions", e);
-      }
-    }
-  }, []);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [sessions, currentSessionId]);
 
   /**
    * Returns the messages of a chat session.
@@ -124,7 +114,11 @@ export const Chatbot = () => {
   const sendMessage = async () => {
     const trimmed = input.trim();
     if (!trimmed || !currentSessionId) {
-      console.error("Empty message or no sessions available")
+      console.error("No sessions available.")
+      return;
+    }
+    if (!trimmed) {
+      console.error("Empty message provided.")
       return;
     }
     const userMessage: Message = {
