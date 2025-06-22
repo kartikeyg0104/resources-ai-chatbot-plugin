@@ -20,6 +20,8 @@ export const Chatbot = () => {
   const [sessions, setSessions] = useState<ChatSession[]>(loadChatbotSessions);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(loadChatbotLastSessionId);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
+  const [sessionIdToDelete, setSessionIdToDelete] = useState<string | null>(null);
 
   /**
    * Saving the chat sessions in the session storage only 
@@ -62,18 +64,19 @@ export const Chatbot = () => {
    * Handles the delete process of a chat session.
    */
   const handleDeleteChat = async () => {
-    if (currentSessionId === null){
-      console.error("No current session active")
+    if (sessionIdToDelete === null){
+      console.error("No current selected to delete")
       return
     }
 
-    await deleteChatSession(currentSessionId);
-    const updatedSessions = sessions.filter(s => s.id !== currentSessionId);
-    setSessions(updatedSessions)
+    await deleteChatSession(sessionIdToDelete);
+    const updatedSessions = sessions.filter(s => s.id !== sessionIdToDelete);
+    setSessions(updatedSessions);
+    setIsPopupOpen(false);
     if (updatedSessions.length === 0) {
       setCurrentSessionId(null);
     } else {
-      setCurrentSessionId(updatedSessions[0].id)
+      setCurrentSessionId(updatedSessions[0].id);
     }
   };
 
@@ -154,7 +157,12 @@ export const Chatbot = () => {
 
   const onSwitchChat = (chatSessionId: string) => {
     openSideBar();
-    setCurrentSessionId(chatSessionId)
+    setCurrentSessionId(chatSessionId);
+  }
+
+  const openConfirmDeleteChatPopup = (chatSessionId: string) => {
+    setSessionIdToDelete(chatSessionId);
+    setIsPopupOpen(true);
   }
 
   const getWelcomePage = () => {
@@ -175,6 +183,31 @@ export const Chatbot = () => {
     )
   }
 
+  const getDeletePopup = () => {
+    return(
+      
+      <div
+        style={chatbotStyles.popupContainer}
+      >
+        <h2 style={chatbotStyles.popupTitle}>{getChatbotText("popupTitle")}</h2>
+        <p style={chatbotStyles.popupMessage}>
+          {getChatbotText("popupMessage")}
+        </p>
+        <div style={chatbotStyles.popupButtonsContainer}>
+          <button style={chatbotStyles.popupDeleteButton} onClick={handleDeleteChat}>
+            {getChatbotText("popupDeleteButton")}
+          </button>
+          <button style={chatbotStyles.popupCancelButton} onClick={() => {
+            setIsPopupOpen(false);
+            setSessionIdToDelete(null);
+          }}>
+            {getChatbotText("popupCancelButton")}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <>
       <button
@@ -186,7 +219,7 @@ export const Chatbot = () => {
 
       {isOpen && (
         <div
-           style={{...chatbotStyles.container}}
+           style={{...chatbotStyles.container, pointerEvents: isPopupOpen ? 'none' : 'auto'}}
         >
           {isSidebarOpen && (
             <Sidebar
@@ -195,9 +228,13 @@ export const Chatbot = () => {
               onSwitchChat={onSwitchChat}
               chatList={sessions}
               activeChatId={currentSessionId}
+              openConfirmDeleteChatPopup={openConfirmDeleteChatPopup}
             />
           )}
-          <Header isChat={currentSessionId !== null} openSideBar={openSideBar} clearMessages={handleDeleteChat} />
+          {isPopupOpen && (
+           getDeletePopup()
+          )}
+          <Header currentSessionId={currentSessionId} openSideBar={openSideBar} clearMessages={openConfirmDeleteChatPopup} />
           {(currentSessionId !== null) ?
             <>
               <Messages messages={getSessionMessages(currentSessionId)} loading={getChatLoading()} />

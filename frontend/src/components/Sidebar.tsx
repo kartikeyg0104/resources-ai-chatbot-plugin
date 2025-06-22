@@ -9,6 +9,7 @@ interface SidebarProps {
   onClose: () => void;
   onCreateChat: () => void;
   onSwitchChat: (chatSessionId: string) => void;
+  openConfirmDeleteChatPopup: (chatSessionId: string) => void;
   chatList: ChatSession[];
   activeChatId: string | null;
 }
@@ -17,11 +18,11 @@ interface SidebarProps {
  * Sidebar renders the sidebar section of the chatbot UI, including the button to
  * create new chats, and the list of active chats.
  */
-export const Sidebar = ({ onClose, onCreateChat, onSwitchChat, chatList, activeChatId }: SidebarProps) => {
+export const Sidebar = ({ onClose, onCreateChat, onSwitchChat, openConfirmDeleteChatPopup, chatList, activeChatId }: SidebarProps) => {
     const getChatName = (chat: ChatSession, index: number) => {
         if (chat.messages.length > 0){
             const firstMessage = chat.messages[0].text;
-            return firstMessage.slice(0, 20);
+            return firstMessage.length > 25 ? `${firstMessage.slice(0, 25).trim()}...` : firstMessage;
         }
 
         return `Chat ${index + 1}`
@@ -61,6 +62,15 @@ export const Sidebar = ({ onClose, onCreateChat, onSwitchChat, chatList, activeC
                     style={chatbotStyles.sidebarChatContainer(isActive)}
                 >
                     {getChatName(chat, index)}
+                    <button
+                        style={chatbotStyles.sidebarDeleteChatButton}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            openConfirmDeleteChatPopup(chat.id)
+                        }}
+                    >
+                        &#128465;
+                    </button>
                 </div>
                 );
             })

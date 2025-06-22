@@ -45,6 +45,64 @@ export const chatbotStyles = {
     alignItems: 'center',
   } as CSSProperties,
 
+  popupContainer: {
+    pointerEvents: 'auto',
+    position: 'absolute',
+    top: 200,
+    left: 100,
+    height: '125px',
+    width: '400px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '2rem 1rem',
+    backgroundColor: 'rgba(44, 41, 41, 1)',
+    boxShadow: '4px 4px 10px rgba(0, 0, 0, 0.4)',
+    borderRadius: '10px',
+    zIndex: 11,
+  } as CSSProperties,
+
+  popupTitle: {
+    fontSize: '1.25rem',
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginBottom: '10px',
+  } as CSSProperties,
+
+  popupMessage: {
+    fontSize: '1rem',
+    textAlign: 'center',
+    color: '#d1d5db',
+    marginBottom: '1.5rem',
+  } as CSSProperties,
+
+  popupButtonsContainer: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '1rem',
+  } as CSSProperties,
+
+  popupDeleteButton: {
+    backgroundColor: '#dc2626',
+    color: '#ffffff',
+    padding: '8px 16px',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '1rem',
+  } as CSSProperties,
+
+  popupCancelButton: {
+    backgroundColor: '#5e5b5b',
+    color: '#ffffff',
+    padding: '8px 16px',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '1rem',
+  } as CSSProperties,
+
   boxWelcomePage: { 
     textAlign: 'center', 
     color: '#888' 
@@ -150,7 +208,7 @@ export const chatbotStyles = {
     borderTopRightRadius: 20,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: sender === 'user' ? 6 : 20,
-    backgroundColor: sender === 'user' ? '#0073e6' : '#2d2d2d',
+    backgroundColor: sender === 'user' ? '#0073e6' : '#5e5b5b',
     color: sender === 'user' ? '#fff' : '#f0f0f0',
     maxWidth: '80%',
     wordWrap: 'break-word',
@@ -209,9 +267,17 @@ export const chatbotStyles = {
     textAlign: 'center' 
   } as CSSProperties,
 
+  sidebarDeleteChatButton: {
+    border: 'none',
+    backgroundColor: 'transparent',
+    cursor: 'pointer',
+  } as CSSProperties,
+
   sidebarChatContainer: (isActive: boolean): CSSProperties => ({
     display: 'flex',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    maxHeight: '3vh',
     padding: '0.75rem',
     marginBottom: '0.5rem',
     borderRadius: '0.5rem',
