@@ -25,7 +25,7 @@ export const Chatbot = () => {
 
   /**
    * Saving the chat sessions in the session storage only 
-   * when the component umounts to avoid continuos savings.
+   * when the component unmounts to avoid continuos savings.
    */
   useEffect(() => {
     const handleBeforeUnload = () => {
