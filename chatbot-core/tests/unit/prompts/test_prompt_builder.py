@@ -7,8 +7,8 @@ from api.prompts.prompt_builder import build_prompt, SYSTEM_INSTRUCTION
 def test_build_prompt_with_full_history_and_context():
     """Test prompt formatting with user + assistant chat history and context."""
     memory = ConversationBufferMemory(return_messages=True)
-    memory.chat_memory.add_user_message("How do I configure a Jenkins job?")
-    memory.chat_memory.add_ai_message("You can use the freestyl option.")
+    memory.chat_memory.add_user_message("How do I configure a Jenkins job?") # pylint: disable=no-member
+    memory.chat_memory.add_ai_message("You can use the freestyl option.") # pylint: disable=no-member
 
     context = "You can configure Jenkins jobs using freestyle option or pipelines."
     user_query = "What about using pipelines?"

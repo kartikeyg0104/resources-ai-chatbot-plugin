@@ -1,3 +1,5 @@
+"""Fixtures for unit tests."""
+
 import pytest
 
 @pytest.fixture

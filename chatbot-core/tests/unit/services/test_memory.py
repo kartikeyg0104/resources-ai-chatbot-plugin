@@ -2,8 +2,8 @@
 
 import uuid
 import pytest
-from api.services import memory
 from langchain.memory import ConversationBufferMemory
+from api.services import memory
 
 
 @pytest.fixture(autouse=True)
@@ -14,7 +14,7 @@ def reset_memory_sessions():
 def test_init_session_creates_new_session():
     """Test that a new session is initialized with a valid UUID and is stored."""
     session_id = memory.init_session()
-    
+
     assert isinstance(session_id, str)
     assert uuid.UUID(session_id)
     assert memory.session_exists(session_id)
