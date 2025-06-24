@@ -1,7 +1,8 @@
 import { type Message } from '../model/Message';
-import { API_BASE_URL } from '../config';
 import { getChatbotText } from '../data/chatbotTexts';
 import { v4 as uuidv4 } from 'uuid';
+import { CHATBOT_API_TIMEOUTS_MS } from '../config';
+import { callChatbotApi } from '../utils/callChatbotApi';
 
 /**
  * Send a request to the backend to create a new chat session and returns the id of the
@@ -10,15 +11,14 @@ import { v4 as uuidv4 } from 'uuid';
  * @returns A Promise resolving to the id of the new chat session
  */
 export const createChatSession = async (): Promise<string> => {
-  try{
-    const response = await fetch(`${API_BASE_URL}/api/chatbot/sessions`, { method: 'POST' });
-    const data = await response.json();
+  const data = await callChatbotApi<{ session_id: string }>(
+    'sessions',
+    { method: 'POST' },
+    { session_id: '' },
+    CHATBOT_API_TIMEOUTS_MS.CREATE_SESSION
+  );
 
-    return data.session_id;
-  } catch (error) {
-    console.error('Chatbot API error while creating a new chat session:', error);
-    return "";
-  }
+  return data.session_id;
 };
 
 /**
@@ -30,26 +30,19 @@ export const createChatSession = async (): Promise<string> => {
  * @returns A Promise resolving to a bot-generated Message
  */
 export const fetchChatbotReply = async (sessionId: string, userMessage: string): Promise<Message> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/chatbot/sessions/${sessionId}/message`, {
+  const data = await callChatbotApi<{ reply?: string }>(
+    `sessions/${sessionId}/message`,
+    {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: userMessage }),
-    });
+    },
+    {},
+    CHATBOT_API_TIMEOUTS_MS.GENERATE_MESSAGE
+  );
 
-    if (!response.ok) {
-      throw new Error(`Server error: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    return createBotMessage(data.reply || getChatbotText('noResponseMessage'));
-  } catch (error) {
-    console.error('Chatbot API error while sending a message:', error);
-    return createBotMessage(getChatbotText('errorMessage'));
-  }
+  const botReply = data.reply || getChatbotText('errorMessage');
+  return createBotMessage(botReply);
 };
 
 /**
@@ -58,12 +51,14 @@ export const fetchChatbotReply = async (sessionId: string, userMessage: string):
  * @param sessionId - The session id of the chat to delete
  */
 export const deleteChatSession = async (sessionId: string): Promise<void> => {
-  try{
-    await fetch(`${API_BASE_URL}/api/chatbot/sessions/${sessionId}`, { method: 'DELETE' });
-  } catch(error) {
-    console.error('Chatbot API error while deleting a chat session:', error);
-  }
+  await callChatbotApi<void>(
+    `sessions/${sessionId}`,
+    { method: 'DELETE' },
+    undefined,
+    CHATBOT_API_TIMEOUTS_MS.DELETE_SESSION
+  );
 };
+
 
 /**
  * Utility function to create a Message object from the bot,
