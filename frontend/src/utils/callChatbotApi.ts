@@ -30,8 +30,8 @@ export const callChatbotApi = async <T>(
     }
 
     return await response.json();
-  } catch (error: any) {
-    if (error.name == 'AbortError'){
+  } catch (error: unknown) {
+    if (error instanceof DOMException && error.name == 'AbortError'){
       console.error(`API request to ${endpoint} timed out aftr ${timeoutMs}ms.`);
     }else{
       console.error(`API error calling ${endpoint}:`, error);
