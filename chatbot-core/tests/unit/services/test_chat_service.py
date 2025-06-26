@@ -1,9 +1,9 @@
 """Unit tests for chat service logic."""
 
+import logging
 from api.services.chat_service import get_chatbot_reply, retrieve_context
 from api.config.loader import CONFIG
 from api.models.schemas import ChatResponse
-import logging
 
 def test_get_chatbot_reply_success(
     mock_get_session,
@@ -81,7 +81,7 @@ def test_retrieve_context_missing_text(mock_get_relevant_documents, caplog):
 
 
 def test_retrieve_context_with_missing_code(mock_get_relevant_documents, caplog):
-    """Test retrieve_context replaces unmatched placeholders with [MISSING_CODE] and logs a warning."""
+    """Test retrieve_context replaces unmatched placeholders with [MISSING_CODE]."""
     mock_documents = get_mock_documents("missing_code")
     mock_get_relevant_documents.return_value = (mock_documents, None)
     logging.getLogger("API").propagate = True
@@ -101,6 +101,7 @@ def test_retrieve_context_with_missing_code(mock_get_relevant_documents, caplog)
 
 
 def get_mock_documents(doc_type: str):
+    """Helper function to retrieve the mock documents."""
     if doc_type == "with_placeholders":
         return [
             {
@@ -115,21 +116,21 @@ def get_mock_documents(doc_type: str):
                 ]
             }
         ]
-    elif doc_type == "missing_id":
+    if doc_type == "missing_id":
         return [
             {
                 "chunk_text": "Some text with placeholder [[CODE_BLOCK_0]]",
                 "code_blocks": ["print('orphan block')"]
             }
         ]
-    elif doc_type == "missing_text":
+    if doc_type == "missing_text":
         return [
             {
                 "id": "doc-111",
                 "code_blocks": ["print('no text here')"]
             }
         ]
-    elif doc_type== "missing_code":
+    if doc_type== "missing_code":
         return [
             {
                 "id": "doc-111",
@@ -140,4 +141,3 @@ def get_mock_documents(doc_type: str):
             }
         ]
     return []
-
