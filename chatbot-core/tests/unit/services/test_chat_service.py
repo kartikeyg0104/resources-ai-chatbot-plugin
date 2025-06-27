@@ -1,6 +1,7 @@
 """Unit tests for chat service logic."""
 
 import logging
+import pytest
 from api.services.chat_service import get_chatbot_reply, retrieve_context
 from api.config.loader import CONFIG
 from api.models.schemas import ChatResponse
@@ -27,6 +28,16 @@ def test_get_chatbot_reply_success(
     assert response.reply == "LLM answers to the query"
     mock_chat_memory.add_user_message.assert_called_once_with("Query for the LLM")
     mock_chat_memory.add_ai_message.assert_called_once_with("LLM answers to the query")
+
+
+def test_get_chatbot_reply_session_not_found(mock_get_session):
+    """Testing that RuntimeError is raised if session does not exist."""
+    mock_get_session.return_value = None
+
+    with pytest.raises(RuntimeError) as exc_info:
+        get_chatbot_reply("missing-session-id", "Query for the LLM")
+
+    assert "Session 'missing-session-id' not found in the memory store." in str(exc_info.value)
 
 
 def test_retrieve_context_with_placeholders(mock_get_relevant_documents):
