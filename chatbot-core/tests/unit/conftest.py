@@ -1,19 +1,12 @@
 """conftest for unit tests."""
 
 import pytest
-from fastapi import FastAPI
 from fastapi.testclient import TestClient
-
-from api.routes.chatbot import router
+from fastapi import FastAPI
 
 pytest_plugins = ["tests.unit.mocks.test_env"]
 
 @pytest.fixture
-def app() -> FastAPI:
-    app = FastAPI()
-    app.include_router(router)
-    return app
-
-@pytest.fixture
-def client(app: FastAPI):
-    return TestClient(app)
+def client(fastapi_app: FastAPI):
+    """Fixture to provide a TestClient for the FastAPI app."""
+    return TestClient(fastapi_app)
