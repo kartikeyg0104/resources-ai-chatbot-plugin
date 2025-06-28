@@ -2,6 +2,7 @@
 
 import pytest
 from fastapi import FastAPI
+from sentence_transformers import SentenceTransformer
 from api.routes.chatbot import router
 
 @pytest.fixture
@@ -55,3 +56,14 @@ def mock_delete_session(mocker):
 def mock_get_chatbot_reply(mocker):
     """Mock the get_chatbot_reply function."""
     return mocker.patch("api.routes.chatbot.get_chatbot_reply")
+
+@pytest.fixture
+def mock_sentence_transformer(mocker):
+    """Mock the SentenceTransformer class constructor."""
+    return mocker.patch("rag.embedding.embedding_utils.SentenceTransformer")
+
+@pytest.fixture
+def mock_model_encode(mocker):
+    """Fixture to create a mock SentenceTransformer model with encode function."""
+    mock_model = mocker.create_autospec(SentenceTransformer)
+    return mock_model
