@@ -30,6 +30,5 @@ jobs:
         working-directory: chatbot-core
         env:
           PYTHONPATH: ${{github.workspace}}/chatbot-core
-          IS_TESTING: "1"
         run: |
           pytest tests/unit
