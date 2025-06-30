@@ -60,10 +60,12 @@ def test_embed_chunks_skips_invalid_chunks(
 
 
 def test_collect_all_chunks_with_custom_files(
+    patched_chunk_files,
     mock_load_chunks_from_file,
     mocker
 ):
     """Testing that collect_all_chunks aggregates chunks and logs warnings for empty files."""
+    _ = patched_chunk_files
     mock_load_chunks_from_file.side_effect = [
         get_mock_chunks("valid"),
         get_mock_chunks("invalid"),
