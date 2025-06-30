@@ -15,8 +15,8 @@ def test_get_relevant_documents_empty_query(mocker):
     )
 
     mock_logger.warning.assert_called_once_with("Empty query received.")
-    assert data == []
-    assert scores == []
+    assert not data
+    assert not scores
 
 
 def test_get_relevant_documents_no_index(mocker):
@@ -36,8 +36,8 @@ def test_get_relevant_documents_no_index(mocker):
         top_k=3
     )
 
-    assert data == []
-    assert scores == []
+    assert not data
+    assert not scores
 
 
 def test_get_relevant_documents_no_metadata(mocker):
@@ -57,8 +57,8 @@ def test_get_relevant_documents_no_metadata(mocker):
         top_k=3
     )
 
-    assert data == []
-    assert scores == []
+    assert not data
+    assert not scores
 
 
 def test_get_relevant_documents_success(mocker):

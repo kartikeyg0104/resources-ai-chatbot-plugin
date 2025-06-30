@@ -5,15 +5,15 @@ from rag.embedding.embedding_utils import load_embedding_model, embed_documents
 
 def test_load_embedding_model_logs_loading_message(mock_sentence_transformer, mocker):
     """Testing that load_embedding_model logs when loading model."""
-    MODEL_NAME = "embedding-model-name"
+    model_name = "embedding-model-name"
     mock_sentence_transformer.return_value = mocker.Mock()
     mock_logger = mocker.Mock()
 
-    model = load_embedding_model(MODEL_NAME, mock_logger)
+    model = load_embedding_model(model_name, mock_logger)
 
     assert model is not None
     assert model == mock_sentence_transformer.return_value
-    mock_logger.info.assert_called_once_with(f"Loading embedding model: {MODEL_NAME}")
+    mock_logger.info.assert_called_once_with(f"Loading embedding model: {model_name}")
 
 def test_embed_documents_success(mock_model_encode, mocker):
     """Testing that embed_documents calls model.encode and returns embeddings."""

@@ -1,7 +1,12 @@
 """Unit Tests for vectorstore_utils."""
 
 import pickle
-from rag.vectorstore.vectorstore_utils import save_faiss_index, load_faiss_index, load_metadata, save_metadata
+from rag.vectorstore.vectorstore_utils import (
+    save_faiss_index,
+    load_faiss_index,
+    load_metadata,
+    save_metadata
+)
 
 def test_save_faiss_index_success(mocker, tmp_path):
     """Test saving FAISS index successfully."""

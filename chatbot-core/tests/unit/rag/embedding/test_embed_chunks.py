@@ -60,7 +60,6 @@ def test_embed_chunks_skips_invalid_chunks(
 
 
 def test_collect_all_chunks_with_custom_files(
-    patched_chunk_files,
     mock_load_chunks_from_file,
     mocker
 ):

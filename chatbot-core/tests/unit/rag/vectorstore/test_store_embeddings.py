@@ -17,7 +17,12 @@ def test_build_faiss_ivf_index_trains_and_adds_vectors(mocker):
     mock_index_cls = mocker.patch("faiss.IndexIVFFlat", return_value=mock_index)
     mock_quantizer_cls = mocker.patch("faiss.IndexFlatL2", return_value=mock_quantizer)
 
-    result_index = store_embeddings.build_faiss_ivf_index(vectors, nlist=4, nprobe=2, logger=mock_logger)
+    result_index = store_embeddings.build_faiss_ivf_index(
+        vectors,
+        nlist=4,
+        nprobe=2,
+        logger=mock_logger
+    )
 
     mock_quantizer_cls.assert_called_once_with(5)
     mock_index_cls.assert_called_once_with(mock_quantizer, 5, 4, faiss.METRIC_L2)

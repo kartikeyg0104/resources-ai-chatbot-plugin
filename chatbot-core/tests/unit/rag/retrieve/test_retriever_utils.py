@@ -39,8 +39,8 @@ def test_search_index_invalid_query_vector(mocker):
         top_k=5
     )
     mock_logger.error.assert_called_once_with("Invalid query vector received.")
-    assert data == []
-    assert scores == []
+    assert not data
+    assert not scores
 
 
 def test_search_index_empty_index(mocker):
@@ -57,9 +57,11 @@ def test_search_index_empty_index(mocker):
         logger=mock_logger,
         top_k=3
     )
-    mock_logger.warning.assert_called_once_with("FAISS index is empty. No search will be performed.")
-    assert data == []
-    assert scores == []
+    mock_logger.warning.assert_called_once_with(
+        "FAISS index is empty. No search will be performed."
+    )
+    assert not data
+    assert not scores
 
 
 def test_search_index_successful(mocker):
@@ -68,8 +70,8 @@ def test_search_index_successful(mocker):
     index = mocker.Mock()
     index.ntotal = 2
     index.search.return_value = (
-        np.array([[0.01, 0.02]], dtype=np.float32),  # distances
-        np.array([[0, 1]])                           # indices
+        np.array([[0.01, 0.02]], dtype=np.float32),
+        np.array([[0, 1]])
     )
     metadata = [{"id": "doc1"}, {"id": "doc2"}]
     query_vector = np.array([0.1, 0.2], dtype=np.float32)
@@ -94,7 +96,7 @@ def test_search_index_out_of_bounds_index(mocker):
     index.ntotal = 2
     index.search.return_value = (
         np.array([[0.1, 0.2]]),
-        np.array([[0, 5]])  # 5 is out of bounds
+        np.array([[0, 5]])
     )
     metadata = [{"id": "doc1"}]
     query_vector = np.array([0.1, 0.2], dtype=np.float32)
@@ -109,6 +111,5 @@ def test_search_index_out_of_bounds_index(mocker):
 
     mock_logger.error.assert_called_once()
     assert "out of range" in mock_logger.error.call_args[0][0]
-    # Only the in-bounds index gets included
     assert data == [{"id": "doc1"}]
     assert scores == pytest.approx([0.1])
