@@ -21,7 +21,7 @@ def load_config():
     config_dev_path = os.path.join(file_dir, "config.yml")
     config_testing_path = os.path.join(file_dir, "config-testing.yml")
 
-    if os.path.isfile(config_testing_path):
+    if os.environ.get("PYTEST_VERSION") is not None:
         logger.info("#### Loading test configuration ####")
         config_path = config_testing_path
     else:
