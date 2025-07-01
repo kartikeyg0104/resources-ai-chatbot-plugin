@@ -34,8 +34,8 @@ def test_build_faiss_ivf_index_trains_and_adds_vectors(mocker):
 
 
 def test_run_indexing_successful(
-        mocker, 
-        mock_save_faiss_index, 
+        mocker,
+        mock_save_faiss_index,
         mock_save_metadata
     ):
     """Test that run_indexing runs the indexing pipeline correctly."""
