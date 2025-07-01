@@ -10,6 +10,7 @@ from data.chunking.extract_chunk_stack import (
 
 
 def test_clean_html_parses_html():
+    """Test clean_html returns parsed BeautifulSoup."""
     html = "<div><p>Hello</p></div>"
     soup = clean_html(html)
     assert isinstance(soup, BeautifulSoup)
@@ -24,6 +25,7 @@ def test_process_thread_returns_chunks(
     mock_assign_chunks,
     mock_build_chunk
 ):
+    """Test process_thread builds chunk dicts."""
     thread = {
         "Question ID": 123,
         "Question Body": "<p>Q body</p>",
@@ -54,6 +56,7 @@ def test_process_thread_returns_chunks(
 
 @patch("data.chunking.extract_chunk_stack.logger")
 def test_process_thread_missing_content_returns_empty(mock_logger):
+    """Test process_thread returns empty if content missing."""
     thread = {
         "Question ID": 456,
         "Question Body": "",
@@ -70,6 +73,7 @@ def test_process_thread_missing_content_returns_empty(mock_logger):
 @patch("data.chunking.extract_chunk_stack.process_thread")
 @patch("data.chunking.extract_chunk_stack.get_text_splitter")
 def test_extract_chunks_aggregates_chunks(mock_get_splitter, mock_process_thread):
+    """Test extract_chunks aggregates all chunks."""
     threads = [
         {"Question ID": 1},
         {"Question ID": 2}

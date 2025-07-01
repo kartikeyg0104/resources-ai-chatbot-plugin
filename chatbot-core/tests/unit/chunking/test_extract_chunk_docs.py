@@ -17,6 +17,7 @@ def test_process_page_builds_chunks(
     mock_assign_chunks,
     mock_build_chunk_dict
 ):
+    """Test it builds chunk dicts from content, and logs warning when no placeholders are found."""
     url = "http://example.com"
     html = "<html><body><h1>Title</h1><pre>code</pre></body></html>"
     text_splitter = Mock()
@@ -56,6 +57,7 @@ def test_process_page_builds_chunks(
 @patch("data.chunking.extract_chunk_docs.process_page")
 @patch("data.chunking.extract_chunk_docs.get_text_splitter")
 def test_extract_chunks_aggregates_chunks(mock_get_splitter, mock_process_page):
+    """Test extract_chunks processes all docs and aggregates the chunks."""
     docs = {
         "http://a": "<html></html>",
         "http://b": "<html></html>"

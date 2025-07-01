@@ -8,6 +8,7 @@ from data.chunking.extract_chunk_discourse import (
 )
 
 def test_extract_code_blocks_triple_backtick():
+    """Test extracting triple-backtick code blocks."""
     text = "Some intro.\n```python\nprint('hello')\n```\nMore text."
     code_blocks, clean_text = extract_code_blocks(text)
     assert code_blocks == ["print('hello')"]
@@ -15,6 +16,7 @@ def test_extract_code_blocks_triple_backtick():
 
 
 def test_extract_code_blocks_inline_backtick():
+    """Test extracting inline backtick code snippets."""
     text = "Some text with `inline code` example."
     code_blocks, clean_text = extract_code_blocks(text)
     assert code_blocks == ["inline code"]
@@ -22,6 +24,7 @@ def test_extract_code_blocks_inline_backtick():
 
 
 def test_extract_code_blocks_mixed():
+    """Test extracting mixed triple and inline code blocks."""
     text = "Before.\n```sql\nSELECT *\n```\nAnd `inline`."
     code_blocks, clean_text = extract_code_blocks(text)
     assert code_blocks == ["SELECT *", "inline"]
@@ -30,6 +33,7 @@ def test_extract_code_blocks_mixed():
 
 
 def test_extract_code_blocks_no_code():
+    """Test extracting when no code is present."""
     text = "Just some plain text without code."
     code_blocks, clean_text = extract_code_blocks(text)
     assert code_blocks == []
@@ -39,6 +43,7 @@ def test_extract_code_blocks_no_code():
 @patch("data.chunking.extract_chunk_discourse.build_chunk_dict")
 @patch("data.chunking.extract_chunk_discourse.assign_code_blocks_to_chunks")
 def test_process_thread_returns_chunks(mock_assign, mock_build):
+    """Test process_thread builds chunk dicts correctly."""
     thread = {
         "topic_id": 42,
         "title": "Test Title",
@@ -65,6 +70,7 @@ def test_process_thread_returns_chunks(mock_assign, mock_build):
 @patch("data.chunking.extract_chunk_discourse.get_text_splitter")
 @patch("data.chunking.extract_chunk_discourse.process_thread")
 def test_extract_chunks_aggregates_all_chunks(mock_process, mock_splitter):
+    """Test extract_chunks processes and combines all threads."""
     threads = [
         {"topic_id": 1},
         {"topic_id": 2}
