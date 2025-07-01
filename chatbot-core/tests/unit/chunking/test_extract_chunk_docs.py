@@ -3,8 +3,7 @@
 from unittest.mock import Mock, patch
 from data.chunking.extract_chunk_docs import (
     process_page,
-    extract_chunks,
-    main
+    extract_chunks
 )
 
 

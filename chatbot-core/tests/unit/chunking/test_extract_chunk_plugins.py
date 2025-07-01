@@ -3,7 +3,7 @@
 from unittest.mock import patch
 from data.chunking.extract_chunk_plugins import (
     process_plugin,
-    extract_chunks,
+    extract_chunks
 )
 
 @patch("data.chunking.extract_chunk_plugins.build_chunk_dict")
@@ -15,6 +15,7 @@ def test_process_plugin_returns_chunks(
     mock_build_chunk,
     mocker
 ):
+    """Test that it extracts code blocks, splits text,assigns code blocks to chunks."""
     plugin_name = "Test Plugin"
     html = "<html><body><pre>code</pre></body></html>"
     text_splitter = mocker.Mock()
@@ -42,6 +43,7 @@ def test_process_plugin_logs_warning_when_no_placeholder(
     mock_logger,
     mocker
 ):
+    """Test process_plugin logs warning if no placeholders."""
     plugin_name = "PluginX"
     html = "<html><body><pre>some code</pre></body></html>"
     text_splitter = mocker.Mock()
@@ -64,6 +66,7 @@ def test_process_plugin_logs_warning_when_no_placeholder(
 @patch("data.chunking.extract_chunk_plugins.process_plugin")
 @patch("data.chunking.extract_chunk_plugins.get_text_splitter")
 def test_extract_chunks_aggregates_chunks(mock_get_splitter, mock_process_plugin):
+    """Test extract_chunks aggregates all plugin chunks."""
     docs = {
         "PluginA": "<html></html>",
         "PluginB": "<html></html>"

@@ -5,8 +5,7 @@ from unittest.mock import Mock, patch
 from data.chunking.extract_chunk_stack import (
     clean_html,
     process_thread,
-    extract_chunks,
-    main
+    extract_chunks
 )
 
 
