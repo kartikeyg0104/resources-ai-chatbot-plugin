@@ -95,3 +95,13 @@ def patched_chunk_files(mocker):
 def mock_load_chunks_from_file(mocker):
     """Mock load_chunks_from_file function."""
     return mocker.patch("rag.embedding.embed_chunks.load_chunks_from_file")
+
+@pytest.fixture
+def mock_save_faiss_index(mocker):
+    """Mock save_faiss_index function."""
+    return mocker.patch("rag.vectorstore.store_embeddings.save_faiss_index")
+
+@pytest.fixture
+def mock_save_metadata(mocker):
+    """Mock save_metadata function."""
+    return mocker.patch("rag.vectorstore.store_embeddings.save_metadata")
