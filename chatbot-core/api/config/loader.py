@@ -17,13 +17,19 @@ def load_config():
     Returns:
         dict: Parsed configuration values.
     """
-    config_path = os.path.join(os.path.dirname(__file__), "config.yml")
+    file_dir = os.path.dirname(__file__)
+    config_dev_path = os.path.join(file_dir, "config.yml")
+    config_testing_path = os.path.join(file_dir, "config-testing.yml")
+
+    if os.environ.get("PYTEST_VERSION") is not None:
+        logger.info("#### Loading test configuration ####")
+        config_path = config_testing_path
+    else:
+        logger.info("#### Loading dev configuration ####")
+        config_path = config_dev_path
+
     with open(config_path, "r", encoding='utf-8') as f:
         config = yaml.safe_load(f)
-
-    config["is_test_mode"] = os.getenv("IS_TESTING", "0") == "1"
-    if config["is_test_mode"]:
-        logger.info("#### Running in Test Mode ####")
 
     return config
 
