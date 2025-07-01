@@ -1,6 +1,6 @@
 """Unit Tests for extract_chunk_plugins module."""
 
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 from data.chunking.extract_chunk_plugins import (
     process_plugin,
     extract_chunks,
@@ -12,11 +12,12 @@ from data.chunking.extract_chunk_plugins import (
 def test_process_plugin_returns_chunks(
     mock_extract_code,
     mock_assign_chunks,
-    mock_build_chunk
+    mock_build_chunk,
+    mocker
 ):
     plugin_name = "Test Plugin"
     html = "<html><body><pre>code</pre></body></html>"
-    text_splitter = Mock()
+    text_splitter = mocker.Mock()
     text_splitter.split_text.return_value = ["chunk1"]
 
     mock_extract_code.return_value = ["code block"]
@@ -38,14 +39,14 @@ def test_process_plugin_returns_chunks(
 @patch("data.chunking.extract_chunk_plugins.extract_code_blocks")
 def test_process_plugin_logs_warning_when_no_placeholder(
     mock_extract_code,
-    mock_logger
+    mock_logger,
+    mocker
 ):
     plugin_name = "PluginX"
     html = "<html><body><pre>some code</pre></body></html>"
-    text_splitter = Mock()
+    text_splitter = mocker.Mock()
     text_splitter.split_text.return_value = ["chunk1"]
 
-    # Simulate a code block extracted but no placeholder in text
     mock_extract_code.return_value = ["code block"]
 
     with patch("data.chunking.extract_chunk_plugins.assign_code_blocks_to_chunks") as mock_assign, \
@@ -55,7 +56,6 @@ def test_process_plugin_logs_warning_when_no_placeholder(
 
         result = process_plugin(plugin_name, html, text_splitter)
 
-        # Should log a warning
         mock_logger.warning.assert_called_once()
         assert "no placeholders found" in mock_logger.warning.call_args[0][0]
         assert result == ["chunk dict"]
