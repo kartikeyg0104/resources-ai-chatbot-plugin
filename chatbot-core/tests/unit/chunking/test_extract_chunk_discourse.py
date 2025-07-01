@@ -36,7 +36,7 @@ def test_extract_code_blocks_no_code():
     """Test extracting when no code is present."""
     text = "Just some plain text without code."
     code_blocks, clean_text = extract_code_blocks(text)
-    assert code_blocks == []
+    assert not code_blocks
     assert clean_text == text
 
 

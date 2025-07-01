@@ -40,7 +40,7 @@ def test_extract_code_blocks_replaces_code_with_placeholders():
     placeholder_template = "[[CODE_{0}]]"
     tag_to_search = "pre"
     code_blocks = extract_code_blocks(soup, tag_to_search, placeholder_template)
-    
+
     assert code_blocks == ["code block one", "code block two"]
     placeholders = [str(el) for el in soup.div.children if el.name is None]
     assert "[[CODE_0]]" in placeholders[0]

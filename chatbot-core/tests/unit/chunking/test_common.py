@@ -2,16 +2,17 @@
 
 import json
 import uuid
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from data.chunking.chunking_utils import (
     save_chunks,
     read_json_file,
     build_chunk_dict,
     get_text_splitter
 )
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 
 def test_save_chunks_writes_file(mocker, tmp_path):
+    """Test save_chunks writes JSON file and logs info."""
     output_file = tmp_path / "output.json"
     data = [{"id": "1", "chunk_text": "Chuk text"}]
     logger = mocker.Mock()
@@ -25,6 +26,7 @@ def test_save_chunks_writes_file(mocker, tmp_path):
 
 
 def test_save_chunks_handles_error(mocker):
+    """Test save_chunks logs error on OSError."""
     logger = mocker.Mock()
     fake_path = "/nonexistent/output.json"
     data = [{"id": "1", "chunk_text": "Test"}]
@@ -40,6 +42,7 @@ def test_save_chunks_handles_error(mocker):
 
 
 def test_read_json_file_returns_data(mocker, tmp_path):
+    """Test read_json_file loads JSON data."""
     input_file = tmp_path / "input.json"
     test_data = {"key": "value"}
     input_file.write_text(json.dumps(test_data), encoding="utf-8")
@@ -51,6 +54,7 @@ def test_read_json_file_returns_data(mocker, tmp_path):
 
 
 def test_read_json_file_handles_file_not_found(mocker, tmp_path):
+    """Test read_json_file returns [] if file missing."""
     nonexistent_file = tmp_path / "missing.json"
     logger = mocker.Mock()
 
@@ -61,6 +65,7 @@ def test_read_json_file_handles_file_not_found(mocker, tmp_path):
 
 
 def test_read_json_file_handles_json_decode_error(mocker, tmp_path):
+    """Test read_json_file returns [] on JSON decode error."""
     input_file = tmp_path / "bad.json"
     input_file.write_text("{ invalid json }", encoding="utf-8")
     logger = mocker.Mock()
@@ -72,6 +77,7 @@ def test_read_json_file_handles_json_decode_error(mocker, tmp_path):
 
 
 def test_build_chunk_dict_generates_correct_structure():
+    """Test build_chunk_dict returns valid chunk dict."""
     chunk_text = "some text"
     metadata = {"a": 1}
     code_blocks = ["code1"]
@@ -87,6 +93,7 @@ def test_build_chunk_dict_generates_correct_structure():
 
 
 def test_get_text_splitter_returns_splitter():
+    """Test get_text_splitter returns configured splitter."""
     chunk_size = 100
     chunk_overlap = 10
     separators = ["\n", " "]
@@ -100,6 +107,7 @@ def test_get_text_splitter_returns_splitter():
 
 
 def test_get_text_splitter_defaults_separators():
+    """Test get_text_splitter uses default separators."""
     splitter = get_text_splitter(100, 10)
 
     assert isinstance(splitter, RecursiveCharacterTextSplitter)
