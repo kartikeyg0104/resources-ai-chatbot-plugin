@@ -76,6 +76,7 @@ def test_read_json_file_handles_json_decode_error(mocker, tmp_path):
     assert "JSON decode error" in logger.error.call_args[0][0]
 
 
+# pylint: disable=protected-access
 def test_build_chunk_dict_generates_correct_structure():
     """Test build_chunk_dict returns valid chunk dict."""
     chunk_text = "some text"
@@ -92,6 +93,7 @@ def test_build_chunk_dict_generates_correct_structure():
     assert chunk["code_blocks"] == code_blocks
 
 
+# pylint: disable=protected-access
 def test_get_text_splitter_returns_splitter():
     """Test get_text_splitter returns configured splitter."""
     chunk_size = 100

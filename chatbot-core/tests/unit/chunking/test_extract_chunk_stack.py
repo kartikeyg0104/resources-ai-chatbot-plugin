@@ -1,7 +1,7 @@
 """Unit Tests for extract_chunk_stack module."""
 
-from bs4 import BeautifulSoup
 from unittest.mock import Mock, patch
+from bs4 import BeautifulSoup
 from data.chunking.extract_chunk_stack import (
     clean_html,
     process_thread,
@@ -22,7 +22,7 @@ def test_clean_html_parses_html():
 @patch("data.chunking.extract_chunk_stack.extract_code_blocks")
 def test_process_thread_returns_chunks(
     mock_extract_code,
-    mock_assign_chunks,
+    mock_assign_blocks,
     mock_build_chunk
 ):
     """Test process_thread builds chunk dicts."""
@@ -38,10 +38,9 @@ def test_process_thread_returns_chunks(
     }
     text_splitter = Mock()
     text_splitter.split_text.return_value = ["chunk1"]
-
     mock_extract_code.return_value = ["code block"]
-    mock_assign_chunks.return_value = [
-        {"chunk_text": "chunk1", "code_blocks": ["code block"]}
+    mock_assign_blocks.return_value = [
+        {"chunk_text": "chunk", "code_blocks": ["code block"]}
     ]
     mock_build_chunk.return_value = "chunk dict"
 
@@ -49,7 +48,7 @@ def test_process_thread_returns_chunks(
 
     mock_extract_code.assert_called_once()
     text_splitter.split_text.assert_called_once()
-    mock_assign_chunks.assert_called_once()
+    mock_assign_blocks.assert_called_once()
     mock_build_chunk.assert_called_once()
     assert result == ["chunk dict"]
 
