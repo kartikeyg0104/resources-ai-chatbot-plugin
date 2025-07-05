@@ -19,6 +19,7 @@ def test_save_chunks_writes_file(mocker, tmp_path):
 
     save_chunks(str(output_file), data, logger)
 
+    assert len(list(tmp_path.iterdir())) == 1
     content = json.loads(output_file.read_text(encoding="utf-8"))
     assert content == data
     logger.info.assert_called_once()
