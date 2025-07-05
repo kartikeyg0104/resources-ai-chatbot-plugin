@@ -46,7 +46,7 @@ def search_index(query_vector, index, metadata, logger, top_k):
     if index.ntotal == 0:
         logger.warning("FAISS index is empty. No search will be performed.")
         return [], []
-    
+
     if index.ntotal != len(metadata):
         logger.warning(
             "Index contains %d vectors but metadata has %d entries." \

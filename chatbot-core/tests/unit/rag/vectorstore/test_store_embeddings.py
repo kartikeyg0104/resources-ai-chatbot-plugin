@@ -35,7 +35,7 @@ def test_build_faiss_ivf_index_trains_and_adds_vectors(mocker):
 
 
 def test_build_faiss_ivf_index_raises_on_wrong_dtype(mocker):
-    """Test that build_faiss_ivf_index raises if vectors are not float32."""
+    """Test that build_faiss_ivf_index raises Exception if vectors are not float32."""
     vectors = np.random.rand(10, 5).astype("float64")
     mock_logger = mocker.Mock()
 
@@ -51,7 +51,7 @@ def test_build_faiss_ivf_index_raises_on_wrong_dtype(mocker):
 
 
 def test_build_faiss_ivf_index_raises_on_1d_input(mocker):
-    """Test that build_faiss_ivf_index raises IndexErro if vectors are 1D."""
+    """Test that build_faiss_ivf_index raises Exception if vectors are 1D."""
     vectors = np.random.rand(5).astype("float32")
     mock_logger = mocker.Mock()
 
@@ -66,8 +66,8 @@ def test_build_faiss_ivf_index_raises_on_1d_input(mocker):
     assert "Vectors must be 2D" in str(excinfo.value)
 
 
-def test_build_faiss_ivf_index_raises_on_1d_input(mocker):
-    """Test that build_faiss_ivf_index raises IndexErro if vectors are 1D."""
+def test_build_faiss_ivf_index_raises_on_not_np_array(mocker):
+    """Test that build_faiss_ivf_index raises Exception if vectors are not numpy instance."""
     vectors = [[0.1, 0.1, 0.1],[0.3, 0.3, 0.3]]
     mock_logger = mocker.Mock()
 
