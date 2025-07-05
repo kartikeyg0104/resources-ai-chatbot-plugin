@@ -113,3 +113,35 @@ def test_search_index_out_of_bounds_index(mocker):
     assert "out of range" in mock_logger.error.call_args[0][0]
     assert data == [{"id": "doc1"}]
     assert scores == pytest.approx([0.1])
+
+
+def test_search_index_warns_when_metadata_longer_than_index(mocker):
+    """Test search_index warns if metadata has more entries than index.ntotal."""
+    mock_logger = mocker.Mock()
+    index = mocker.Mock()
+    index.ntotal = 1
+    index.search.return_value = (
+        np.array([[0.1]]),
+        np.array([[0]])
+    )
+    metadata = [{"id": "doc1"}, {"id": "extra_doc"}]
+    query_vector = np.array([0.1, 0.2], dtype=np.float32)
+
+    data, scores = search_index(
+        query_vector=query_vector,
+        index=index,
+        metadata=metadata,
+        logger=mock_logger,
+        top_k=1
+    )
+
+    mock_logger.warning.assert_any_call(
+        "Index contains %d vectors but metadata has %d entries." \
+        " Some results may be missing or inconsistent.",
+        1,
+        2
+    )
+
+    mock_logger.error.assert_not_called()
+    assert data == [{"id": "doc1"}]
+    assert scores == pytest.approx([0.1])
