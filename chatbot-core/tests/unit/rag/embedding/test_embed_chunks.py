@@ -125,6 +125,48 @@ def test_load_chunks_from_file_json_decode_error(mocker):
     assert "JSON decode error" in mock_logger.error.call_args[0][0]
 
 
+def test_embed_chunks_with_all_invalid_chunks(
+    mock_collect_all_chunks,
+    mock_load_embedding_model,
+    mock_embed_documents,
+    mocker
+):
+    """Test embed_chunks returns empty lists if all chunks are invalid."""
+    mock_collect_all_chunks.return_value = get_mock_chunks("all-invalid")
+
+    mock_logger = mocker.Mock()
+
+    _, _ = embed_chunks(mock_logger)
+
+    mock_embed_documents.assert_called_once_with(
+        [],
+        mock_load_embedding_model.return_value,
+        mock_logger
+    )
+    assert mock_logger.warning.call_count >= 1
+
+
+def test_embed_chunks_with_no_chunks(
+    mock_collect_all_chunks,
+    mock_load_embedding_model,
+    mock_embed_documents,
+    mocker
+):
+    """Test embed_chunks returns empty lists if no chunks are loaded."""
+    mock_collect_all_chunks.return_value = []
+
+    mock_logger = mocker.Mock()
+
+    _, _ = embed_chunks(mock_logger)
+
+    mock_embed_documents.assert_called_once_with(
+        [],
+        mock_load_embedding_model.return_value,
+        mock_logger
+    )
+    mock_logger.info.assert_any_call("Collected %d chunks.", 0)
+
+
 def get_mock_chunks(chunk_type: str):
     """Helper to get mock chunks for embedding tests."""
     if chunk_type == "valid":
@@ -160,5 +202,10 @@ def get_mock_chunks(chunk_type: str):
                 "metadata": {"source": "doc3"},
                 "code_blocks": []
             }
+        ]
+    if chunk_type == "all-invalid":
+        return [
+            {"id": "1", "chunk_text": "", "metadata": None},
+            {"id": "2", "chunk_text": "", "metadata": {}}
         ]
     return []
