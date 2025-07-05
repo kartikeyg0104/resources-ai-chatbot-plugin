@@ -2,6 +2,7 @@
 
 import numpy as np
 import faiss
+import pytest
 from rag.vectorstore import store_embeddings
 
 def test_build_faiss_ivf_index_trains_and_adds_vectors(mocker):
@@ -31,6 +32,54 @@ def test_build_faiss_ivf_index_trains_and_adds_vectors(mocker):
     mock_logger.info.assert_any_call("FAISS index training started...")
     mock_logger.info.assert_any_call("FAISS index training completed.")
     assert result_index.nprobe == 2
+
+
+def test_build_faiss_ivf_index_raises_on_wrong_dtype(mocker):
+    """Test that build_faiss_ivf_index raises if vectors are not float32."""
+    vectors = np.random.rand(10, 5).astype("float64")
+    mock_logger = mocker.Mock()
+
+    with pytest.raises(TypeError) as excinfo:
+        store_embeddings.build_faiss_ivf_index(
+            vectors,
+            nlist=4,
+            nprobe=2,
+            logger=mock_logger
+        )
+
+    assert "Vectors must be float32" in str(excinfo.value)
+
+
+def test_build_faiss_ivf_index_raises_on_1d_input(mocker):
+    """Test that build_faiss_ivf_index raises IndexErro if vectors are 1D."""
+    vectors = np.random.rand(5).astype("float32")
+    mock_logger = mocker.Mock()
+
+    with pytest.raises(ValueError) as excinfo:
+        store_embeddings.build_faiss_ivf_index(
+            vectors,
+            nlist=4,
+            nprobe=2,
+            logger=mock_logger
+        )
+
+    assert "Vectors must be 2D" in str(excinfo.value)
+
+
+def test_build_faiss_ivf_index_raises_on_1d_input(mocker):
+    """Test that build_faiss_ivf_index raises IndexErro if vectors are 1D."""
+    vectors = [[0.1, 0.1, 0.1],[0.3, 0.3, 0.3]]
+    mock_logger = mocker.Mock()
+
+    with pytest.raises(TypeError) as excinfo:
+        store_embeddings.build_faiss_ivf_index(
+            vectors,
+            nlist=4,
+            nprobe=2,
+            logger=mock_logger
+        )
+
+    assert "Vectors must be an instance of numpy.ndarray." in str(excinfo.value)
 
 
 def test_run_indexing_successful(
