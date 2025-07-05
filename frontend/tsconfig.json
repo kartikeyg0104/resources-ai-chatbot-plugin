@@ -2,6 +2,7 @@
   "files": [],
   "compilerOptions": {
     "jsx": "react-jsx",
+    "types": ["jest", "@testing-library/jest-dom"],
     "resolveJsonModule": true,
     "esModuleInterop": true
   },
