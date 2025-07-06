@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { Sidebar } from "../components/Sidebar";
 import type { ChatSession } from "../model/ChatSession";
+import { getChatbotText } from '../data/chatbotTexts';
 
 jest.mock("../data/chatbotTexts", () => ({
   getChatbotText: (key: string) => key,
@@ -36,13 +37,13 @@ describe("Sidebar component", () => {
 
   it("renders close and new chat buttons", () => {
     render(<Sidebar {...baseProps} chatList={[]} />);
-    expect(screen.getByText("sidebarCreateNewChat")).toBeInTheDocument();
-    expect(screen.getByText("×")).toBeInTheDocument();
+    expect(screen.getByText(getChatbotText("sidebarCreateNewChat"))).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Close Sidebar" })).toBeInTheDocument();
   });
 
   it("renders no chats message when chatList is empty", () => {
     render(<Sidebar {...baseProps} chatList={[]} />);
-    expect(screen.getByText("sidebarNoActiveChats")).toBeInTheDocument();
+    expect(screen.getByText(getChatbotText("sidebarNoActiveChats"))).toBeInTheDocument();
   });
 
   it("renders chat list with correct chat names", () => {
@@ -53,13 +54,13 @@ describe("Sidebar component", () => {
 
   it("calls onClose when close button is clicked", () => {
     render(<Sidebar {...baseProps} chatList={[]} />);
-    fireEvent.click(screen.getByText("×"));
+    fireEvent.click(screen.getByRole("button", { name: "Close Sidebar" }));
     expect(baseProps.onClose).toHaveBeenCalled();
   });
 
   it("calls onClose and onCreateChat when new chat button is clicked", () => {
     render(<Sidebar {...baseProps} chatList={[]} />);
-    fireEvent.click(screen.getByText("sidebarCreateNewChat"));
+    fireEvent.click(screen.getByText(getChatbotText("sidebarCreateNewChat")));
     expect(baseProps.onClose).toHaveBeenCalled();
     expect(baseProps.onCreateChat).toHaveBeenCalled();
   });
@@ -72,7 +73,7 @@ describe("Sidebar component", () => {
 
   it("calls openConfirmDeleteChatPopup when delete button is clicked", () => {
     render(<Sidebar {...baseProps} chatList={exampleChats} />);
-    const deleteButton = screen.getAllByRole("button", { name: "🗑" })[0];
+    const deleteButton = screen.getAllByRole("button", { name: "Delete Chat" })[0];
     fireEvent.click(deleteButton);
     expect(baseProps.openConfirmDeleteChatPopup).toHaveBeenCalledWith("chat-1");
   });

@@ -44,6 +44,7 @@ export const Sidebar = ({ onClose, onCreateChat, onSwitchChat, openConfirmDelete
                 onClose();
                 onCreateChat();
             }}
+            aria-label="Close Sidebar"
             style={chatbotStyles.sidebarCreateNewChatButton}
         >
             {getChatbotText("sidebarCreateNewChat")}
@@ -68,6 +69,7 @@ export const Sidebar = ({ onClose, onCreateChat, onSwitchChat, openConfirmDelete
                             e.stopPropagation();
                             openConfirmDeleteChatPopup(chat.id)
                         }}
+                        aria-label="Delete Chat"
                     >
                         &#128465;
                     </button>

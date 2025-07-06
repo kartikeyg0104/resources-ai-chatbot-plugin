@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { Messages } from "../components/Messages";
 import { type Message } from "../model/Message";
+import { getChatbotText } from "../data/chatbotTexts";
 
 jest.mock("../data/chatbotTexts", () => ({
   getChatbotText: (key: string) => {
@@ -52,7 +53,7 @@ describe("Messages component", () => {
 
   it("renders loading message when loading is true", () => {
     render(<Messages messages={[]} loading={true} />);
-    expect(screen.getByText("Generating reply...")).toBeInTheDocument();
+    expect(screen.getByText(getChatbotText('generatingMessage'))).toBeInTheDocument();
   });
 
   it("calls scrollIntoView when messages change", () => {
