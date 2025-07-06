@@ -29,7 +29,7 @@ const exampleChats: ChatSession[] = [
   },
 ];
 
-describe("<Sidebar />", () => {
+describe("Sidebar component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -83,29 +83,29 @@ describe("<Sidebar />", () => {
   });
 
   it("truncates chat name when first message text exceeds 25 characters", () => {
-  const longMessageChat: ChatSession = {
-    id: "chat-long",
-    messages: [
-      {
-        id: "msg-1",
-        sender: "user",
-        text: "This is a very long message that should be truncated properly.",
-      },
-    ],
-    createdAt: "2024-01-03T00:00:00Z",
-    isLoading: false,
-  };
+    const longMessageChat: ChatSession = {
+      id: "chat-long",
+      messages: [
+        {
+          id: "msg-1",
+          sender: "user",
+          text: "This is a very long message that should be truncated properly.",
+        },
+      ],
+      createdAt: "2024-01-03T00:00:00Z",
+      isLoading: false,
+    };
 
-  render(
-    <Sidebar
-      {...baseProps}
-      chatList={[longMessageChat]}
-      activeChatId={null}
-    />
-  );
+    render(
+      <Sidebar
+        {...baseProps}
+        chatList={[longMessageChat]}
+        activeChatId={null}
+      />
+    );
 
-  const expectedTruncated = "This is a very long messa...";
+    const expectedTruncated = "This is a very long messa...";
 
-  expect(screen.getByText(expectedTruncated)).toBeInTheDocument();
-});
+    expect(screen.getByText(expectedTruncated)).toBeInTheDocument();
+  });
 });

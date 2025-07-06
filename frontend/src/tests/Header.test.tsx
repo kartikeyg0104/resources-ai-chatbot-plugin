@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { getChatbotText } from "../data/chatbotTexts";
 import { Header } from "../components/Header";
 
-describe("<Header />", () => {
+describe("Header Component", () => {
   const mockOpenSideBar = jest.fn();
   const mockClearMessages = jest.fn();
 

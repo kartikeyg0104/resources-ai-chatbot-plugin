@@ -9,7 +9,7 @@ jest.mock("../data/chatbotTexts", () => ({
   },
 }));
 
-describe("<Messages />", () => {
+describe("Messages component", () => {
   const exampleMessages: Message[] = [
     { id: "1", sender: "user", text: "Hello" },
     { id: "2", sender: "jenkins-bot", text: "Hi there!" },
@@ -69,5 +69,5 @@ describe("<Messages />", () => {
     );
 
     expect(scrollMock).toHaveBeenCalledWith({ behavior: "smooth" });
-   });
+  });
 });
