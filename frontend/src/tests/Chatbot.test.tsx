@@ -174,7 +174,6 @@ describe("Chatbot component", () => {
     render(<Chatbot />);
     fireEvent.click(screen.getByRole("button", { name: getChatbotText("toggleButtonLabel") }));
 
-    // Open Sidebar and trigger Delete Chat
     fireEvent.click(screen.getByText("Open Sidebar"));
     fireEvent.click(screen.getByText("Delete Chat"));
 
