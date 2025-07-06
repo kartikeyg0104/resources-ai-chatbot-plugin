@@ -44,7 +44,7 @@ describe("callChatbotApi", () => {
   it("returns fallback value when request times out (AbortError)", async () => {
     const abortError = { name: "AbortError" };
 
-    fetchMock.mockRejectedValueOnce(abortError as any);
+    fetchMock.mockRejectedValueOnce(abortError);
 
     const fallback = { error: "timeout" };
     const result = await callChatbotApi("timeout-endpoint", {}, fallback, 10);

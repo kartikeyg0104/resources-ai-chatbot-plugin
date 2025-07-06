@@ -2,6 +2,10 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { Chatbot } from "../components/Chatbot";
 import * as chatbotApi from "../api/chatbot";
 import { getChatbotText } from "../data/chatbotTexts";
+import type { SidebarProps } from "../components/Sidebar";
+import type { HeaderProps } from "../components/Header";
+import type { InputProps } from "../components/Input";
+import type { MessagesProps } from "../components/Messages";
 
 jest.mock("../api/chatbot", () => ({
   fetchChatbotReply: jest.fn().mockResolvedValue({
@@ -18,7 +22,7 @@ jest.mock("uuid", () => ({
 }));
 
 jest.mock("../components/Sidebar", () => ({
-  Sidebar: ({ onClose, onCreateChat, onSwitchChat, openConfirmDeleteChatPopup }: any) => (
+  Sidebar: ({ onClose, onCreateChat, onSwitchChat, openConfirmDeleteChatPopup }: SidebarProps) => (
     <div data-testid="sidebar">
       <button onClick={onClose}>Close Sidebar</button>
       <button onClick={onCreateChat}>New Chat</button>
@@ -29,7 +33,7 @@ jest.mock("../components/Sidebar", () => ({
 }));
 
 jest.mock("../components/Header", () => ({
-  Header: ({ openSideBar, clearMessages }: any) => (
+  Header: ({ openSideBar, clearMessages }: HeaderProps) => (
     <div data-testid="header">
       <button onClick={openSideBar}>Open Sidebar</button>
       <button onClick={() => clearMessages("session-1")}>Clear Chat</button>
@@ -38,7 +42,7 @@ jest.mock("../components/Header", () => ({
 }));
 
 jest.mock("../components/Input", () => ({
-  Input: ({ setInput, onSend }: any) => (
+  Input: ({ setInput, onSend }: InputProps) => (
     <div data-testid="input">
       <button onClick={() => setInput("Hello bot")}>Set Input</button>
       <button onClick={onSend}>Send Message</button>
@@ -47,9 +51,9 @@ jest.mock("../components/Input", () => ({
 }));
 
 jest.mock("../components/Messages", () => ({
-  Messages: ({ messages, loading }: any) => (
+  Messages: ({ messages, loading }: MessagesProps) => (
     <div data-testid="messages">
-      {loading ? "Loading..." : messages.map((m: any) => m.text).join(",")}
+      {loading ? "Loading..." : messages.map((m) => m.text).join(",")}
     </div>
   ),
 }));

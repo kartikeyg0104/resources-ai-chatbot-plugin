@@ -5,7 +5,7 @@ import { chatbotStyles } from '../styles/styles';
 /**
  * Props for the Input component.
  */
-interface InputProps {
+export interface InputProps {
   input: string;
   setInput: (value: string) => void;
   onSend: () => void;

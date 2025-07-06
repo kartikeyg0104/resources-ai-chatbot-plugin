@@ -5,7 +5,7 @@ import { getChatbotText } from '../data/chatbotTexts';
 /**
  * Props for the Sidebar component.
  */
-interface SidebarProps {
+export interface SidebarProps {
   onClose: () => void;
   onCreateChat: () => void;
   onSwitchChat: (chatSessionId: string) => void;
