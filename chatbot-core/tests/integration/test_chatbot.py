@@ -114,9 +114,10 @@ def test_multiple_messages_in_session(client, mock_llm_provider, mock_get_releva
         assert resp.json()["reply"] == f"Reply {i+1}"
 
 
-def test_multiple_sessions_are_isolated(client, mock_llm_provider):
+def test_multiple_sessions_are_isolated(client, mock_llm_provider, mock_get_relevant_documents):
     """Ensure messages in different sessions don't interfere with each other."""
     mock_llm_provider.generate.return_value = "LLM response"
+    mock_get_relevant_documents.return_value = get_relevant_documents_output()
 
     session_a = client.post("/sessions").json()["session_id"]
     session_b = client.post("/sessions").json()["session_id"]
