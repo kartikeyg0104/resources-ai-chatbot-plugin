@@ -93,6 +93,18 @@ describe("Sidebar component", () => {
     expect(screen.getByText("Hello world")).toBeInTheDocument();
   });
 
+  it("renders full chat name when first message text is 25 characters or less", () => {
+    const shortMessageChat: ChatSession = {
+      id: "chat-short",
+      messages: [{ id: "msg-1", sender: "user", text: "Short message" }],
+      createdAt: "2024-01-01T00:00:00Z",
+      isLoading: false,
+    };
+
+    render(<Sidebar {...baseProps} chatList={[shortMessageChat]} />);
+    expect(screen.getByText("Short message")).toBeInTheDocument();
+  });
+
   it("truncates chat name when first message text exceeds 25 characters", () => {
     const longMessageChat: ChatSession = {
       id: "chat-long",
