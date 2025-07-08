@@ -53,6 +53,12 @@ describe("storageUtils", () => {
       const result = loadChatbotSessions();
       expect(result).toEqual([]);
     });
+
+    it("returns empty array when saved data is an empty array", () => {
+      sessionStorage.setItem("chatbot-sessions", "[]");
+      const result = loadChatbotSessions();
+      expect(result).toEqual([]);
+    });
   });
 
   describe("loadChatbotLastSessionId", () => {
