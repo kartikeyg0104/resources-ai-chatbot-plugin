@@ -11,15 +11,20 @@ describe("callChatbotApi", () => {
     const mockData = { reply: "Hello" };
     fetchMock.mockResponseOnce(JSON.stringify(mockData));
 
-    const result = await callChatbotApi("some-endpoint", {}, { fallback: true }, 5000);
+    const result = await callChatbotApi(
+      "some-endpoint",
+      {},
+      { fallback: true },
+      5000,
+    );
 
     expect(result).toEqual(mockData);
 
     expect(fetchMock).toHaveBeenCalledWith(
       `${API_BASE_URL}/api/chatbot/some-endpoint`,
       expect.objectContaining({
-        signal: expect.any(Object)
-      })
+        signal: expect.any(Object),
+      }),
     );
   });
 

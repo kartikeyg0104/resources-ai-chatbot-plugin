@@ -17,10 +17,12 @@ describe("Header Component", () => {
         currentSessionId={null}
         openSideBar={mockOpenSideBar}
         clearMessages={mockClearMessages}
-      />
+      />,
     );
 
-    const sidebarButton = screen.getByRole("button", { name: "Toggle sidebar" });
+    const sidebarButton = screen.getByRole("button", {
+      name: "Toggle sidebar",
+    });
     expect(sidebarButton).toBeInTheDocument();
   });
 
@@ -30,10 +32,12 @@ describe("Header Component", () => {
         currentSessionId={null}
         openSideBar={mockOpenSideBar}
         clearMessages={mockClearMessages}
-      />
+      />,
     );
 
-    const clearButton = screen.queryByRole("button", { name: getChatbotText("clearChat") });
+    const clearButton = screen.queryByRole("button", {
+      name: getChatbotText("clearChat"),
+    });
     expect(clearButton).not.toBeInTheDocument();
   });
 
@@ -43,10 +47,12 @@ describe("Header Component", () => {
         currentSessionId="session-1"
         openSideBar={mockOpenSideBar}
         clearMessages={mockClearMessages}
-      />
+      />,
     );
 
-    const clearButton = screen.getByRole("button", { name: getChatbotText("clearChat") });
+    const clearButton = screen.getByRole("button", {
+      name: getChatbotText("clearChat"),
+    });
     expect(clearButton).toBeInTheDocument();
   });
 
@@ -56,10 +62,12 @@ describe("Header Component", () => {
         currentSessionId={null}
         openSideBar={mockOpenSideBar}
         clearMessages={mockClearMessages}
-      />
+      />,
     );
 
-    const sidebarButton = screen.getByRole("button", { name: "Toggle sidebar" });
+    const sidebarButton = screen.getByRole("button", {
+      name: "Toggle sidebar",
+    });
     fireEvent.click(sidebarButton);
 
     expect(mockOpenSideBar).toHaveBeenCalled();
@@ -71,10 +79,12 @@ describe("Header Component", () => {
         currentSessionId="session-1"
         openSideBar={mockOpenSideBar}
         clearMessages={mockClearMessages}
-      />
+      />,
     );
 
-    const clearButton = screen.getByRole("button", { name: getChatbotText("clearChat") });
+    const clearButton = screen.getByRole("button", {
+      name: getChatbotText("clearChat"),
+    });
     fireEvent.click(clearButton);
 
     expect(mockClearMessages).toHaveBeenCalledWith("session-1");

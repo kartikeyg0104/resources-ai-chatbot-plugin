@@ -33,27 +33,29 @@ describe("Messages component", () => {
 
   it("splits multiline message into separate lines", () => {
     const multiLineMessage: Message = {
-        id: "3",
-        sender: "user",
-        text: "Line 1\nLine 2\nLine 3",
+      id: "3",
+      sender: "user",
+      text: "Line 1\nLine 2\nLine 3",
     };
 
     render(<Messages messages={[multiLineMessage]} loading={false} />);
 
     expect(
-        screen.getByText((content) => content.includes("Line 1"))
+      screen.getByText((content) => content.includes("Line 1")),
     ).toBeInTheDocument();
     expect(
-        screen.getByText((content) => content.includes("Line 2"))
+      screen.getByText((content) => content.includes("Line 2")),
     ).toBeInTheDocument();
     expect(
-        screen.getByText((content) => content.includes("Line 3"))
+      screen.getByText((content) => content.includes("Line 3")),
     ).toBeInTheDocument();
   });
 
   it("renders loading message when loading is true", () => {
     render(<Messages messages={[]} loading={true} />);
-    expect(screen.getByText(getChatbotText('generatingMessage'))).toBeInTheDocument();
+    expect(
+      screen.getByText(getChatbotText("generatingMessage")),
+    ).toBeInTheDocument();
   });
 
   it("calls scrollIntoView when messages change", () => {
@@ -63,10 +65,10 @@ describe("Messages component", () => {
     scrollMock.mockClear();
 
     rerender(
-        <Messages
+      <Messages
         messages={[{ id: "1", sender: "user", text: "Hello" }]}
         loading={false}
-        />
+      />,
     );
 
     expect(scrollMock).toHaveBeenCalledWith({ behavior: "smooth" });

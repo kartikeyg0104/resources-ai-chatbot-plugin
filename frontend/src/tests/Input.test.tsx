@@ -18,27 +18,43 @@ describe("Input Component", () => {
 
   it("calls setInput when typing", () => {
     render(<Input input="" setInput={mockSetInput} onSend={mockOnSend} />);
-    fireEvent.change(screen.getByRole("textbox"), { target: { value: "Hello" } });
+    fireEvent.change(screen.getByRole("textbox"), {
+      target: { value: "Hello" },
+    });
     expect(mockSetInput).toHaveBeenCalledWith("Hello");
   });
 
   it("calls onSend when Enter is pressed", () => {
-    render(<Input input="Some text" setInput={mockSetInput} onSend={mockOnSend} />);
-    fireEvent.keyDown(screen.getByRole("textbox"), { key: "Enter", shiftKey: false });
+    render(
+      <Input input="Some text" setInput={mockSetInput} onSend={mockOnSend} />,
+    );
+    fireEvent.keyDown(screen.getByRole("textbox"), {
+      key: "Enter",
+      shiftKey: false,
+    });
     expect(mockOnSend).toHaveBeenCalled();
   });
 
   it("does not call onSend when Shift+Enter is pressed", () => {
-    render(<Input input="Some text" setInput={mockSetInput} onSend={mockOnSend} />);
-    fireEvent.keyDown(screen.getByRole("textbox"), { key: "Enter", shiftKey: true });
+    render(
+      <Input input="Some text" setInput={mockSetInput} onSend={mockOnSend} />,
+    );
+    fireEvent.keyDown(screen.getByRole("textbox"), {
+      key: "Enter",
+      shiftKey: true,
+    });
     expect(mockOnSend).not.toHaveBeenCalled();
   });
 
   it("disables the send button when input is empty or whitespace", () => {
-    const { rerender } = render(<Input input="" setInput={mockSetInput} onSend={mockOnSend} />);
+    const { rerender } = render(
+      <Input input="" setInput={mockSetInput} onSend={mockOnSend} />,
+    );
     expect(screen.getByRole("button")).toBeDisabled();
 
-    rerender(<Input input="    " setInput={mockSetInput} onSend={mockOnSend} />);
+    rerender(
+      <Input input="    " setInput={mockSetInput} onSend={mockOnSend} />,
+    );
     expect(screen.getByRole("button")).toBeDisabled();
   });
 
@@ -48,7 +64,13 @@ describe("Input Component", () => {
   });
 
   it("calls onSend when button is clicked", () => {
-    render(<Input input="Test message" setInput={mockSetInput} onSend={mockOnSend} />);
+    render(
+      <Input
+        input="Test message"
+        setInput={mockSetInput}
+        onSend={mockOnSend}
+      />,
+    );
     fireEvent.click(screen.getByRole("button"));
     expect(mockOnSend).toHaveBeenCalled();
   });

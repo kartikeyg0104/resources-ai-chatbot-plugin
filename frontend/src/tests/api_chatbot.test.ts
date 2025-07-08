@@ -2,21 +2,21 @@ import {
   createBotMessage,
   createChatSession,
   fetchChatbotReply,
-  deleteChatSession
+  deleteChatSession,
 } from "../api/chatbot";
 import { callChatbotApi } from "../utils/callChatbotApi";
 import { getChatbotText } from "../data/chatbotTexts";
 
 jest.mock("uuid", () => ({
-  v4: () => "mock-uuid"
+  v4: () => "mock-uuid",
 }));
 
 jest.mock("../utils/callChatbotApi", () => ({
-  callChatbotApi: jest.fn()
+  callChatbotApi: jest.fn(),
 }));
 
 jest.mock("../data/chatbotTexts", () => ({
-  getChatbotText: jest.fn().mockReturnValue("Fallback error message")
+  getChatbotText: jest.fn().mockReturnValue("Fallback error message"),
 }));
 
 describe("chatbotApi", () => {
@@ -26,7 +26,7 @@ describe("chatbotApi", () => {
       expect(message).toEqual({
         id: "mock-uuid",
         sender: "jenkins-bot",
-        text: "Hello world"
+        text: "Hello world",
       });
     });
   });
@@ -34,7 +34,7 @@ describe("chatbotApi", () => {
   describe("createChatSession", () => {
     it("creates a session and returns the session id", async () => {
       (callChatbotApi as jest.Mock).mockResolvedValueOnce({
-        session_id: "abc123"
+        session_id: "abc123",
       });
 
       const result = await createChatSession();
@@ -45,7 +45,7 @@ describe("chatbotApi", () => {
         "sessions",
         { method: "POST" },
         { session_id: "" },
-        expect.any(Number)
+        expect.any(Number),
       );
     });
   });
@@ -53,7 +53,7 @@ describe("chatbotApi", () => {
   describe("fetchChatbotReply", () => {
     it("returns a bot message when API reply is present", async () => {
       (callChatbotApi as jest.Mock).mockResolvedValueOnce({
-        reply: "Hello from bot!"
+        reply: "Hello from bot!",
       });
 
       const result = await fetchChatbotReply("session-xyz", "Hi!");
@@ -61,7 +61,7 @@ describe("chatbotApi", () => {
       expect(result).toEqual({
         id: "mock-uuid",
         sender: "jenkins-bot",
-        text: "Hello from bot!"
+        text: "Hello from bot!",
       });
 
       expect(callChatbotApi).toHaveBeenCalledWith(
@@ -69,10 +69,10 @@ describe("chatbotApi", () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: "Hi!" })
+          body: JSON.stringify({ message: "Hi!" }),
         },
         {},
-        expect.any(Number)
+        expect.any(Number),
       );
     });
 
@@ -86,7 +86,7 @@ describe("chatbotApi", () => {
       expect(result).toEqual({
         id: "mock-uuid",
         sender: "jenkins-bot",
-        text: "Fallback error message"
+        text: "Fallback error message",
       });
     });
   });
@@ -101,7 +101,7 @@ describe("chatbotApi", () => {
         "sessions/session-xyz",
         { method: "DELETE" },
         undefined,
-        expect.any(Number)
+        expect.any(Number),
       );
     });
   });
