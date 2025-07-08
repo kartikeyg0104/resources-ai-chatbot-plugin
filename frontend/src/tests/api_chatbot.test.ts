@@ -48,6 +48,14 @@ describe("chatbotApi", () => {
         expect.any(Number),
       );
     });
+
+    it("returns fallback session_id when API returns malformed response", async () => {
+      (callChatbotApi as jest.Mock).mockResolvedValueOnce({ session_id: "" });
+
+      const result = await createChatSession();
+
+      expect(result).toBe(""); // Fallback Value
+    });
   });
 
   describe("fetchChatbotReply", () => {
