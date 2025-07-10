@@ -1,11 +1,11 @@
-import { type ChatSession } from "../model/ChatSession";
+import { type ChatSession, isChatSession } from "../model/ChatSession";
 
 /**
  * Loads the saved chatbot sessions from sessionStorage.
  *
  * This function attempts to retrieve and parse the serialized chat sessions
  * stored under the 'chatbot-sessions' key in sessionStorage.
- * If the data is invalid or not present, it returns an empty array.
+ * If the data is invalid, not present, or contains invalid session objects, it returns an empty array.
  *
  * @returns {ChatSession[]} An array of chat sessions, or an empty array if none are found or parsing fails.
  */
@@ -13,7 +13,13 @@ export const loadChatbotSessions = (): ChatSession[] => {
   const saved = sessionStorage.getItem("chatbot-sessions");
   if (saved && saved.length > 0) {
     try {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+
+      if (Array.isArray(parsed) && parsed.every(isChatSession)) {
+        return parsed;
+      } else {
+        console.error("Invalid chat session data structure:", parsed);
+      }
     } catch (e) {
       console.error("Failed to parse saved chat sessions", e);
     }

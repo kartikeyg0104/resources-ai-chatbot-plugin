@@ -48,6 +48,30 @@ describe("storageUtils", () => {
       );
     });
 
+    it("returns empty array if the session has an invalid shape", () => {
+      const invalidSessions = JSON.stringify([
+        {
+          id: "bad-session",
+          messages: "invalid-object-structure",
+          createdAt: "2024-01-01T00:00:00Z",
+          isLoading: true,
+        },
+      ]);
+
+      sessionStorage.setItem("chatbot-sessions", invalidSessions);
+
+      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+      const result = loadChatbotSessions();
+
+      expect(result).toEqual([]);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "Invalid chat session data structure:",
+        expect.anything(),
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
+
     it("returns empty array when saved data is an empty string", () => {
       sessionStorage.setItem("chatbot-sessions", "");
       const result = loadChatbotSessions();
