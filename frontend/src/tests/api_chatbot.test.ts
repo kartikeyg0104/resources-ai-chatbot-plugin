@@ -48,6 +48,21 @@ describe("chatbotApi", () => {
         expect.any(Number),
       );
     });
+
+    it("returns empty result if session_id is missing in response", async () => {
+      (callChatbotApi as jest.Mock).mockResolvedValueOnce({});
+      const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+
+      const result = await createChatSession();
+
+      expect(result).toBe("");
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "Failed to create chat session: session_id missing in response",
+        {},
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
   });
 
   describe("fetchChatbotReply", () => {
@@ -99,6 +114,19 @@ describe("chatbotApi", () => {
 
       expect(callChatbotApi).toHaveBeenCalledWith(
         "sessions/session-xyz",
+        { method: "DELETE" },
+        undefined,
+        expect.any(Number),
+      );
+    });
+
+    it("does not throw when callChatbotApi returns undefined", async () => {
+      (callChatbotApi as jest.Mock).mockResolvedValueOnce(undefined);
+
+      await expect(deleteChatSession("session-fail")).resolves.toBeUndefined();
+
+      expect(callChatbotApi).toHaveBeenCalledWith(
+        "sessions/session-fail",
         { method: "DELETE" },
         undefined,
         expect.any(Number),

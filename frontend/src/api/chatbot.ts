@@ -18,6 +18,14 @@ export const createChatSession = async (): Promise<string> => {
     CHATBOT_API_TIMEOUTS_MS.CREATE_SESSION,
   );
 
+  if (!data.session_id) {
+    console.error(
+      "Failed to create chat session: session_id missing in response",
+      data,
+    );
+    return "";
+  }
+
   return data.session_id;
 };
 
