@@ -4,7 +4,7 @@ import { chatbotStyles } from "../styles/styles";
 /**
  * Props for the Header component.
  */
-interface HeaderProps {
+export interface HeaderProps {
   currentSessionId: string | null;
   clearMessages: (chatSessionId: string) => void;
   openSideBar: () => void;

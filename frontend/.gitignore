@@ -12,6 +12,13 @@ dist
 dist-ssr
 *.local
 
+# Jest
+coverage/
+.jest/
+.cache/
+.tmp/
+*.lcov
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

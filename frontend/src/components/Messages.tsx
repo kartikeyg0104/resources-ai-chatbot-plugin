@@ -6,7 +6,7 @@ import { getChatbotText } from "../data/chatbotTexts";
 /**
  * Props for the Messages component.
  */
-interface MessagesProps {
+export interface MessagesProps {
   messages: Message[];
   loading: boolean;
 }
