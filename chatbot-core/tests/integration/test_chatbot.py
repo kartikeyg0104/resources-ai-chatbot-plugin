@@ -119,16 +119,15 @@ def test_multiple_sessions_are_isolated(client, mock_llm_provider, mock_get_rele
     mock_llm_provider.generate.return_value = "LLM response"
     mock_get_relevant_documents.return_value = get_relevant_documents_output()
 
-    session_a = client.post("/sessions").json()["session_id"]
-    session_b = client.post("/sessions").json()["session_id"]
+    active_session = client.post("/sessions").json()["session_id"]
+    deleted_session = client.post("/sessions").json()["session_id"]
 
-    client.post(f"/sessions/{session_a}/message", json={"message": "Hi A"})
-    client.post(f"/sessions/{session_b}/message", json={"message": "Hi B"})
+    client.post(f"/sessions/{active_session}/message", json={"message": "Hi A"})
+    client.post(f"/sessions/{deleted_session}/message", json={"message": "Hi B"})
 
-    # Delete A, ensure B is still valid
-    client.delete(f"/sessions/{session_a}")
-    response_b = client.post(f"/sessions/{session_b}/message", json={"message": "Message again"})
-    response_a = client.post(f"/sessions/{session_a}/message",
+    client.delete(f"/sessions/{active_session}")
+    response_b = client.post(f"/sessions/{deleted_session}/message", json={"message": "Message again"})
+    response_a = client.post(f"/sessions/{active_session}/message",
                                 json={"message": "Should be off"})
 
     assert response_b.status_code == 200
