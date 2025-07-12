@@ -126,7 +126,8 @@ def test_multiple_sessions_are_isolated(client, mock_llm_provider, mock_get_rele
     client.post(f"/sessions/{deleted_session}/message", json={"message": "Hi B"})
 
     client.delete(f"/sessions/{active_session}")
-    response_b = client.post(f"/sessions/{deleted_session}/message", json={"message": "Message again"})
+    response_b = client.post(f"/sessions/{deleted_session}/message",
+                                json={"message": "Message again"})
     response_a = client.post(f"/sessions/{active_session}/message",
                                 json={"message": "Should be off"})
 
