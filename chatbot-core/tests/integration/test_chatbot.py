@@ -128,7 +128,7 @@ def test_multiple_sessions_are_isolated(client, mock_llm_provider, mock_get_rele
     # Delete A, ensure B is still valid
     client.delete(f"/sessions/{session_a}")
     response_b = client.post(f"/sessions/{session_b}/message", json={"message": "Message again"})
-    response_a = client.post("/sessions/nonexistent-session/message",
+    response_a = client.post(f"/sessions/{session_a}/message",
                                 json={"message": "Should be off"})
 
     assert response_b.status_code == 200
