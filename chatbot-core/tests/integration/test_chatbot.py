@@ -1,6 +1,7 @@
-from api.models.schemas import ChatResponse
-
 """Integration Tests for the chatbot."""
+
+from pydantic import ValidationError
+from api.models.schemas import ChatResponse
 
 def test_create_session(client):
     """Should create a new chat session and return session ID and location header."""
@@ -23,15 +24,11 @@ def test_reply_to_existing_session(client, mock_llm_provider, mock_get_relevant_
     response = client.post(f"/sessions/{session_id}/message", json=payload)
 
     assert response.status_code == 200
-    data = response.json()
-
     try:
-        chat_response = ChatResponse.parse_obj(response.json())
-    except Exception as e:
+        chat_response = ChatResponse.model_validate(response.json())
+    except ValidationError as e:
         assert False, f"Response did not match the expected schema: {e}"
     assert chat_response.reply == "LLM answers to the query"
-    assert data["reply"] == "LLM answers to the query"
-
 
 def test_reply_to_nonexistent_session(client):
     """Should return 404 when replying to a non-existent session."""
