@@ -1,3 +1,5 @@
+from api.models.schemas import ChatResponse
+
 """Integration Tests for the chatbot."""
 
 def test_create_session(client):
@@ -22,6 +24,12 @@ def test_reply_to_existing_session(client, mock_llm_provider, mock_get_relevant_
 
     assert response.status_code == 200
     data = response.json()
+
+    try:
+        chat_response = ChatResponse.parse_obj(response.json())
+    except Exception as e:
+        assert False, f"Response did not match the expected schema: {e}"
+    assert chat_response.reply == "LLM answers to the query"
     assert data["reply"] == "LLM answers to the query"
 
 
