@@ -130,15 +130,15 @@ def test_multiple_sessions_are_isolated(client, mock_llm_provider, mock_get_rele
     client.post(f"/sessions/{active_session}/message", json={"message": "Hi A"})
     client.post(f"/sessions/{deleted_session}/message", json={"message": "Hi B"})
 
-    client.delete(f"/sessions/{active_session}")
-    response_b = client.post(f"/sessions/{deleted_session}/message",
+    client.delete(f"/sessions/{deleted_session}")
+    response_active_session = client.post(f"/sessions/{active_session}/message",
                                 json={"message": "Message again"})
-    response_a = client.post(f"/sessions/{active_session}/message",
+    response_deleted_session = client.post(f"/sessions/{deleted_session}/message",
                                 json={"message": "Should be off"})
 
-    assert response_b.status_code == 200
-    assert response_a.status_code == 404
-    assert response_a.json() == {"detail": "Session not found."}
+    assert response_active_session.status_code == 200
+    assert response_deleted_session.status_code == 404
+    assert response_deleted_session.json() == {"detail": "Session not found."}
 
 
 def get_relevant_documents_output():
