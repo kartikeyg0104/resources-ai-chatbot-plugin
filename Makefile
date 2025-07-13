@@ -1,6 +1,6 @@
-.PHONY: all api setup-backend run-api build-frontend
+.PHONY: all api setup-backend run-api build-frontend test run-frontend-tests run-backend-tests
 
-all: setup-backend run-api build-frontend
+all: setup-backend run-api build-frontend api test run-frontend-tests run-backend-tests
 
 setup-backend:
 	if [ ! -d chatbot-core/venv ]; then \
@@ -17,9 +17,25 @@ build-frontend:
 	npm install && \
 	npm run build
 
+run-frontend-tests:
+	cd frontend && \
+	npm install && \
+	echo "### RUNNING FRONTEND TESTS ###" && \
+	npm run test
+
+run-backend-tests: setup-backend
+	cd chatbot-core && \
+	. venv/bin/activate && \
+	echo "### RUNNING BACKEND UNIT TESTS ###" && \
+	PYTHONPATH=$$(pwd) pytest tests/unit && \
+	echo "### RUNNING BACKEND INTEGRATION TESTS ###" && \
+	PYTHONPATH=$$(pwd) pytest tests/integration
+
 run-api:
 	cd chatbot-core && \
 	. venv/bin/activate && \
 	PYTHONPATH=$$(pwd) uvicorn api.main:app --reload
 
 api: setup-backend run-api
+
+test: run-frontend-tests run-backend-tests
