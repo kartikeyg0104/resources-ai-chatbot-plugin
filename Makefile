@@ -1,4 +1,4 @@
-.PHONY: all api setup-backend run-api build-frontend test run-frontend-tests run-backend-tests
+.PHONY: all api setup-backend build-frontend test data-collection
 
 all: build-frontend setup-backend run-api
 
@@ -46,16 +46,26 @@ test: run-frontend-tests run-backend-tests
 
 # DATA PIPELINE
 
-run-data-collection: setup-backend
+## DATA COLLECTION
+
+run-data-collection-docs: setup-backend
 	cd chatbot-core && \
 	. venv/bin/activate && \
 	echo "### COLLECTING JENKINS DOCS ###" && \
-	python3 data/collection/docs_crawler.py && \
+	python3 data/collection/docs_crawler.py
+
+run-data-collection-plugins: setup-backend
+	cd chatbot-core && \
+	. venv/bin/activate && \
 	echo "### COLLECTING JENKINS PLUGIN DOCS ###" && \
 	echo "### 1 - FETCHING PLUGIN NAMES LIST ###" && \
 	python3 data/collection/fetch_list_plugins.py && \
 	echo "### 2 - FETCHING PLUGIN DOCS ###" && \
-	python3 data/collection/jenkins_plugins_fetch.py && \
+	python3 data/collection/jenkins_plugins_fetch.py
+
+run-data-collection-discourse: setup-backend
+	cd chatbot-core && \
+	. venv/bin/activate && \
 	echo "### COLLECTING DISCOURSE THREADS ###" && \
 	echo "### 1 - FETCHING DISCOURSE TOPICS ###" && \
 	python3 data/collection/discourse_topics_retriever.py && \
@@ -63,3 +73,5 @@ run-data-collection: setup-backend
 	python3 data/collection/collection_utils/filter_discourse_threads.py && \
 	echo "### 3 - FETCHING DISCOURSE POSTS FOR FILTERED TOPICS ###" && \
 	python3 data/collection/discourse_fetch_posts.py
+
+data-collection: run-data-collection-docs run-data-collection-plugins run-data-collection-discourse
