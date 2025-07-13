@@ -58,20 +58,39 @@ run-data-collection-plugins: setup-backend
 	cd chatbot-core && \
 	. venv/bin/activate && \
 	echo "### COLLECTING JENKINS PLUGIN DOCS ###" && \
-	echo "### 1 - FETCHING PLUGIN NAMES LIST ###" && \
+	echo "### 1. FETCHING PLUGIN NAMES LIST ###" && \
 	python3 data/collection/fetch_list_plugins.py && \
-	echo "### 2 - FETCHING PLUGIN DOCS ###" && \
+	echo "### 2. FETCHING PLUGIN DOCS ###" && \
 	python3 data/collection/jenkins_plugins_fetch.py
 
 run-data-collection-discourse: setup-backend
 	cd chatbot-core && \
 	. venv/bin/activate && \
 	echo "### COLLECTING DISCOURSE THREADS ###" && \
-	echo "### 1 - FETCHING DISCOURSE TOPICS ###" && \
+	echo "### 1. FETCHING DISCOURSE TOPICS ###" && \
 	python3 data/collection/discourse_topics_retriever.py && \
-	echo "### 2 - FILTERING DISCOURSE TOPICS ###" && \
+	echo "### 2. FILTERING DISCOURSE TOPICS ###" && \
 	python3 data/collection/collection_utils/filter_discourse_threads.py && \
-	echo "### 3 - FETCHING DISCOURSE POSTS FOR FILTERED TOPICS ###" && \
+	echo "### 3. FETCHING DISCOURSE POSTS FOR FILTERED TOPICS ###" && \
 	python3 data/collection/discourse_fetch_posts.py
 
 data-collection: run-data-collection-docs run-data-collection-plugins run-data-collection-discourse
+
+## DATA PREPROCESSING
+
+run-data-preprocessing-docs: setup-backend
+	cd chatbot-core && \
+	. venv/bin/activate && \
+	echo "### PREPROCESSING JENKINS DOCS ###" && \
+	echo "### 1. PROCESSING JENKINS DOCS ###" && \
+	python3 data/preprocessing/preprocess_docs.py && \
+	echo "### 2. FILTERING PROCESSED JENKINS DOCS ###" && \
+	python3 data/preprocessing/filter_processed_docs.py
+
+run-data-preprocessing-plugins: setup-backend
+	cd chatbot-core && \
+	. venv/bin/activate && \
+	echo "### PREPROCESSING JENKINS PLUGIN DOCS ###" && \
+	python3 data/preprocessing/preprocess_plugin_docs.py
+
+data-preprocessing: run-data-preprocessing-docs run-data-preprocessing-plugins
