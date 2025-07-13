@@ -1,6 +1,6 @@
 .PHONY: all api setup-backend run-api build-frontend test run-frontend-tests run-backend-tests
 
-all: setup-backend run-api build-frontend api test run-frontend-tests run-backend-tests
+all: build-frontend setup-backend run-api
 
 setup-backend:
 	if [ ! -d chatbot-core/venv ]; then \
@@ -17,12 +17,16 @@ build-frontend:
 	npm install && \
 	npm run build
 
+# API
+
 run-api:
 	cd chatbot-core && \
 	. venv/bin/activate && \
 	PYTHONPATH=$$(pwd) uvicorn api.main:app --reload
 
 api: setup-backend run-api
+
+# TESTS
 
 run-frontend-tests:
 	cd frontend && \
@@ -39,3 +43,23 @@ run-backend-tests: setup-backend
 	PYTHONPATH=$$(pwd) pytest tests/integration
 
 test: run-frontend-tests run-backend-tests
+
+# DATA PIPELINE
+
+run-data-collection: setup-backend
+	cd chatbot-core && \
+	. venv/bin/activate && \
+	echo "### COLLECTING JENKINS DOCS ###" && \
+	python3 data/collection/docs_crawler.py && \
+	echo "### COLLECTING JENKINS PLUGIN DOCS ###" && \
+	echo "### 1 - FETCHING PLUGIN NAMES LIST ###" && \
+	python3 data/collection/fetch_list_plugins.py && \
+	echo "### 2 - FETCHING PLUGIN DOCS ###" && \
+	python3 data/collection/jenkins_plugins_fetch.py && \
+	echo "### COLLECTING DISCOURSE THREADS ###" && \
+	echo "### 1 - FETCHING DISCOURSE TOPICS ###" && \
+	python3 data/collection/discourse_topics_retriever.py && \
+	echo "### 2 - FILTERING DISCOURSE TOPICS ###" && \
+	python3 data/collection/collection_utils/filter_discourse_threads.py && \
+	echo "### 3 - FETCHING DISCOURSE POSTS FOR FILTERED TOPICS ###" && \
+	python3 data/collection/discourse_fetch_posts.py
