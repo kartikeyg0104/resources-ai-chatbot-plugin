@@ -17,6 +17,13 @@ build-frontend:
 	npm install && \
 	npm run build
 
+run-api:
+	cd chatbot-core && \
+	. venv/bin/activate && \
+	PYTHONPATH=$$(pwd) uvicorn api.main:app --reload
+
+api: setup-backend run-api
+
 run-frontend-tests:
 	cd frontend && \
 	npm install && \
@@ -30,12 +37,5 @@ run-backend-tests: setup-backend
 	PYTHONPATH=$$(pwd) pytest tests/unit && \
 	echo "### RUNNING BACKEND INTEGRATION TESTS ###" && \
 	PYTHONPATH=$$(pwd) pytest tests/integration
-
-run-api:
-	cd chatbot-core && \
-	. venv/bin/activate && \
-	PYTHONPATH=$$(pwd) uvicorn api.main:app --reload
-
-api: setup-backend run-api
 
 test: run-frontend-tests run-backend-tests
