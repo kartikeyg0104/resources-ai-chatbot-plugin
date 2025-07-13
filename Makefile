@@ -1,6 +1,6 @@
-.PHONY: all api setup-backend run-api
+.PHONY: all api setup-backend run-api build-frontend
 
-all: setup-backend run-api
+all: setup-backend run-api build-frontend
 
 setup-backend:
 	if [ ! -d chatbot-core/venv ]; then \
@@ -11,6 +11,11 @@ setup-backend:
 	else \
 		echo "Backend already set up. Skipping virtualenv creation and dependencies installation."; \
 	fi
+
+build-frontend:
+	cd frontend && \
+	npm install && \
+	npm run build
 
 run-api:
 	cd chatbot-core && \
