@@ -94,3 +94,31 @@ run-data-preprocessing-plugins: setup-backend
 	python3 data/preprocessing/preprocess_plugin_docs.py
 
 data-preprocessing: run-data-preprocessing-docs run-data-preprocessing-plugins
+
+## DATA CHUNKING
+
+run-data-chunking-docs: setup-backend
+	cd chatbot-core && \
+	. venv/bin/activate && \
+	echo "### CHUNKING JENKINS DOCS ###" && \
+	python3 data/chunking/extract_chunk_docs.py
+
+run-data-chunking-plugins: setup-backend
+	cd chatbot-core && \
+	. venv/bin/activate && \
+	echo "### CHUNKING JENKINS PLUGIN DOCS ###" && \
+	python3 data/chunking/extract_chunk_plugins.py
+
+run-data-chunking-discourse: setup-backend
+	cd chatbot-core && \
+	. venv/bin/activate && \
+	echo "### CHUNKING DISCOURSE THREADS ###" && \
+	python3 data/chunking/extract_chunk_discourse.py
+
+run-data-chunking-stack: setup-backend
+	cd chatbot-core && \
+	. venv/bin/activate && \
+	echo "### CHUNKING STACKOVERFLOW THREADS ###" && \
+	python3 data/chunking/extract_chunk_stack.py
+
+data-chunking: run-data-chunking-docs run-data-chunking-plugins run-data-chunking-discourse run-data-chunking-stack
