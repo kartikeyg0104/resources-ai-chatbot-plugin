@@ -1,9 +1,9 @@
-.PHONY: all api setup-backend build-frontend test data-collection
+.PHONY: all api setup-backend build-frontend test data-pipeline
 
 all: build-frontend setup-backend run-api
 
 setup-backend:
-	if [ ! -d chatbot-core/venv ]; then \
+	@if [ ! -d chatbot-core/venv ]; then \
 		cd chatbot-core && \
 		python3 -m venv venv && \
 		. venv/bin/activate && \
@@ -13,14 +13,14 @@ setup-backend:
 	fi
 
 build-frontend:
-	cd frontend && \
+	@cd frontend && \
 	npm install && \
 	npm run build
 
 # API
 
 run-api:
-	cd chatbot-core && \
+	@cd chatbot-core && \
 	. venv/bin/activate && \
 	PYTHONPATH=$$(pwd) uvicorn api.main:app --reload
 
@@ -29,13 +29,13 @@ api: setup-backend run-api
 # TESTS
 
 run-frontend-tests:
-	cd frontend && \
+	@cd frontend && \
 	npm install && \
 	echo "### RUNNING FRONTEND TESTS ###" && \
 	npm run test
 
 run-backend-tests: setup-backend
-	cd chatbot-core && \
+	@cd chatbot-core && \
 	. venv/bin/activate && \
 	echo "### RUNNING BACKEND UNIT TESTS ###" && \
 	PYTHONPATH=$$(pwd) pytest tests/unit && \
@@ -49,13 +49,13 @@ test: run-frontend-tests run-backend-tests
 ## DATA COLLECTION
 
 run-data-collection-docs: setup-backend
-	cd chatbot-core && \
+	@cd chatbot-core && \
 	. venv/bin/activate && \
 	echo "### COLLECTING JENKINS DOCS ###" && \
 	python3 data/collection/docs_crawler.py
 
 run-data-collection-plugins: setup-backend
-	cd chatbot-core && \
+	@cd chatbot-core && \
 	. venv/bin/activate && \
 	echo "### COLLECTING JENKINS PLUGIN DOCS ###" && \
 	echo "### 1. FETCHING PLUGIN NAMES LIST ###" && \
@@ -64,7 +64,7 @@ run-data-collection-plugins: setup-backend
 	python3 data/collection/jenkins_plugins_fetch.py
 
 run-data-collection-discourse: setup-backend
-	cd chatbot-core && \
+	@cd chatbot-core && \
 	. venv/bin/activate && \
 	echo "### COLLECTING DISCOURSE THREADS ###" && \
 	echo "### 1. FETCHING DISCOURSE TOPICS ###" && \
@@ -79,7 +79,7 @@ data-collection: run-data-collection-docs run-data-collection-plugins run-data-c
 ## DATA PREPROCESSING
 
 run-data-preprocessing-docs: setup-backend
-	cd chatbot-core && \
+	@cd chatbot-core && \
 	. venv/bin/activate && \
 	echo "### PREPROCESSING JENKINS DOCS ###" && \
 	echo "### 1. PROCESSING JENKINS DOCS ###" && \
@@ -88,7 +88,7 @@ run-data-preprocessing-docs: setup-backend
 	python3 data/preprocessing/filter_processed_docs.py
 
 run-data-preprocessing-plugins: setup-backend
-	cd chatbot-core && \
+	@cd chatbot-core && \
 	. venv/bin/activate && \
 	echo "### PREPROCESSING JENKINS PLUGIN DOCS ###" && \
 	python3 data/preprocessing/preprocess_plugin_docs.py
@@ -98,25 +98,25 @@ data-preprocessing: run-data-preprocessing-docs run-data-preprocessing-plugins
 ## DATA CHUNKING
 
 run-data-chunking-docs: setup-backend
-	cd chatbot-core && \
+	@cd chatbot-core && \
 	. venv/bin/activate && \
 	echo "### CHUNKING JENKINS DOCS ###" && \
 	python3 data/chunking/extract_chunk_docs.py
 
 run-data-chunking-plugins: setup-backend
-	cd chatbot-core && \
+	@cd chatbot-core && \
 	. venv/bin/activate && \
 	echo "### CHUNKING JENKINS PLUGIN DOCS ###" && \
 	python3 data/chunking/extract_chunk_plugins.py
 
 run-data-chunking-discourse: setup-backend
-	cd chatbot-core && \
+	@cd chatbot-core && \
 	. venv/bin/activate && \
 	echo "### CHUNKING DISCOURSE THREADS ###" && \
 	python3 data/chunking/extract_chunk_discourse.py
 
 run-data-chunking-stack: setup-backend
-	cd chatbot-core && \
+	@cd chatbot-core && \
 	. venv/bin/activate && \
 	echo "### CHUNKING STACKOVERFLOW THREADS ###" && \
 	python3 data/chunking/extract_chunk_stack.py
@@ -126,11 +126,16 @@ data-chunking: run-data-chunking-docs run-data-chunking-plugins run-data-chunkin
 ## EMBEDDING & STORAGE
 
 data-storage: setup-backend
-	cd chatbot-core && \
+	@cd chatbot-core && \
 	. venv/bin/activate && \
 	echo "### EMBEDDING AND STORING THE CHUNKS ###" && \
 	python3 data/rag/vectorstore/store_embeddings.py
 
 
+stdout-data-pipeline: data-collection data-preprocessing data-chunking data-storage
 
-data-pipeline: data-collection data-preprocessing data-chunking data-storage
+data-pipeline:
+	@echo "Logging data pipeline to logs/data-pipeline.log"
+	@mkdir -p logs
+	@sleep 3
+	@$(MAKE) stdout-data-pipeline > logs/data-pipeline.log 2>&1
