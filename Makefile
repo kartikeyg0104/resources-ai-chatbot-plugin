@@ -132,15 +132,15 @@ data-storage: setup-backend
 	python3 data/rag/vectorstore/store_embeddings.py
 
 
-stdout-data-pipeline: data-collection data-preprocessing data-chunking data-storage
+pipeline-core: data-collection data-preprocessing data-chunking data-storage
 
 data-pipeline:
 	@echo "Logging data pipeline to logs/data-pipeline.log"
 	@mkdir -p logs
 	@sleep 3
-	@$(MAKE) stdout-data-pipeline > logs/data-pipeline.log 2>&1
+	@$(MAKE) pipeline-core > logs/data-pipeline.log 2>&1
 
 # CLEAN
 
 clean:
-	@rm -rf chatbot-core/venv frontend/node_modules 
+	@rm -rf chatbot-core/venv frontend/node_modules
