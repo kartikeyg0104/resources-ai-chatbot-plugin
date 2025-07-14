@@ -1,4 +1,4 @@
-.PHONY: all api setup-backend build-frontend test data-pipeline
+.PHONY: all api setup-backend build-frontend test data-pipeline clean
 
 all: build-frontend setup-backend run-api
 
@@ -139,3 +139,8 @@ data-pipeline:
 	@mkdir -p logs
 	@sleep 3
 	@$(MAKE) stdout-data-pipeline > logs/data-pipeline.log 2>&1
+
+# CLEAN
+
+clean:
+	@rm -rf chatbot-core/venv frontend/node_modules 
