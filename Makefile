@@ -1,4 +1,4 @@
-.PHONY: all api setup-backend build-frontend test data-pipeline clean
+.PHONY: all api setup-backend build-frontend test run-data-pipeline clean
 
 BACKEND_SHELL = cd chatbot-core && . venv/bin/activate
 
@@ -41,7 +41,7 @@ run-backend-tests: setup-backend
 	echo "### RUNNING BACKEND INTEGRATION TESTS ###" && \
 	PYTHONPATH=$$(pwd) pytest tests/integration
 
-test: run-frontend-tests run-backend-tests
+run-test: run-frontend-tests run-backend-tests
 
 # DATA PIPELINE
 
@@ -70,7 +70,7 @@ run-data-collection-discourse: setup-backend
 	echo "### 3. FETCHING DISCOURSE POSTS FOR FILTERED TOPICS ###" && \
 	python3 data/collection/discourse_fetch_posts.py
 
-data-collection: run-data-collection-docs run-data-collection-plugins run-data-collection-discourse
+run-data-collection: run-data-collection-docs run-data-collection-plugins run-data-collection-discourse
 
 ## DATA PREPROCESSING
 
@@ -87,7 +87,7 @@ run-data-preprocessing-plugins: setup-backend
 	echo "### PREPROCESSING JENKINS PLUGIN DOCS ###" && \
 	python3 data/preprocessing/preprocess_plugin_docs.py
 
-data-preprocessing: run-data-preprocessing-docs run-data-preprocessing-plugins
+run-data-preprocessing: run-data-preprocessing-docs run-data-preprocessing-plugins
 
 ## DATA CHUNKING
 
@@ -111,23 +111,23 @@ run-data-chunking-stack: setup-backend
 	echo "### CHUNKING STACKOVERFLOW THREADS ###" && \
 	python3 data/chunking/extract_chunk_stack.py
 
-data-chunking: run-data-chunking-docs run-data-chunking-plugins run-data-chunking-discourse run-data-chunking-stack
+run-data-chunking: run-data-chunking-docs run-data-chunking-plugins run-data-chunking-discourse run-data-chunking-stack
 
 ## EMBEDDING & STORAGE
 
-data-storage: setup-backend
+run-data-storage: setup-backend
 	@$(BACKEND_SHELL) && \
 	echo "### EMBEDDING AND STORING THE CHUNKS ###" && \
 	python3 data/rag/vectorstore/store_embeddings.py
 
 
-pipeline-core: data-collection data-preprocessing data-chunking data-storage
+run-pipeline-core: run-data-collection run-data-preprocessing run-data-chunking run-data-storage
 
-data-pipeline:
+run-data-pipeline:
 	@echo "Logging data pipeline to logs/data-pipeline.log"
 	@mkdir -p logs
 	@sleep 3
-	@$(MAKE) pipeline-core > logs/data-pipeline.log 2>&1
+	@$(MAKE) run-pipeline-core > logs/data-pipeline.log 2>&1
 
 # CLEAN
 
