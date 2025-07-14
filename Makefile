@@ -122,3 +122,15 @@ run-data-chunking-stack: setup-backend
 	python3 data/chunking/extract_chunk_stack.py
 
 data-chunking: run-data-chunking-docs run-data-chunking-plugins run-data-chunking-discourse run-data-chunking-stack
+
+## EMBEDDING & STORAGE
+
+data-storage: setup-backend
+	cd chatbot-core && \
+	. venv/bin/activate && \
+	echo "### EMBEDDING AND STORING THE CHUNKS ###" && \
+	python3 data/rag/vectorstore/store_embeddings.py
+
+
+
+data-pipeline: data-collection data-preprocessing data-chunking data-storage
