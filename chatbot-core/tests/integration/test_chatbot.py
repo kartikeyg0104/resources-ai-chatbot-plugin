@@ -1,7 +1,15 @@
 """Integration Tests for the chatbot."""
 
 from pydantic import ValidationError
+import pytest
 from api.models.schemas import ChatResponse
+from api.services import memory
+
+
+@pytest.fixture(autouse=True)
+def reset_memory_sessions():
+    """Executed before any test to reset the _sessions across the tests."""
+    memory.reset_sessions()
 
 def test_create_session(client):
     """Should create a new chat session and return session ID and location header."""
