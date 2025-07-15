@@ -25,7 +25,7 @@ Below is a brief explanation of the key subdirectories:
     - `prompts/`: Utilities for prompt formatting and construction.
     - `config/`: Loads and provides application configuration (YAML-based).
   - `requirements.txt`: Python dependencies.
-- `docs/`: Developer documentation.
+- `docs/`: Developer documentation. Inside it follows a similar structure of packages as the code.
 - `frontend/`: Directory for the frontend React application.
 
 ## Getting Started
@@ -74,7 +74,7 @@ You can do that by running:
 make build-frontend
 ```
 
-After running this command you can run Jenkins, in the classic way(`mvn hpi:run`).
+After running this command you can run Jenkins (`mvn hpi:run`).
 
 > **Note:** for more details on the frontend you can visit the docs under `docs/frontend/`.
 
