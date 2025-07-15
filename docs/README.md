@@ -49,6 +49,8 @@ The first thing we want to be able to do is running the whole data pipeline. The
 - Embedding
 - Storage
 
+> **Note:** the collection of StackOverflow's data is not included; to include it you must follow [this](chatbot-core/data/collection.md).
+
 So starting from the identificatiion of the data sources(e.g. Jenkins Official Documentation) the data pipeline will collect it, process it, and finally store it in a vector database(FAISS) to later perform semantic search.
 
 To run the following pipeline you can use the `run-data-pipeline` target:
