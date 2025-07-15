@@ -24,15 +24,19 @@ Below is a brief explanation of the key subdirectories:
     - `models/`: Contains schemas and LLM interface.
     - `prompts/`: Utilities for prompt formatting and construction.
     - `config/`: Loads and provides application configuration (YAML-based).
+  - `tests/`: Tests for the backend.
+    - `unit/`: Contains the unit tests and the related configuration.
+    - `integration/`: Contains the integration tests and the related configuration.
   - `requirements.txt`: Python dependencies.
+  - `requirements-cpu.txt`: Python dependencies for cpu only usage.
 - `docs/`: Developer documentation. Inside it mirros the codebase layout.
 - `frontend/`: Directory for the frontend React application.
 
 ## Getting Started
 
-To quickly start in the root directory a `Makefile` contains many ready-to-go targets, that allow to run basic flows(e.g. running the API).
+To quickly start, in the root directory a `Makefile` contains many ready-to-go targets, that allow to run basic flows(e.g. running the API).
 
-In this doc file we'll use these targets, without going into the details of the scripts and of the implementation reasonings. For further information you can visit the package-related doc files.
+In this doc file we'll use these targets, without going into the details of the scripts and the implementation reasonings. For further information you can visit the package-related doc files.
 
 For the setup you can follow [Setup Guide](setup.md).
 
