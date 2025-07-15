@@ -1,0 +1,29 @@
+name: Check Windows Installation (CPU Requirements)
+
+on:
+  pull_request:
+    branches:
+      - "main"
+      - "master"
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'chatbot-core/requirements-cpu.txt'
+
+jobs:
+  install-test:
+    name: Validate Windows Package Installation
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies from requirements-cpu.txt
+        working-directory: chatbot-core
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-cpu.txt
