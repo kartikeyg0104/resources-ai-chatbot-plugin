@@ -30,11 +30,11 @@ Below is a brief explanation of the key subdirectories:
 
 ## Getting Started
 
-For the setup you can follow [Setup Guide](setup.md).
-
 To quickly start in the root directory a `Makefile` contains many ready-to-go targets, that allow to run basic flows(e.g. running the API).
 
 In this doc file we'll use these targets, without going into the details of the scripts and of the implementation reasonings. For further information you can visit the package-related doc files.
+
+For the setup you can follow [Setup Guide](setup.md).
 
 ## Data Pipeline
 
@@ -56,6 +56,33 @@ make run-data-pipeline
 
 ## API
 
-This section documents the API component of the chatbot. It exposes the functionality as a RESTful service using FastAPI.
+Another key component in this repo is the backend, that allows to run the API that serves the chabot funcionalities. Also for the API there is a specific target in the `Makefile`, that does all the setup, installing the correct dependencies in the virtual environment, and runs the API.
+
+To run it you can use the `api` target:
+```bash
+make api
+```
+
+> **Note:** for more details on the API and on the architectual overview you can visit the docs under `docs/chatbot-core/api/`.
 
 ## User Interface
+
+For the UI the project relies on a React application, that is then built and injected into the Jenkins UI. A target in the `Makefile` allows to run the flow that builds the React app.
+
+You can do that by running:
+```bash
+make build-frontend
+```
+
+After running this command you can run Jenkins, in the classic way(`mvn hpi:run`).
+
+> **Note:** for more details on the frontend you can visit the docs under `docs/frontend/`.
+
+## Tests
+
+For both the frontend and the backend we have a suite of unit and integration tests. Also in this case we have a specific target to run all the tests.
+
+To run the tests:
+```bash
+make run-test
+```
