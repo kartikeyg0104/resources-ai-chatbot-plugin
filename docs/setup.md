@@ -134,7 +134,7 @@ make setup-backend
 
 By default the target will use the `requirements.txt` to install the dependencies. In case you would like to run it with the cpu requirements run:
 ```bash
-make setup-backend ISWINDOWS=1
+make setup-backend IS_CPU_REQ=1
 ```
 
 > **Note:** The same logic holds for every other target that will be presented.

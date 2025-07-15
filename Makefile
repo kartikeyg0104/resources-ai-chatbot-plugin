@@ -2,7 +2,7 @@
 
 BACKEND_SHELL = cd chatbot-core && . venv/bin/activate
 
-ifeq ($(ISWINDOWS),1)
+ifeq ($(IS_CPU_REQ),1)
 	REQUIREMENTS=requirements-cpu.txt
 else
 	REQUIREMENTS=requirements.txt
