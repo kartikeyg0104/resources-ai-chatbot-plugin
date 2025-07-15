@@ -33,6 +33,8 @@ Once the model is in place:
 
 By default, the API will be available at `http://127.0.0.1:8000`.
 
+> **Note**: Adding `--host 0.0.0.0` makes the server accessible from other devices on the network. If you only need local access, you can omit this parameter.
+
 ## Available Endpoints
 
 Here’s a summary of the API routes and their expected request/response structures:

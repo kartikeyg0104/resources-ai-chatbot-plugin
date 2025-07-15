@@ -25,7 +25,7 @@ Below is a brief explanation of the key subdirectories:
     - `prompts/`: Utilities for prompt formatting and construction.
     - `config/`: Loads and provides application configuration (YAML-based).
   - `requirements.txt`: Python dependencies.
-- `docs/`: Developer documentation. Inside it follows a similar structure of packages as the code.
+- `docs/`: Developer documentation. Inside it mirros the codebase layout.
 - `frontend/`: Directory for the frontend React application.
 
 ## Getting Started

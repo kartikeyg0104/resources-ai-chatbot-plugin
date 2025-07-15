@@ -1,36 +1,135 @@
-## Setup Instructions
+# Setup Instructions
 
-For the setup you can follow [Setup Guide](setup.md).
+For the setup instructions have been provided for *Linux* and *Windows*. Moreover in the last section the automated setup using targets from the `Makefile` are discussed.
 
-> **Note**:
-> Please use **Python 3.11 or later**. Ensure your installation includes support for the `venv` module.
+## Installation Guide for Linux
 
-To set up the environment and run the scripts:
+### Prerequisites
+* Python 3.11 or later
+* Git (to clone the repository)
+* Maven (for the Java components)
+* Sufficient disk space (at least 5GB for models and dependencies)
 
-1. Navigate to the `chatbot-core` directory:
+### Installation Steps
+
+1. **Clone the Repository**
+    ```bash
+    git clone <repository-url>
+    cd resources-ai-chatbot-plugin
+    ```
+
+2. **Build the Maven Project**
+    ```bash
+    mvn install
+    ```
+3. **Set Up the Python Environment**
+
+    Navigate to the Python subproject directory:
+    
     ```bash
     cd chatbot-core
     ```
 
-2. Create a Python virtual environment
+    Create a Python virtual environment:
     ```bash
     python3 -m venv venv
     ```
-
-3. Activate the virtual environment
-    - Linux/macOS
-        ```bash
-        source venv/bin/activate
-        ```
-    - Windows
-        ```bash
-        .\venv\Scripts\activate
-        ```
-4. Install the dependencies
+    
+    Activate the virtual environment
+    ```bash
+    source venv/bin/activate
+    ```
+4. **Install the dependencies**
     ```bash
     pip install -r requirements.txt
     ```
-5. Set the `PYTHONPATH` to the current directory(`chatbot-core/`):
+5. **Set the `PYTHONPATH` to the current directory(`chatbot-core/`)**
     ```bash
     export PYTHONPATH=$(pwd)
     ```
+6. **Download the Required Model**
+    1. Create the model directory if it doesn't exist:
+        ```bash
+        mkdir -p api\models\mistral
+        ```
+    2. Download the Mistral 7B Instruct model from Hugging Face:
+        * Go to https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF
+        * Download the file named `mistral-7b-instruct-v0.2.Q4_K_M.gguf`
+        * Place the downloaded file in `api\models\mistral\`
+
+## Installation Guide for Windows
+This guide provides step-by-step instructions for installing and running the Jenkins Chatbot on Windows systems.
+
+### Prerequisites
+* Windows 10 or 11
+* Python 3.11 or later
+* Git (to clone the repository)
+* Maven (for the Java components)
+* Sufficient disk space (at least 5GB for models and dependencies)
+
+### Installation Steps
+
+1. **Clone the Repository**
+    ```bash
+    git clone <repository-url>
+    cd resources-ai-chatbot-plugin
+    ```
+
+2. **Build the Maven Project**
+    ```bash
+    mvn install
+    ```
+3. **Set Up the Python Environment**
+
+    Navigate to the Python subproject directory:
+    
+    ```bash
+    cd chatbot-core
+    ```
+
+    Create a Python virtual environment:
+    ```bash
+    python3 -m venv venv
+    ```
+    
+    Activate the virtual environment
+    ```bash
+    .\venv\Scripts\activate
+    ```
+
+4. **Install Dependencies**
+
+    Install the Python dependencies using the CPU-only requirements file to avoid NVIDIA CUDA dependency issues:
+    ```bash
+    pip install -r requirements-cpu.txt
+    ```
+    > **Note**: If you encounter any dependency issues, especially with NVIDIA packages, use the `requirements-cpu.txt` file which excludes GPU-specific dependencies.
+
+5. **Set the PYTHONPATH**
+
+    Set the PYTHONPATH environment variable to the current directory:
+
+    ```bash
+    $env:PYTHONPATH = (Get-Location).Path
+    ```
+
+6. **Download the Required Model**
+    1. Create the model directory if it doesn't exist:
+        ```bash
+        mkdir -p api\models\mistral
+        ```
+    2. Download the Mistral 7B Instruct model from Hugging Face:
+        * Go to https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF
+        * Download the file named `mistral-7b-instruct-v0.2.Q4_K_M.gguf`
+        * Place the downloaded file in `api\models\mistral\`
+
+## Automatic setup
+
+To avoid running all the steps each time, we have provided a target in the `Makefile` to automate the setup process.
+
+To run it:
+```bash
+make setup-backend
+```
+
+> **Note:** The target **does not** include the installation of the LLM.
