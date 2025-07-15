@@ -28,90 +28,31 @@ Below is a brief explanation of the key subdirectories:
 - `docs/`: Developer documentation.
 - `frontend/`: Directory for the frontend React application.
 
-## Setup Instructions
+## Getting Started
 
 For the setup you can follow [Setup Guide](setup.md).
 
-> **Note**:
-> Please use **Python 3.11 or later**. Ensure your installation includes support for the `venv` module.
+To quickly start in the root directory a `Makefile` contains many ready-to-go targets, that allow to run basic flows(e.g. running the API).
 
-To set up the environment and run the scripts:
+In this doc file we'll use these targets, without going into the details of the scripts and of the implementation reasonings. For further information you can visit the package-related doc files.
 
-1. Navigate to the `chatbot-core` directory:
-    ```bash
-    cd chatbot-core
-    ```
+## Data Pipeline
 
-2. Create a Python virtual environment
-    ```bash
-    python3 -m venv venv
-    ```
+The first thing we want to be able to do is running the whole data pipeline. The data pipeline comprehends the following phases:
+- Data Collection
+- Preprocessing
+- Chunking
+- Embedding
+- Storage
 
-3. Activate the virtual environment
-    - Linux/macOS
-        ```bash
-        source venv/bin/activate
-        ```
-    - Windows
-        ```bash
-        .\venv\Scripts\activate
-        ```
-4. Install the dependencies
-    ```bash
-    pip install -r requirements.txt
-    ```
-5. Set the `PYTHONPATH` to the current directory(`chatbot-core/`):
-    ```bash
-    export PYTHONPATH=$(pwd)
-    ```
+So starting from the identificatiion of the data sources(e.g. Jenkins Official Documentation) the data pipeline will collect it, process it, and finally store it in a vector database(FAISS) to later perform semantic search.
 
-## Data Collection
-
-The data collection scripts are located under:
-
-```
-chatbot-core/data/collection/
+To run the following pipeline you can use the `run-data-pipeline` target:
+```bash
+make run-data-pipeline
 ```
 
-These scripts gather information from three key sources:
-- Jenkins official documentation
-- Discourse community topics
-- StackOverflow threads
-
-This section describes how to run the individual data collection scripts for each source. The results will be stored in the `raw` directory.
-
-## Data Preprocessing
-
-After collecting raw documentation from the different sources, a preprocessing step is required to extract the main content, clean from undesired HTML tags, and remove low-value or noisy entries. This step ensures the chatbot receives clean, relevant text data.
-
-## Chunking
-
-After collecting and preprocessing the raw content from various sources, the next step in the RAG pipeline is **chunking**. This phase involves splitting the cleaned text into smaller, semantically meaningful units that are suitable for embedding and retrieval by the chatbot.
-
-All chunking scripts are located under the directory:`chatbot-core/data/chunking/`
-
-
-Below are the chunking procedures for each data source.
-
-## Embedding
-
-The embedding-related scripts are located in: `chatbot-core/rag/embedding/`
-
-This phase converts preprocessed and chunked text documents into dense vector representations using a transformer-based model. These embeddings are later stored in a vector database to support semantic search and retrieval for the chatbot.
-
-> **Note**: These scripts are not standalone entry points and are used as utility modules by downstream indexing and retrieval components.
-
-## Vector Store
-
-The vector store module is responsible for building, saving, and loading a **FAISS index** along with associated metadata for later retrieval. All logic related to persistent vector storage lives in: `chatbot-core/rag/vectorstore/`
-
-This phase follows the **embedding** step and precedes the **retrieval** phase. It stores the document embeddings in a FAISS **IVF (Inverted File) index** to allow fast approximate nearest-neighbor search. Indeed it trade-off some accuracy for a faster retrieval.
-
-## Retrieval
-
-The retrieval module enables querying the FAISS vector index to find the most semantically relevant document chunks based on a natural language input. This phase is responsible for fetching context-rich results from the indexed embedding space, which are then used to inform the chatbot’s responses.
-
-All related scripts are located under: `chatbot-core/rag/retrieval/`
+> **Note:** for more details on the scripts and on the single processes you can visit the docs under `docs/chatbot-core/data/` and `docs/chatbot-core/rag/`.
 
 ## API
 
