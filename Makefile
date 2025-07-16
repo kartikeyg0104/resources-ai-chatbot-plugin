@@ -2,6 +2,12 @@
 
 BACKEND_SHELL = cd chatbot-core && . venv/bin/activate
 
+ifeq ($(IS_CPU_REQ),1)
+	REQUIREMENTS=requirements-cpu.txt
+else
+	REQUIREMENTS=requirements.txt
+endif
+
 all: build-frontend setup-backend run-api
 
 setup-backend:
@@ -9,7 +15,7 @@ setup-backend:
 		cd chatbot-core && \
 		python3 -m venv venv && \
 		. venv/bin/activate && \
-		pip install -r requirements.txt; \
+		pip install -r $(REQUIREMENTS); \
 	else \
 		echo "Backend already set up. Skipping virtualenv creation and dependencies installation."; \
 	fi
