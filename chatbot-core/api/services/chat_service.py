@@ -6,9 +6,11 @@ import re
 from api.models.llama_cpp_provider import llm_provider
 from api.config.loader import CONFIG
 from api.prompts.prompt_builder import build_prompt
+from api.prompts.prompts import QUERY_CLASSIFIER_PROMPT
 from api.models.schemas import ChatResponse
 from api.services.memory import get_session
 from api.models.embedding_model import EMBEDDING_MODEL
+from api.models.schemas import QueryType, is_valid_query_type, str_to_query_type
 from rag.retriever.retrieve import get_relevant_documents
 from utils import LoggerFactory
 
@@ -36,6 +38,10 @@ def get_chatbot_reply(session_id: str, user_input: str) -> ChatResponse:
     if memory is None:
         raise RuntimeError(f"Session '{session_id}' not found in the memory store.")
 
+    ## Query classification
+    query_type = _get_query_type(user_input)
+
+
     context = retrieve_context(user_input)
     logger.info("Context retrieved: %s", context)
 
@@ -49,6 +55,16 @@ def get_chatbot_reply(session_id: str, user_input: str) -> ChatResponse:
 
     return ChatResponse(reply=reply)
 
+
+def _get_query_type(query: str) -> QueryType:
+    prompt = QUERY_CLASSIFIER_PROMPT.format(user_query=query)
+    query_type = generate_answer(prompt)
+
+    if not is_valid_query_type(query_type):
+        logger.info("Not valid query type: %s. Setting to default to MULTI.", query_type)
+        query_type = 'MULTI'
+
+    return str_to_query_type(query_type)
 
 def retrieve_context(user_input: str) -> str:
     """

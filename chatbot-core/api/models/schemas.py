@@ -6,6 +6,7 @@ clients and the chatbot API endpoints.
 """
 
 from pydantic import BaseModel, field_validator
+from enum import Enum
 
 class ChatRequest(BaseModel):
     """
@@ -43,3 +44,16 @@ class DeleteResponse(BaseModel):
     Response model when a session is successfully deleted.
     """
     message: str
+
+class QueryType(Enum):
+    MULTI = 'MULTI'
+    SIMPLE = 'SIMPLE'
+
+def is_valid_query_type(input_str: str) -> bool:
+    return input_str in QueryType.__members__
+
+def str_to_query_type(input_str: str) -> QueryType:
+    try:
+        return QueryType[input_str]
+    except KeyError:
+        raise ValueError(f"Invalid query type: {input_str}")
