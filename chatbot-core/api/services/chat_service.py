@@ -3,6 +3,7 @@ Chat service layer responsible for processing the requests forwarded by the cont
 """
 
 import re
+from typing import List
 from api.models.llama_cpp_provider import llm_provider
 from api.config.loader import CONFIG
 from api.prompts.prompt_builder import build_prompt
@@ -41,6 +42,17 @@ def get_chatbot_reply(session_id: str, user_input: str) -> ChatResponse:
     ## Query classification
     query_type = _get_query_type(user_input)
 
+    logger.info("The provided user query is of type %s.", query_type)
+
+    if query_type == QueryType.MULTI:
+        sub_queries = _get_sub_queries(user_input)
+        answers = []
+        for sub_query in sub_queries:
+            pass
+        
+        reply = _assemble_response(sub_queries, answers)
+    else:
+        pass
 
     context = retrieve_context(user_input)
     logger.info("Context retrieved: %s", context)
@@ -77,6 +89,15 @@ def _get_query_type(query: str) -> QueryType:
         query_type = 'MULTI'
 
     return str_to_query_type(query_type)
+
+
+def _get_sub_queries(query: str) -> List[str]:
+    pass
+
+
+def _assemble_response(questions: List[str], answers: List[str]):
+    assert(len(questions) == len(answers))
+    pass
 
 def retrieve_context(user_input: str) -> str:
     """
