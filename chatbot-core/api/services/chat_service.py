@@ -57,6 +57,18 @@ def get_chatbot_reply(session_id: str, user_input: str) -> ChatResponse:
 
 
 def _get_query_type(query: str) -> QueryType:
+    """
+    Gets the query type that can be either 'SIMPLE', if it contains one task, or
+    'MULTI' if it contains 2 or more sub-queries inside. In case the LLM produces
+    a not valid output it sets by default to MULTI, since in case it of a false
+    positive it won't split up the query.
+
+    Args:
+        query (str): The user query.
+    
+    Returns:
+        QueryType: the query type, either 'SIMPLE' or 'MULTI'
+    """
     prompt = QUERY_CLASSIFIER_PROMPT.format(user_query=query)
     query_type = generate_answer(prompt)
 
