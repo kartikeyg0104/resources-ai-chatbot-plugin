@@ -29,7 +29,7 @@ If you're just getting started, the best way is to use the `Makefile` in the roo
     mvn hpi:run
     ```
 
-For detailed instructions, deeper explanations of each component, and full developer documentation, please refer to [Doc README](docs/README.md).
+For detailed instructions, deeper explanations of each component, please refer to [Doc README](docs/README.md).
 
 ## Developer Documentation
 
