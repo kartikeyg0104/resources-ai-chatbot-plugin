@@ -121,6 +121,7 @@ def _get_reply_simple_query_pipeline(query: str) -> str:
 
     try:
         tool_calls_parsed = json.loads(tool_calls)
+        # TODO ADD CHECK THAT FOR EACH TOOL CALL WE HAVE THE CORRECT PARAMS
     except json.JSONDecodeError as e:
         logger.warning("Invalid JSON syntax in the tools output: %s.", tool_calls)
     except (KeyError, ValueError, TypeError, AttributeError) as e:
@@ -128,7 +129,11 @@ def _get_reply_simple_query_pipeline(query: str) -> str:
                        type(e).__name__, e, tool_calls)
         logger.warning("Calling all the search tools with default settings.")
         tool_calls_parsed = {} ## TODO Get the default call
+    
+    for call in tool_calls_parsed:
+        pass
     pass
+
 
 def retrieve_context(user_input: str) -> str:
     """
