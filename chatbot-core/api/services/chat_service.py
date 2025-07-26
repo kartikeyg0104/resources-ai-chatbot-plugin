@@ -50,11 +50,11 @@ def get_chatbot_reply(session_id: str, user_input: str) -> ChatResponse:
         sub_queries = _get_sub_queries(user_input)
         answers = []
         for sub_query in sub_queries:
-            sub_query_reply = _get_reply_simple_query_pipeline(sub_query)
+            answers.append(_get_reply_simple_query_pipeline(sub_query, memory))
         
         reply = _assemble_response(sub_queries, answers)
     else:
-        reply = _get_reply_simple_query_pipeline(user_input)
+        reply = _get_reply_simple_query_pipeline(user_input, memory)
 
     context = retrieve_context(user_input)
     logger.info("Context retrieved: %s", context)
@@ -115,12 +115,22 @@ def _assemble_response(questions: List[str], answers: List[str]):
     pass
 
 
-def _get_reply_simple_query_pipeline(query: str) -> str:
-    tool_calls = _get_agent_tool_calls(query)
+def _get_reply_simple_query_pipeline(query: str, memory) -> str:
+    iterations, relevance = -1, 0
+    while iterations < retrieval_config["max_reformulate_iterations"] and relevance == 0:
+        tool_calls = _get_agent_tool_calls(query)
 
-    retrieved_context = _retrieve_context(tool_calls)
+        retrieved_context = _retrieve_context(tool_calls)
 
-    return ""
+        relevance = _get_query_context_relevance(query, retrieved_context)
+        iterations += 1
+
+    if relevance != 2:
+        return "Unfortunately we are not able to respond to your answer."
+
+    prompt = build_prompt(query, retrieved_context, memory)
+
+    return generate_answer(prompt)
 
 
 def _get_agent_tool_calls(query: str):
@@ -160,6 +170,11 @@ def _retrieve_context(tool_calls) -> str:
         f"[Result of the search tool {res['tool']}:]\n{res.get("output", "")}".strip()
         for res in retrieved_results
     )
+
+
+def _get_query_context_relevance(query: str, context: str):
+
+    return ""
 
 
 def retrieve_context(user_input: str) -> str:
