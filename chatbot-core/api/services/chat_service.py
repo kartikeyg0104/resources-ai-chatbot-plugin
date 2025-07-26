@@ -5,10 +5,11 @@ Chat service layer responsible for processing the requests forwarded by the cont
 import re
 from typing import List
 import ast
+import json
 from api.models.llama_cpp_provider import llm_provider
 from api.config.loader import CONFIG
 from api.prompts.prompt_builder import build_prompt
-from api.prompts.prompts import QUERY_CLASSIFIER_PROMPT, SPLIT_QUERY_PROMPT
+from api.prompts.prompts import QUERY_CLASSIFIER_PROMPT, SPLIT_QUERY_PROMPT, RETRIEVER_AGENT_PROMPT
 from api.models.schemas import ChatResponse
 from api.services.memory import get_session
 from api.models.embedding_model import EMBEDDING_MODEL
@@ -114,6 +115,19 @@ def _assemble_response(questions: List[str], answers: List[str]):
 
 
 def _get_reply_simple_query_pipeline(query: str) -> str:
+    retriever_agent_prompt = RETRIEVER_AGENT_PROMPT.format(user_query = query)
+
+    tool_calls = generate_answer(retriever_agent_prompt)
+
+    try:
+        tool_calls_parsed = json.loads(tool_calls)
+    except json.JSONDecodeError as e:
+        logger.warning("Invalid JSON syntax in the tools output: %s.", tool_calls)
+    except (KeyError, ValueError, TypeError, AttributeError) as e:
+        logger.warning("JSON structure or value error(%s %s) in the tools output: %s.",
+                       type(e).__name__, e, tool_calls)
+        logger.warning("Calling all the search tools with default settings.")
+        tool_calls_parsed = {} ## TODO Get the default call
     pass
 
 def retrieve_context(user_input: str) -> str:
