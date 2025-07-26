@@ -101,7 +101,7 @@ def _get_sub_queries(query: str) -> List[str]:
         queries = ast.literal_eval(queries_string)
     except (ValueError, TypeError, SyntaxError, MemoryError, RecursionError):
         logger.warning("Error in parsing the subqueries. The string may be not formed" \
-            " correctly: %d. Setting to default array with 1 element.", queries_string)
+            " correctly: %s. Setting to default array with 1 element.", queries_string)
         queries = [query]
 
     queries = [q.strip() for q in queries]
