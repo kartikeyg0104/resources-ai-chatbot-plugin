@@ -14,14 +14,7 @@ from api.models.schemas import ChatResponse
 from api.services.memory import get_session
 from api.models.embedding_model import EMBEDDING_MODEL
 from api.models.schemas import QueryType, is_valid_query_type, str_to_query_type
-from api.tools.tools import (
-    tool_registry,
-    search_community_threads,
-    search_jenkins_docs,
-    search_plugin_docs,
-    search_stackoverflow_threads
-)
-from api.tools.utils import get_default_tools_call
+from api.tools.utils import get_default_tools_call, TOOL_REGISTRY, validate_tool_calls
 from rag.retriever.retrieve import get_relevant_documents
 from utils import LoggerFactory
 
@@ -129,21 +122,23 @@ def _get_reply_simple_query_pipeline(query: str) -> str:
 
     try:
         tool_calls_parsed = json.loads(tool_calls)
-        # TODO ADD CHECK THAT FOR EACH TOOL CALL WE HAVE THE CORRECT PARAMS
+        if not validate_tool_calls(tool_calls_parsed):
+            logger.warning("Invalid structure or parameters in tool calls: %s.", tool_calls)
+            tool_calls_parsed = get_default_tools_call()
     except json.JSONDecodeError as e:
         logger.warning("Invalid JSON syntax in the tools output: %s.", tool_calls)
     except (KeyError, ValueError, TypeError, AttributeError) as e:
         logger.warning("JSON structure or value error(%s %s) in the tools output: %s.",
                        type(e).__name__, e, tool_calls)
         logger.warning("Calling all the search tools with default settings.")
-        tool_calls_parsed = get_default_tools_call()
+        tool_calls_parsed = get_default_tools_call(query)
     
     retrieved_results = []
     for call in tool_calls_parsed:
         tool_name = call.get("tool")
         params = call.get("params")
 
-        tool_fn = tool_registry.get(tool_name)
+        tool_fn = TOOL_REGISTRY.get(tool_name)
 
         try:
             result = tool_fn(**params)
