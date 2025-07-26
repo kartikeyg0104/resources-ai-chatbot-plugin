@@ -42,7 +42,7 @@ Decomposed questions:
 
 
 User query:
-"{user_input}"
+{user_query}
 
 Decomposed questions:
 """

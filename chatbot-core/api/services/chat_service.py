@@ -4,10 +4,11 @@ Chat service layer responsible for processing the requests forwarded by the cont
 
 import re
 from typing import List
+import ast
 from api.models.llama_cpp_provider import llm_provider
 from api.config.loader import CONFIG
 from api.prompts.prompt_builder import build_prompt
-from api.prompts.prompts import QUERY_CLASSIFIER_PROMPT
+from api.prompts.prompts import QUERY_CLASSIFIER_PROMPT, SPLIT_QUERY_PROMPT
 from api.models.schemas import ChatResponse
 from api.services.memory import get_session
 from api.models.embedding_model import EMBEDDING_MODEL
@@ -39,7 +40,6 @@ def get_chatbot_reply(session_id: str, user_input: str) -> ChatResponse:
     if memory is None:
         raise RuntimeError(f"Session '{session_id}' not found in the memory store.")
 
-    ## Query classification
     query_type = _get_query_type(user_input)
 
     logger.info("The provided user query is of type %s.", query_type)
@@ -48,7 +48,7 @@ def get_chatbot_reply(session_id: str, user_input: str) -> ChatResponse:
         sub_queries = _get_sub_queries(user_input)
         answers = []
         for sub_query in sub_queries:
-            pass
+            sub_query_reply = _get_reply_simple_query_pipeline(sub_query)
         
         reply = _assemble_response(sub_queries, answers)
     else:
@@ -81,7 +81,7 @@ def _get_query_type(query: str) -> QueryType:
     Returns:
         QueryType: the query type, either 'SIMPLE' or 'MULTI'
     """
-    prompt = QUERY_CLASSIFIER_PROMPT.format(user_query=query)
+    prompt = QUERY_CLASSIFIER_PROMPT.format(user_query = query)
     query_type = generate_answer(prompt)
 
     if not is_valid_query_type(query_type):
@@ -92,11 +92,28 @@ def _get_query_type(query: str) -> QueryType:
 
 
 def _get_sub_queries(query: str) -> List[str]:
-    pass
+    prompt = SPLIT_QUERY_PROMPT.format(user_query = query)
+
+    queries_string = generate_answer(prompt)
+
+    try:
+        queries = ast.literal_eval(queries_string)
+    except (ValueError, TypeError, SyntaxError, MemoryError, RecursionError):
+        logger.warning("Error in parsing the subqueries. The string may be not formed" \
+            " correctly: %d. Setting to default array with 1 element.", queries_string)
+        queries = [query]
+
+    queries = [q.strip() for q in queries]
+
+    return queries
 
 
 def _assemble_response(questions: List[str], answers: List[str]):
     assert(len(questions) == len(answers))
+    pass
+
+
+def _get_reply_simple_query_pipeline(query: str) -> str:
     pass
 
 def retrieve_context(user_input: str) -> str:
