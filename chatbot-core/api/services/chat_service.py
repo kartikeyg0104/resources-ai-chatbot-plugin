@@ -116,6 +116,14 @@ def _assemble_response(questions: List[str], answers: List[str]):
 
 
 def _get_reply_simple_query_pipeline(query: str) -> str:
+    tool_calls = _get_agent_tool_calls(query)
+
+    retrieved_context = _retrieve_context(tool_calls)
+
+    return ""
+
+
+def _get_agent_tool_calls(query: str):
     retriever_agent_prompt = RETRIEVER_AGENT_PROMPT.format(user_query = query)
 
     tool_calls = generate_answer(retriever_agent_prompt)
@@ -133,24 +141,25 @@ def _get_reply_simple_query_pipeline(query: str) -> str:
         logger.warning("Calling all the search tools with default settings.")
         tool_calls_parsed = get_default_tools_call(query)
     
-    retrieved_results = []
-    for call in tool_calls_parsed:
-        tool_name = call.get("tool")
-        params = call.get("params")
+    return tool_calls_parsed
 
+
+def _retrieve_context(tool_calls) -> str:
+    retrieved_results = []
+    for call in tool_calls:
+        tool_name, params = call.get("tool"), call.get("params")
         tool_fn = TOOL_REGISTRY.get(tool_name)
 
-        try:
-            result = tool_fn(**params)
-            retrieved_results.append({
-                "tool": tool_name,
-                "output": result
-            })
-        except Exception as e:
-            logger.warning("Failed to call %s with params '%s': %s.", tool_name, params, e)
+        result = tool_fn(**params)
+        retrieved_results.append({
+            "tool": tool_name,
+            "output": result
+        })
     
-    retrieved_context = "".join(["",""])
-    return ""
+    return "\n\n".join(
+        f"[Result of the search tool {res['tool']}:]\n{res.get("output", "")}".strip()
+        for res in retrieved_results
+    )
 
 
 def retrieve_context(user_input: str) -> str:
