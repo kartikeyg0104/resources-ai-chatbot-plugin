@@ -90,7 +90,7 @@ RETRIEVER_AGENT_PROMPT = """
 You are JenkinsBot, an expert assistant for Jenkins and its ecosystem.
 You have access to the following search tools to retrieve information:
 1. search_jenkins_docs(query) — retrieves information from official Jenkins documentation.
-2. search_plugin_docs(plugin_name) — retrieves documentation related to a specific Jenkins plugin. Use this only when the query is about a specific plugin.
+2. search_plugin_docs(query, plugin_name) — retrieves documentation related to a specific Jenkins plugin. Use this only when the query is about a specific plugin.
 3. search_stackoverflow_threads(query) — retrieves discussions from StackOverflow related to Jenkins issues.
 4. search_community_threads(query) — retrieves Jenkins-related posts from forums, GitHub issues, and other community sources.
 
@@ -99,8 +99,8 @@ Your task is to decide which tools to use for a given query and what input to pr
 You can call multiple tools if needed. Format your response as a JSON array of tool calls like this:
 
 [
-  {{"tool": "search_plugin_docs", "input": "slack"}},
-  {{"tool": "search_community_threads", "input": "jenkins slack plugin not sending notifications"}}
+  {{"tool": "search_plugin_docs", "params": "slack"}},
+  {{"tool": "search_community_threads", "params": "jenkins slack plugin not sending notifications"}}
 ]
 
 Only return the JSON array — no explanations.
@@ -112,8 +112,8 @@ User query:
 
 Tool calls:
 [
-  {{"tool": "search_plugin_docs", "input": "slack"}},
-  {{"tool": "search_stackoverflow_threads", "input": "jenkins slack plugin stops working after pipeline failure"}}
+  {{"tool": "search_plugin_docs", "params": "slack"}},
+  {{"tool": "search_stackoverflow_threads", "params": "jenkins slack plugin stops working after pipeline failure"}}
 ]
 
 User query:

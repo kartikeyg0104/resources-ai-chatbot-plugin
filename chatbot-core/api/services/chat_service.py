@@ -141,19 +141,18 @@ def _get_reply_simple_query_pipeline(query: str) -> str:
     retrieved_results = []
     for call in tool_calls_parsed:
         tool_name = call.get("tool")
-        tool_input = call.get("input")
+        params = call.get("params")
 
         tool_fn = tool_registry.get(tool_name)
 
         try:
-            result = tool_fn(tool_input)
+            result = tool_fn(**params)
             retrieved_results.append({
                 "tool": tool_name,
-                "input": tool_input,
                 "output": result
             })
         except Exception as e:
-            logger.warning("Failed to call %s with input '%s': %s.", tool_name, tool_input, e)
+            logger.warning("Failed to call %s with params '%s': %s.", tool_name, params, e)
     
     retrieved_context = "".join(["",""])
     return ""
