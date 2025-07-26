@@ -14,6 +14,14 @@ from api.models.schemas import ChatResponse
 from api.services.memory import get_session
 from api.models.embedding_model import EMBEDDING_MODEL
 from api.models.schemas import QueryType, is_valid_query_type, str_to_query_type
+from api.tools.tools import (
+    tool_registry,
+    search_community_threads,
+    search_jenkins_docs,
+    search_plugin_docs,
+    search_stackoverflow_threads
+)
+from api.tools.utils import get_default_tools_call
 from rag.retriever.retrieve import get_relevant_documents
 from utils import LoggerFactory
 
@@ -53,7 +61,7 @@ def get_chatbot_reply(session_id: str, user_input: str) -> ChatResponse:
         
         reply = _assemble_response(sub_queries, answers)
     else:
-        pass
+        reply = _get_reply_simple_query_pipeline(user_input)
 
     context = retrieve_context(user_input)
     logger.info("Context retrieved: %s", context)
@@ -110,7 +118,7 @@ def _get_sub_queries(query: str) -> List[str]:
 
 
 def _assemble_response(questions: List[str], answers: List[str]):
-    assert(len(questions) == len(answers))
+    assert(len(questions) == len(answers))## TODO remove
     pass
 
 
@@ -128,11 +136,27 @@ def _get_reply_simple_query_pipeline(query: str) -> str:
         logger.warning("JSON structure or value error(%s %s) in the tools output: %s.",
                        type(e).__name__, e, tool_calls)
         logger.warning("Calling all the search tools with default settings.")
-        tool_calls_parsed = {} ## TODO Get the default call
+        tool_calls_parsed = get_default_tools_call()
     
+    retrieved_results = []
     for call in tool_calls_parsed:
-        pass
-    pass
+        tool_name = call.get("tool")
+        tool_input = call.get("input")
+
+        tool_fn = tool_registry.get(tool_name)
+
+        try:
+            result = tool_fn(tool_input)
+            retrieved_results.append({
+                "tool": tool_name,
+                "input": tool_input,
+                "output": result
+            })
+        except Exception as e:
+            logger.warning("Failed to call %s with input '%s': %s.", tool_name, tool_input, e)
+    
+    retrieved_context = "".join(["",""])
+    return ""
 
 
 def retrieve_context(user_input: str) -> str:
