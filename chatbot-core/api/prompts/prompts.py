@@ -10,15 +10,26 @@ unrelated or loosely related, but they require separate answers.
 
 Respond with only: SIMPLE or MULTI.
 
-Examples:
-- "How do I install Jenkins on Ubuntu?" Answer: SIMPLE
-- "How do I install Jenkins and also configure it to use the GitHub plugin?" Answer: MULTI
-- "Why is my Jenkins job failing after merge, and how can I fix the pipeline?" Answer: MULTI
-- "How to archive artifacts in Jenkins?" Answer: SIMPLE
+###
+Here are some examples:
 
-Now classify this user query:
+Query: How do I install Jenkins on Ubuntu? 
+Answer: SIMPLE
 
+Query: How do I install Jenkins and also configure it to use the GitHub plugin?
+Answer: MULTI
+
+Query: Why is my Jenkins job failing after merge, and how can I fix the pipeline?
+Answer: MULTI
+
+Query: How to archive artifacts in Jenkins?"
+Answer: SIMPLE
+###
+
+<<<
+Query:
 {user_query}
+>>>
 
 Answer:
 """
@@ -30,20 +41,19 @@ Your task is to break down user queries that contain multiple questions or tasks
 separate, individual questions. Each question should be self-contained and focused on 
 a single aspect of the original query. Format your response as a Python list of strings.
 
-Example:
+###
+Here is an example:
 
 User query:
-"How can I install Jenkins and configure it to use the GitHub plugin?"
+How can I install Jenkins and configure it to use the GitHub plugin?
 
 Decomposed questions:
-[
-"How can I install Jenkins?",
-"How can I configure Jenkins to use the GitHub plugin?"
-]
+["How can I install Jenkins?", "How can I configure Jenkins to use the GitHub plugin?"]
 
-
+<<<
 User query:
 {user_query}
+>>>
 
 Decomposed questions:
 """
@@ -68,17 +78,57 @@ You can call multiple tools if needed. Format your response as a JSON array of t
 
 Only return the JSON array — no explanations.
 
-Examples:
+###
+Here are some examples:
 
 User query:
-"Why does my Slack plugin stop working after a pipeline failure?"
+Why does my Slack plugin stop working after a pipeline failure?
 
 Tool calls:
 [
-  {{"tool": "search_plugin_docs", "params": "slack"}},
-  {{"tool": "search_stackoverflow_threads", "params": "jenkins slack plugin stops working after pipeline failure"}}
+  {{"tool": "search_plugin_docs", "params": {{"plugin_name": "slack", "query": "jenkins slack plugin stops working after pipeline failure"}}}},
+  {{"tool": "search_stackoverflow_threads", "params": {{"query": "jenkins slack plugin stops working after pipeline failure"}}}}
 ]
+###
 
+<<<
 User query:
 {user_query}
+>>>
+
+Tool calls:
+"""
+
+
+CONTEXT_RELEVANCE_PROMPT = """
+You are a helpful assistant specialized in evaluating the relevance of retrieved context for answering Jenkins-related user queries.
+
+Your task is to assess how relevant the given context is to the query. You'll reason step by step and then assign a final relevance label:
+
+- 2: High relevance (the context clearly addresses or explains the query)
+- 1: Partial relevance (the context is related but only indirectly or weakly helpful)
+- 0: No relevance (the context does not help answer the query at all)
+
+###
+Here is an example:
+
+Query:
+How can I install Jenkins on Ubuntu?
+
+Context:
+To configure webhook events in the GitHub plugin, go to Manage Jenkins > Configure System and set the GitHub Webhook URL.
+
+Relevance Analysis:
+The context discusses GitHub plugin configuration, which is unrelated to Jenkins installation. Therefore, the context is not helpful for this query.
+
+Final label: 0
+###
+
+<<<
+Query:
+{query}
+
+Context:
+{context}
+>>>
 """
