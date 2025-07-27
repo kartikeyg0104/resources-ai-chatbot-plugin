@@ -124,6 +124,15 @@ def _get_query_type(query: str) -> QueryType:
 
 
 def _get_sub_queries(query: str) -> List[str]:
+    """
+    Splits a complex user query into a list of single-task sub-queries.
+
+    Args:
+        query (str): The original user query.
+
+    Returns:
+        List[str]: A list of sub-queries.
+    """
     prompt = SPLIT_QUERY_PROMPT.format(user_query = query)
 
     queries_string = generate_answer(prompt)
@@ -141,10 +150,29 @@ def _get_sub_queries(query: str) -> List[str]:
 
 
 def _assemble_response(answers: List[str]):
+    """
+    Joins multiple answers into a single formatted response.
+
+    Args:
+        answers (List[str]): A list of answer strings.
+
+    Returns:
+        str: A single string containing all answers separated by line breaks.
+    """
     return "\n\n".join(answer for answer in answers)
 
 
 def _get_reply_simple_query_pipeline(query: str, memory) -> str:
+    """
+    Executes the pipeline to answer a simple query using retrieval and generation.
+
+    Args:
+        query (str): The user query to answer.
+        memory: Memory context used in prompt construction.
+
+    Returns:
+        str: The generated answer or a fallback message if relevance is too low.
+    """
     iterations, relevance = -1, 0
     while iterations < retrieval_config["max_reformulate_iterations"] and relevance != 2:
         tool_calls = _get_agent_tool_calls(query)
@@ -163,6 +191,15 @@ def _get_reply_simple_query_pipeline(query: str, memory) -> str:
 
 
 def _get_agent_tool_calls(query: str):
+    """
+    Uses a prompt to determine which tools should be used for information retrieval.
+
+    Args:
+        query (str): The user query.
+
+    Returns:
+        Any: A parsed representation of tool calls, validated or defaulted.
+    """
     retriever_agent_prompt = RETRIEVER_AGENT_PROMPT.format(user_query = query)
 
     tool_calls = generate_answer(retriever_agent_prompt)
@@ -185,6 +222,15 @@ def _get_agent_tool_calls(query: str):
 
 
 def _retrieve_context(tool_calls) -> str:
+    """
+    Executes the tool calls to retrieve relevant context information.
+
+    Args:
+        tool_calls: A list of tool call specifications with tool names and parameters.
+
+    Returns:
+        str: Combined output from all retrieval tools.
+    """
     retrieved_results = []
     for call in tool_calls:
         tool_name, params = call.get("tool"), call.get("params")
@@ -203,6 +249,16 @@ def _retrieve_context(tool_calls) -> str:
 
 
 def _get_query_context_relevance(query: str, context: str):
+    """
+    Returns the relevance of the retrieved context to the original query.
+
+    Args:
+        query (str): The user query.
+        context (str): The retrieved context.
+
+    Returns:
+        str: A relevance score or label as a string.
+    """
     prompt = CONTEXT_RELEVANCE_PROMPT.format(query = query, context = context)
 
     output = generate_answer(prompt)
