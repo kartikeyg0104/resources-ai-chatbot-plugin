@@ -9,7 +9,12 @@ import json
 from api.models.llama_cpp_provider import llm_provider
 from api.config.loader import CONFIG
 from api.prompts.prompt_builder import build_prompt
-from api.prompts.prompts import QUERY_CLASSIFIER_PROMPT, SPLIT_QUERY_PROMPT, RETRIEVER_AGENT_PROMPT
+from api.prompts.prompts import (
+    QUERY_CLASSIFIER_PROMPT,
+    SPLIT_QUERY_PROMPT,
+    RETRIEVER_AGENT_PROMPT,
+    CONTEXT_RELEVANCE_PROMPT
+)
 from api.models.schemas import ChatResponse
 from api.services.memory import get_session
 from api.models.embedding_model import EMBEDDING_MODEL
@@ -117,7 +122,7 @@ def _assemble_response(questions: List[str], answers: List[str]):
 
 def _get_reply_simple_query_pipeline(query: str, memory) -> str:
     iterations, relevance = -1, 0
-    while iterations < retrieval_config["max_reformulate_iterations"] and relevance == 0:
+    while iterations < retrieval_config["max_reformulate_iterations"] and relevance != 2:
         tool_calls = _get_agent_tool_calls(query)
 
         retrieved_context = _retrieve_context(tool_calls)
@@ -173,8 +178,13 @@ def _retrieve_context(tool_calls) -> str:
 
 
 def _get_query_context_relevance(query: str, context: str):
+    prompt = CONTEXT_RELEVANCE_PROMPT.format(query = query, context = context)
 
-    return ""
+    output = generate_answer(prompt)
+
+    relevance_score = (output.split("Final label:")[-1]).strip()
+
+    return relevance_score
 
 
 def retrieve_context(user_input: str) -> str:
