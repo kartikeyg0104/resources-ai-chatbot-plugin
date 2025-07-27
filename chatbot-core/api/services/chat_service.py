@@ -56,18 +56,10 @@ def get_chatbot_reply(session_id: str, user_input: str) -> ChatResponse:
         answers = []
         for sub_query in sub_queries:
             answers.append(_get_reply_simple_query_pipeline(sub_query, memory))
-        
-        reply = _assemble_response(sub_queries, answers)
+
+        reply = _assemble_response(answers)
     else:
         reply = _get_reply_simple_query_pipeline(user_input, memory)
-
-    context = retrieve_context(user_input)
-    logger.info("Context retrieved: %s", context)
-
-    prompt = build_prompt(user_input, context, memory)
-
-    logger.info("Generating answer with prompt: %s", prompt)
-    reply = generate_answer(prompt)
 
     memory.chat_memory.add_user_message(user_input)
     memory.chat_memory.add_ai_message(reply)
@@ -115,9 +107,8 @@ def _get_sub_queries(query: str) -> List[str]:
     return queries
 
 
-def _assemble_response(questions: List[str], answers: List[str]):
-    assert(len(questions) == len(answers))## TODO remove
-    pass
+def _assemble_response(answers: List[str]):
+    return "\n\n".join(answer for answer in answers)
 
 
 def _get_reply_simple_query_pipeline(query: str, memory) -> str:
