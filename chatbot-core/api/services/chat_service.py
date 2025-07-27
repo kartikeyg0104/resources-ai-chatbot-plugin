@@ -170,7 +170,7 @@ def _retrieve_context(tool_calls) -> str:
             "tool": tool_name,
             "output": result
         })
-    
+
     return "\n\n".join(
         f"[Result of the search tool {res['tool']}:]\n{res.get("output", "")}".strip()
         for res in retrieved_results
