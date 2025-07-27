@@ -47,6 +47,39 @@ def get_chatbot_reply(session_id: str, user_input: str) -> ChatResponse:
     if memory is None:
         raise RuntimeError(f"Session '{session_id}' not found in the memory store.")
 
+    context = retrieve_context(user_input)
+    logger.info("Context retrieved: %s", context)
+
+    prompt = build_prompt(user_input, context, memory)
+
+    logger.info("Generating answer with prompt: %s", prompt)
+    reply = generate_answer(prompt)
+
+    memory.chat_memory.add_user_message(user_input)
+    memory.chat_memory.add_ai_message(reply)
+
+    return ChatResponse(reply=reply)
+
+
+def get_chatbot_reply_new_architecture(session_id: str, user_input: str) -> ChatResponse:
+    """
+    Main chatbot entry point. Retrieves context, constructs a prompt with memory,
+    and generates an LLM response. Also updates the memory with the latest exchange.
+
+    Args:
+        session_id (str): The unique ID for the chat session.
+        user_input (str): The latest user message.
+
+    Returns:
+        ChatResponse: The generated assistant response.
+    """
+    logger.info("New message from session '%s'", session_id)
+    logger.info("Handling the user query: %s", user_input)
+
+    memory = get_session(session_id)
+    if memory is None:
+        raise RuntimeError(f"Session '{session_id}' not found in the memory store.")
+
     query_type = _get_query_type(user_input)
 
     logger.info("The provided user query is of type %s.", query_type)
@@ -136,17 +169,18 @@ def _get_agent_tool_calls(query: str):
 
     try:
         tool_calls_parsed = json.loads(tool_calls)
-        if not validate_tool_calls(tool_calls_parsed):
-            logger.warning("Invalid structure or parameters in tool calls: %s.", tool_calls)
-            tool_calls_parsed = get_default_tools_call()
-    except json.JSONDecodeError as e:
+        if not validate_tool_calls(tool_calls_parsed, logger):
+            tool_calls_parsed = get_default_tools_call(query)
+    except json.JSONDecodeError:
         logger.warning("Invalid JSON syntax in the tools output: %s.", tool_calls)
+        logger.warning("Calling all the search tools with default settings.")
+        tool_calls_parsed = get_default_tools_call(query)
     except (KeyError, ValueError, TypeError, AttributeError) as e:
         logger.warning("JSON structure or value error(%s %s) in the tools output: %s.",
                        type(e).__name__, e, tool_calls)
         logger.warning("Calling all the search tools with default settings.")
         tool_calls_parsed = get_default_tools_call(query)
-    
+
     return tool_calls_parsed
 
 

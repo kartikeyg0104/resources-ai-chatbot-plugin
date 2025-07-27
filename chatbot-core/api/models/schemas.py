@@ -5,8 +5,9 @@ This module defines the request and response data models exchanged between
 clients and the chatbot API endpoints.
 """
 
-from pydantic import BaseModel, field_validator
 from enum import Enum
+from pydantic import BaseModel, field_validator
+
 
 class ChatRequest(BaseModel):
     """
@@ -46,14 +47,40 @@ class DeleteResponse(BaseModel):
     message: str
 
 class QueryType(Enum):
+    """
+    Enum that represents the possible query types:
+        - MULTI  -> Represents a multi-question query.
+        - SIMPLE -> Represents a single scope query.
+    """
     MULTI = 'MULTI'
     SIMPLE = 'SIMPLE'
 
 def is_valid_query_type(input_str: str) -> bool:
+    """
+    Check if the given string is a valid member of the QueryType enum.
+
+    Args:
+        input_str (str): The string to validate.
+
+    Returns:
+        bool: True if the string is a valid QueryType member, False otherwise.
+    """
     return input_str in QueryType.__members__
 
 def str_to_query_type(input_str: str) -> QueryType:
+    """
+    Convert a string to its corresponding QueryType enum member.
+
+    Args:
+        input_str (str): The string representation of a QueryType.
+
+    Returns:
+        QueryType: The corresponding enum member.
+
+    Raises:
+        ValueError: If the input string is not a valid QueryType.
+    """
     try:
         return QueryType[input_str]
-    except KeyError:
-        raise ValueError(f"Invalid query type: {input_str}")
+    except KeyError as e:
+        raise ValueError(f"Invalid query type: {input_str}") from e

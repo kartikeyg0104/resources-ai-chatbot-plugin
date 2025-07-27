@@ -1,3 +1,7 @@
+"""
+Utilities for the tools package.
+"""
+
 from api.tools.tools import (
     search_community_threads,
     search_jenkins_docs,
@@ -80,7 +84,7 @@ def validate_tool_calls(tool_calls_parsed: list, logger) -> bool:
 
         for param_name, param_type in expected_params.items():
             if param_name not in params:
-                return False 
+                return False
             if not isinstance(params[param_name], param_type):
                 return False
 
