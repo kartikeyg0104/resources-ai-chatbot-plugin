@@ -175,7 +175,7 @@ def _get_reply_simple_query_pipeline(query: str, memory) -> str:
         str: The generated answer or a fallback message if relevance is too low.
     """
     iterations, relevance = -1, 0
-    while iterations < retrieval_config["max_reformulate_iterations"] and relevance != 2:
+    while iterations < retrieval_config["max_reformulate_iterations"] and relevance != 1:
         tool_calls = _get_agent_tool_calls(query)
 
         retrieved_context = _retrieve_context(tool_calls)
@@ -186,7 +186,7 @@ def _get_reply_simple_query_pipeline(query: str, memory) -> str:
         logger.info("Query context relevance %s", relevance)
         iterations += 1
 
-    if relevance != 2:
+    if relevance != 1:
         return "Unfortunately we are not able to respond to your answer."
 
     prompt = build_prompt(query, retrieved_context, memory)
@@ -268,9 +268,9 @@ def _get_query_context_relevance(query: str, context: str):
     """
     prompt = CONTEXT_RELEVANCE_PROMPT.format(query = query, context = context)
 
-    output = generate_answer(prompt)
+    output = generate_answer(prompt, 50)
 
-    relevance_score = (output.split("Final label:")[-1]).strip()
+    relevance_score = _extract_relevance_score(output)
 
     return relevance_score
 
@@ -357,3 +357,12 @@ def _parse_answer(response: str) -> str:
         return match.group(1)
     else:
         return ""
+
+def _extract_relevance_score(response: str) -> str:
+    match = re.search(r"Label:\s*([01])", response)
+    if match:
+        relevance_score = int(match.group(1))
+    else:
+        relevance_score = 0
+
+    return relevance_score
