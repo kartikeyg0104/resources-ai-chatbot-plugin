@@ -10,7 +10,7 @@ def search_plugin_docs(query: str, plugin_name: Optional[str] = None) -> str:
     """
     if query or plugin_name:
         pass
-    return ""
+    return "BlueOcean is a plugin that offers a better UI experience."
 
 def search_jenkins_docs(query: str) -> str:
     """
@@ -18,7 +18,7 @@ def search_jenkins_docs(query: str) -> str:
     """
     if query:
         pass
-    return ""
+    return "Nothing relevant"
 
 def search_stackoverflow_threads(query: str) -> str:
     """
@@ -26,7 +26,7 @@ def search_stackoverflow_threads(query: str) -> str:
     """
     if query:
         pass
-    return ""
+    return "Nothing relevant"
 
 def search_community_threads(query: str) -> str:
     """
@@ -34,4 +34,4 @@ def search_community_threads(query: str) -> str:
     """
     if query:
         pass
-    return ""
+    return "Nothing relevant"

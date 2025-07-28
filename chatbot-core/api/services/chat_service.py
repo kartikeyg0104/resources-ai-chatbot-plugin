@@ -3,7 +3,7 @@ Chat service layer responsible for processing the requests forwarded by the cont
 """
 
 import re
-from typing import List
+from typing import List, Optional
 import ast
 import json
 from api.models.llama_cpp_provider import llm_provider
@@ -114,7 +114,8 @@ def _get_query_type(query: str) -> QueryType:
         QueryType: the query type, either 'SIMPLE' or 'MULTI'
     """
     prompt = QUERY_CLASSIFIER_PROMPT.format(user_query = query)
-    query_type = generate_answer(prompt)
+    response = generate_answer(prompt, 5)
+    query_type = _parse_answer(response)
 
     if not is_valid_query_type(query_type):
         logger.info("Not valid query type: %s. Setting to default to MULTI.", query_type)
@@ -179,7 +180,10 @@ def _get_reply_simple_query_pipeline(query: str, memory) -> str:
 
         retrieved_context = _retrieve_context(tool_calls)
 
+        logger.info("Retrieved context: %s", retrieved_context)
+
         relevance = _get_query_context_relevance(query, retrieved_context)
+        logger.info("Query context relevance %s", relevance)
         iterations += 1
 
     if relevance != 2:
@@ -202,11 +206,14 @@ def _get_agent_tool_calls(query: str):
     """
     retriever_agent_prompt = RETRIEVER_AGENT_PROMPT.format(user_query = query)
 
-    tool_calls = generate_answer(retriever_agent_prompt)
+    tool_calls = generate_answer(retriever_agent_prompt, 60)
 
+    logger.warning("Tool calls: %s", tool_calls)
     try:
         tool_calls_parsed = json.loads(tool_calls)
         if not validate_tool_calls(tool_calls_parsed, logger):
+            logger.warning("Tool calls are not respecting the signatures." \
+            "Going for the default config")
             tool_calls_parsed = get_default_tools_call(query)
     except json.JSONDecodeError:
         logger.warning("Invalid JSON syntax in the tools output: %s.", tool_calls)
@@ -311,7 +318,7 @@ def retrieve_context(user_input: str) -> str:
         else retrieval_config["empty_context_message"]
     )
 
-def generate_answer(prompt: str) -> str:
+def generate_answer(prompt: str, max_tokens: Optional[int] = None) -> str:
     """
     Generates a completion from the language model for the given prompt.
 
@@ -321,7 +328,7 @@ def generate_answer(prompt: str) -> str:
     Returns:
         str: The model's generated text response.
     """
-    return llm_provider.generate(prompt=prompt, max_tokens=llm_config["max_tokens"])
+    return llm_provider.generate(prompt=prompt, max_tokens=max_tokens or llm_config["max_tokens"])
 
 
 def make_placeholder_replacer(code_iter, item_id):
@@ -343,3 +350,10 @@ def make_placeholder_replacer(code_iter, item_id):
             logger.warning("More placeholders than code blocks in chunk with ID %s", item_id)
             return "[MISSING_CODE]"
     return replace
+
+def _parse_answer(response: str) -> str:
+    match = re.search(r"\b(SIMPLE|MULTI)\b", response)
+    if match:
+        return match.group(1)
+    else:
+        return ""
