@@ -114,7 +114,7 @@ def _get_query_type(query: str) -> QueryType:
         QueryType: the query type, either 'SIMPLE' or 'MULTI'
     """
     prompt = QUERY_CLASSIFIER_PROMPT.format(user_query = query)
-    response = generate_answer(prompt, 5)
+    response = generate_answer(prompt, llm_config["max_tokens_query_classifier"])
     query_type = _parse_answer(response)
 
     if not is_valid_query_type(query_type):
@@ -206,7 +206,8 @@ def _get_agent_tool_calls(query: str):
     """
     retriever_agent_prompt = RETRIEVER_AGENT_PROMPT.format(user_query = query)
 
-    tool_calls = generate_answer(retriever_agent_prompt, 60)
+    tool_calls = generate_answer(retriever_agent_prompt, 
+                                 llm_config["max_tokens_retriever_agent"]+ (len(query) * 2))
 
     logger.warning("Tool calls: %s", tool_calls)
     try:
@@ -268,7 +269,7 @@ def _get_query_context_relevance(query: str, context: str):
     """
     prompt = CONTEXT_RELEVANCE_PROMPT.format(query = query, context = context)
 
-    output = generate_answer(prompt, 50)
+    output = generate_answer(prompt, llm_config["max_tokens_query_context_relevance"])
 
     relevance_score = _extract_relevance_score(output)
 
