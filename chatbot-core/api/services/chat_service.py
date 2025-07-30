@@ -86,7 +86,7 @@ def get_chatbot_reply_new_architecture(session_id: str, user_input: str) -> Chat
 
     if query_type == QueryType.MULTI:
         sub_queries = _get_sub_queries(user_input)
-        
+
         answers = []
         for sub_query in sub_queries:
             logger.info("Handling the sub-query: %s.", sub_query)
@@ -209,7 +209,7 @@ def _get_agent_tool_calls(query: str):
     """
     retriever_agent_prompt = RETRIEVER_AGENT_PROMPT.format(user_query = query)
 
-    tool_calls = generate_answer(retriever_agent_prompt, 
+    tool_calls = generate_answer(retriever_agent_prompt,
                                  llm_config["max_tokens_retriever_agent"]+ (len(query) * 3))
 
     logger.warning("Tool calls: %s", tool_calls)
@@ -362,8 +362,8 @@ def _extract_query_type(response: str) -> str:
     match = re.search(r"\b(SIMPLE|MULTI)\b", response)
     if match:
         return match.group(1)
-    else:
-        return ""
+
+    return ""
 
 def _extract_relevance_score(response: str) -> str:
     """

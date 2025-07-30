@@ -10,7 +10,7 @@ def search_plugin_docs(query: str, plugin_name: Optional[str] = None) -> str:
     """
     if query or plugin_name:
         pass
-    return "BlueOcean is a plugin that offers a better UI experience."
+    return "Nothing relevant"
 
 def search_jenkins_docs(query: str) -> str:
     """

@@ -13,7 +13,7 @@ from api.models.schemas import (
     SessionResponse,
     DeleteResponse
 )
-from api.services.chat_service import get_chatbot_reply, get_chatbot_reply_new_architecture
+from api.services.chat_service import get_chatbot_reply
 from api.services.memory import (
     init_session,
     delete_session,
@@ -58,7 +58,7 @@ def chatbot_reply(session_id: str, request: ChatRequest):
     if not session_exists(session_id):
         raise HTTPException(status_code=404, detail="Session not found.")
 
-    return get_chatbot_reply_new_architecture(session_id, request.message)
+    return get_chatbot_reply(session_id, request.message)
 
 
 @router.delete("/sessions/{session_id}", response_model=DeleteResponse)
