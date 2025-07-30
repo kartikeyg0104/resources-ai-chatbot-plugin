@@ -19,17 +19,9 @@ If you're just getting started, the best way is to use the `Makefile` in the roo
     make api
     ```
 
-- Build the frontend chatbot UI:
-    ```bash
-    make build-frontend
-    ```
+For detailed instructions, deeper explanations of each target in the `Makefile`, please refer to [Doc README](docs/README.md).
 
-- Run the plugin:
-    ```bash
-    mvn hpi:run
-    ```
-
-For detailed instructions, deeper explanations of each component, please refer to [Doc README](docs/README.md).
+> **Note:** For the necessary requirements you can check out the [setup-dedicated section](docs/setup.md).
 
 ## Developer Documentation
 
