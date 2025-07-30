@@ -118,7 +118,7 @@ def _get_query_type(query: str) -> QueryType:
     """
     prompt = QUERY_CLASSIFIER_PROMPT.format(user_query = query)
     response = generate_answer(prompt, llm_config["max_tokens_query_classifier"])
-    query_type = _parse_answer(response)
+    query_type = _extract_query_type(response)
 
     if not is_valid_query_type(query_type):
         logger.info("Not valid query type: %s. Setting to default to MULTI.", query_type)
@@ -139,7 +139,7 @@ def _get_sub_queries(query: str) -> List[str]:
     """
     prompt = SPLIT_QUERY_PROMPT.format(user_query = query)
 
-    queries_string = generate_answer(prompt)
+    queries_string = generate_answer(prompt, max_tokens=len(query) * 2)
 
     try:
         queries = ast.literal_eval(queries_string)
@@ -181,7 +181,7 @@ def _get_reply_simple_query_pipeline(query: str, memory) -> str:
     while iterations < retrieval_config["max_reformulate_iterations"] and relevance != 1:
         tool_calls = _get_agent_tool_calls(query)
 
-        retrieved_context = _retrieve_context(tool_calls)
+        retrieved_context = _execute_search_tools(tool_calls)
 
         logger.info("Retrieved context: %s", retrieved_context)
 
@@ -210,7 +210,7 @@ def _get_agent_tool_calls(query: str):
     retriever_agent_prompt = RETRIEVER_AGENT_PROMPT.format(user_query = query)
 
     tool_calls = generate_answer(retriever_agent_prompt, 
-                                 llm_config["max_tokens_retriever_agent"]+ (len(query) * 2))
+                                 llm_config["max_tokens_retriever_agent"]+ (len(query) * 3))
 
     logger.warning("Tool calls: %s", tool_calls)
     try:
@@ -232,7 +232,7 @@ def _get_agent_tool_calls(query: str):
     return tool_calls_parsed
 
 
-def _retrieve_context(tool_calls) -> str:
+def _execute_search_tools(tool_calls) -> str:
     """
     Executes the tool calls to retrieve relevant context information.
 
@@ -355,7 +355,10 @@ def make_placeholder_replacer(code_iter, item_id):
             return "[MISSING_CODE]"
     return replace
 
-def _parse_answer(response: str) -> str:
+def _extract_query_type(response: str) -> str:
+    """
+    Extracts 'SIMPLE' or 'MULTI' from the response if present, else returns an empty string.
+    """
     match = re.search(r"\b(SIMPLE|MULTI)\b", response)
     if match:
         return match.group(1)
@@ -363,6 +366,9 @@ def _parse_answer(response: str) -> str:
         return ""
 
 def _extract_relevance_score(response: str) -> str:
+    """
+    Extracts relevance score (0 or 1) from a response labeled with 'Label: N'; defaults to 0.
+    """
     match = re.search(r"Label:\s*([01])", response)
     if match:
         relevance_score = int(match.group(1))

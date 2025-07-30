@@ -68,9 +68,15 @@ Answer:
 
 SPLIT_QUERY_PROMPT = """
 You are JenkinsBot, an expert assistant for Jenkins and its ecosystem.
-Your task is to break down user queries that contain multiple questions or tasks into 
-separate, individual questions. Each question should be self-contained and focused on 
-a single aspect of the original query. Format your response as a Python list of strings.
+
+Your task is to break down user queries that contain **multiple distinct questions or tasks** into separate, self-contained sub-questions. Each sub-question should:
+- Ask about only one topic or task
+- Be clear and independently understandable
+- Retain all relevant context from the original query
+
+If the user query is already a single, focused question, do not split it.
+
+Respond with a **Python list of strings** — no extra explanations or formatting.
 
 ###
 Here is an example:
@@ -81,6 +87,23 @@ How can I install Jenkins and configure it to use the GitHub plugin?
 Decomposed questions:
 ["How can I install Jenkins?", "How can I configure Jenkins to use the GitHub plugin?"]
 
+###
+Here is another example:
+
+User query:
+Can I trigger a pipeline from a GitHub push and also notify Slack on failure?
+
+Decomposed questions:
+["Can I trigger a pipeline from a GitHub push?", "How can I notify Slack when a pipeline fails?"]
+
+###
+Here is another example:
+
+User query:
+How do I set up Jenkins on Windows?
+
+Decomposed questions:
+["How do I set up Jenkins on Windows?"]
 ###
 
 <<<
@@ -124,7 +147,7 @@ Tool calls:
   {{"tool": "search_stackoverflow_threads", "params": {{"query": "jenkins slack plugin stops working after pipeline failure"}}}}
 ]
 ###
-Here is another examples:
+Here is another example:
 
 User query:
 After upgrading Jenkins, I get an error about a missing dependency in one of my plugins, but I'm not sure which one.
