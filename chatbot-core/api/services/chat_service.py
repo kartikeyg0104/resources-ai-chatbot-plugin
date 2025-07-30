@@ -86,11 +86,14 @@ def get_chatbot_reply_new_architecture(session_id: str, user_input: str) -> Chat
 
     if query_type == QueryType.MULTI:
         sub_queries = _get_sub_queries(user_input)
+        
         answers = []
         for sub_query in sub_queries:
+            logger.info("Handling the sub-query: %s.", sub_query)
             answers.append(_get_reply_simple_query_pipeline(sub_query, memory))
 
         reply = _assemble_response(answers)
+        logger.info("Final response: %s", reply)
     else:
         reply = _get_reply_simple_query_pipeline(user_input, memory)
 
@@ -187,7 +190,7 @@ def _get_reply_simple_query_pipeline(query: str, memory) -> str:
         iterations += 1
 
     if relevance != 1:
-        return "Unfortunately we are not able to respond to your answer."
+        return f"Unfortunately we are not able to respond to your question about {query}."
 
     prompt = build_prompt(query, retrieved_context, memory)
 

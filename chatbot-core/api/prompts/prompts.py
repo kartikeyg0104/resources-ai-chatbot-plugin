@@ -47,7 +47,7 @@ Here are some examples:
 Query: How do I install Jenkins on Ubuntu? 
 Answer: SIMPLE
 
-Query: How do I install Jenkins and also configure it to use the GitHub plugin?
+Query: How do I install Jenkins and configure it to use the GitHub plugin?
 Answer: MULTI
 
 Query: Why is my Jenkins job failing after merge, and how can I fix the pipeline?
@@ -81,6 +81,8 @@ How can I install Jenkins and configure it to use the GitHub plugin?
 Decomposed questions:
 ["How can I install Jenkins?", "How can I configure Jenkins to use the GitHub plugin?"]
 
+###
+
 <<<
 User query:
 {user_query}
@@ -94,7 +96,7 @@ RETRIEVER_AGENT_PROMPT = """
 You are JenkinsBot, an expert assistant for Jenkins and its ecosystem.
 You have access to the following tools to retrieve relevant information:
 1. search_jenkins_docs(query) - Retrieves information from official Jenkins documentation. Use this for core Jenkins concepts, features, configuration, and usage.
-2. search_plugin_docs(query, plugin_name) - Retrieves information from official documentation related to a specific Jenkins plugin. Use this when the user query involves a known or suspected plugin. If the plugin name is unclear or unknown, pass None for the plugin_name.
+2. search_plugin_docs(query, plugin_name) - Retrieves information from official documentation related to a specific Jenkins plugin. Use this when the user query involves a known or suspected plugin. If the plugin name is unclear or unknown, pass null for the plugin_name.
 3. search_stackoverflow_threads(query) - Retrieves discussions from StackOverflow related to Jenkins issues. Ideal for troubleshooting specific errors, unexpected behavior, or edge cases.
 4. search_community_threads(query) - Retrieves Jenkins-related posts from community forums. Also ideal for troubleshooting, user workarounds, or undocumented use cases.
 
@@ -121,6 +123,19 @@ Tool calls:
   {{"tool": "search_plugin_docs", "params": {{"plugin_name": "slack", "query": "jenkins slack plugin stops working after pipeline failure"}}}},
   {{"tool": "search_stackoverflow_threads", "params": {{"query": "jenkins slack plugin stops working after pipeline failure"}}}}
 ]
+###
+Here is another examples:
+
+User query:
+After upgrading Jenkins, I get an error about a missing dependency in one of my plugins, but I'm not sure which one.
+
+Tool calls:
+[
+  {{"tool": "search_plugin_docs", "params": {{"plugin_name": null, "query": "jenkins plugin missing dependency error after upgrade"}}}},
+  {{"tool": "search_stackoverflow_threads", "params": {{"query": "jenkins plugin dependency error after upgrade"}}}},
+  {{"tool": "search_community_threads", "params": {{"query": "jenkins plugin dependency resolution failure after upgrade"}}}}
+]
+
 ###
 
 <<<
