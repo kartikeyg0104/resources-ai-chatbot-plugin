@@ -84,3 +84,21 @@ def str_to_query_type(input_str: str) -> QueryType:
         return QueryType[input_str]
     except KeyError as e:
         raise ValueError(f"Invalid query type: {input_str}") from e
+
+def try_str_to_query_type(query_type: str, logger) -> QueryType:
+    """
+    Extract the generated query type. In case the query type is not
+    a not valid output it sets by default to MULTI, since in case it of a false
+    positive it won't split up the query.
+
+    Args:
+        query (str): The user query.
+        logger: The logger param.
+    
+    Returns:
+        QueryType: the query type, either 'SIMPLE' or 'MULTI'
+    """
+    if not is_valid_query_type(query_type):
+        logger.info("Not valid query type: %s. Setting to default to MULTI.", query_type)
+        query_type = 'MULTI'
+    return str_to_query_type(query_type)

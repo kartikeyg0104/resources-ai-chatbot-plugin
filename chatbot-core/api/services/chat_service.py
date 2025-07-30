@@ -15,10 +15,9 @@ from api.prompts.prompts import (
     RETRIEVER_AGENT_PROMPT,
     CONTEXT_RELEVANCE_PROMPT
 )
-from api.models.schemas import ChatResponse
+from api.models.schemas import ChatResponse, QueryType, try_str_to_query_type
 from api.services.memory import get_session
 from api.models.embedding_model import EMBEDDING_MODEL
-from api.models.schemas import QueryType, is_valid_query_type, str_to_query_type
 from api.tools.utils import get_default_tools_call, TOOL_REGISTRY, validate_tool_calls
 from rag.retriever.retrieve import get_relevant_documents
 from utils import LoggerFactory
@@ -120,11 +119,7 @@ def _get_query_type(query: str) -> QueryType:
     response = generate_answer(prompt, llm_config["max_tokens_query_classifier"])
     query_type = _extract_query_type(response)
 
-    if not is_valid_query_type(query_type):
-        logger.info("Not valid query type: %s. Setting to default to MULTI.", query_type)
-        query_type = 'MULTI'
-
-    return str_to_query_type(query_type)
+    return try_str_to_query_type(query_type, logger)
 
 
 def _get_sub_queries(query: str) -> List[str]:
