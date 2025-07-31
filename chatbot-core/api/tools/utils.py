@@ -69,24 +69,28 @@ def validate_tool_calls(tool_calls_parsed: list, logger) -> bool:
 
     Returns True if all tool calls are valid, False otherwise.
     """
-
+    valid = True
     for call in tool_calls_parsed:
         tool = call.get("tool")
         params = call.get("params")
 
         if tool not in TOOL_SIGNATURES:
             logger.warning("Tool %s not available.", tool)
-            return False
+            valid = False
+        else:
+            expected_params = TOOL_SIGNATURES[tool]
 
-        expected_params = TOOL_SIGNATURES[tool]
+            if not isinstance(params, dict):
+                logger.warning("Params for tool %s is not a dict.", tool)
+                valid = False
 
-        if not isinstance(params, dict):
-            return False
+            for param_name, param_type in expected_params.items():
+                if param_name not in params:
+                    logger.warning("Tool: %s: Param %s is not expected.", tool, param_name)
+                    valid = False
+                if not isinstance(params[param_name], param_type):
+                    logger.warning("Tool: %s: Param %s is not of the expected type %s.",
+                                tool, param_name, param_type.__name__)
+                    valid = False
 
-        for param_name, param_type in expected_params.items():
-            if param_name not in params:
-                return False
-            if not isinstance(params[param_name], param_type):
-                return False
-
-    return True
+    return valid
