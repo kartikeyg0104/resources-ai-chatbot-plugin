@@ -328,8 +328,9 @@ def generate_answer(prompt: str, max_tokens: Optional[int] = None) -> str:
         str: The model's generated text response.
     """
     try:
-        return llm_provider.generate(prompt=prompt, max_tokens=max_tokens or llm_config["max_tokens"])
-    except Exception as e:
+        return llm_provider.generate(prompt=prompt,
+                                    max_tokens=max_tokens or llm_config["max_tokens"])
+    except Exception as e: # pylint: disable=broad-exception-caught
         logger.error("LLM generation failed for prompt: %s. Error %s", prompt, e)
         return "Sorry, I'm having trouble generating a response right now."
 
