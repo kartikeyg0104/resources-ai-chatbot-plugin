@@ -2,6 +2,7 @@
 Utilities for the tools package.
 """
 
+from types import MappingProxyType
 from api.tools.tools import (
     search_community_threads,
     search_jenkins_docs,
@@ -9,19 +10,19 @@ from api.tools.tools import (
     search_stackoverflow_threads
 )
 
-TOOL_REGISTRY = {
+TOOL_REGISTRY = MappingProxyType({
     "search_plugin_docs": search_plugin_docs,
     "search_jenkins_docs": search_jenkins_docs,
     "search_stackoverflow_threads": search_stackoverflow_threads,
     "search_community_threads": search_community_threads,
-}
+})
 
-TOOL_SIGNATURES = {
+TOOL_SIGNATURES = MappingProxyType({
     "search_plugin_docs": {"plugin_name": str, "query": str},
     "search_jenkins_docs": {"query": str},
     "search_stackoverflow_threads": {"query": str},
     "search_community_threads": {"query": str},
-}
+})
 
 def get_default_tools_call(query: str):
     """
