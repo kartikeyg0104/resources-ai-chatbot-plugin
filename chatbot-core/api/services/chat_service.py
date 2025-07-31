@@ -327,7 +327,11 @@ def generate_answer(prompt: str, max_tokens: Optional[int] = None) -> str:
     Returns:
         str: The model's generated text response.
     """
-    return llm_provider.generate(prompt=prompt, max_tokens=max_tokens or llm_config["max_tokens"])
+    try:
+        return llm_provider.generate(prompt=prompt, max_tokens=max_tokens or llm_config["max_tokens"])
+    except Exception as e:
+        logger.error("LLM generation failed for prompt: %s. Error %s", prompt, e)
+        return "Sorry, I'm having trouble generating a response right now."
 
 
 def make_placeholder_replacer(code_iter, item_id):
