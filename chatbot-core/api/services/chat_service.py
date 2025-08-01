@@ -137,7 +137,7 @@ def _handle_query_type(query: str, query_type: QueryType, memory) -> str:
         logger.info("Final response: %s", reply)
     else:
         reply = _get_reply_simple_query_pipeline(query, memory)
-    
+
     return reply
 
 
