@@ -19,6 +19,18 @@ If you're just getting started, the best way is to use the `Makefile` in the roo
     make api
     ```
 
+By default, the API will be available at `http://127.0.0.1:8000`. To check that everything is working as expected you can try creating a chat session by using the `/sessions` endpoint:
+```bash
+curl -X POST http://localhost:8000/api/chatbot/sessions
+```
+
+You should get returned the session id that have been created.
+
+In case you encounter any issues in running make targets we suggest running:
+```bash
+make clean && make <desired_target>
+```
+
 For detailed instructions, deeper explanations of each target in the `Makefile`, please refer to [Doc README](docs/README.md).
 
 > **Note:** For the necessary requirements you can check out the [setup-dedicated section](docs/setup.md).
