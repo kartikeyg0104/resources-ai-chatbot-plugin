@@ -83,18 +83,7 @@ def get_chatbot_reply_new_architecture(session_id: str, user_input: str) -> Chat
 
     logger.info("The provided user query is of type %s.", query_type)
 
-    if query_type == QueryType.MULTI:
-        sub_queries = _get_sub_queries(user_input)
-
-        answers = []
-        for sub_query in sub_queries:
-            logger.info("Handling the sub-query: %s.", sub_query)
-            answers.append(_get_reply_simple_query_pipeline(sub_query, memory))
-
-        reply = _assemble_response(answers)
-        logger.info("Final response: %s", reply)
-    else:
-        reply = _get_reply_simple_query_pipeline(user_input, memory)
+    reply = _handle_query_type(user_input, query_type, memory)
 
     memory.chat_memory.add_user_message(user_input)
     memory.chat_memory.add_ai_message(reply)
@@ -120,6 +109,36 @@ def _get_query_type(query: str) -> QueryType:
     query_type = _extract_query_type(response)
 
     return try_str_to_query_type(query_type, logger)
+
+
+def _handle_query_type(query: str, query_type: QueryType, memory) -> str:
+    """
+    Handles the query generation based on the query type. If SIMPLE it will call
+    the simple pipeline, otherwise it will decompose into many queries and 
+    call the simple pipeline for each one.
+
+    Args:
+        query (str): The user query.
+        query_type (QueryType): The query type('SIMPLE' or 'MULTI').
+        memory: The conversational memory of the involved chat.
+    
+    Returns:
+        str: The final reply of the chatbot.
+    """
+    if query_type == QueryType.MULTI:
+        sub_queries = _get_sub_queries(query)
+
+        answers = []
+        for sub_query in sub_queries:
+            logger.info("Handling the sub-query: %s.", sub_query)
+            answers.append(_get_reply_simple_query_pipeline(sub_query, memory))
+
+        reply = _assemble_response(answers)
+        logger.info("Final response: %s", reply)
+    else:
+        reply = _get_reply_simple_query_pipeline(query, memory)
+    
+    return reply
 
 
 def _get_sub_queries(query: str) -> List[str]:
