@@ -4,19 +4,7 @@ chat history, context retrieved from the knowledge base, and the user's question
 """
 
 from langchain.memory import ConversationBufferMemory
-
-SYSTEM_INSTRUCTION = """
-You are JenkinsBot, an expert AI assistant specialized in Jenkins and its ecosystem.
-You help users with Jenkins, CI/CD pipelines, plugin usage, configuration, and troubleshooting.
-
-Use the provided context (retrieved from Jenkins documentation and plugin metadata) to answer questions accurately.
-Also consider the prior conversation history to maintain context across turns.
-
-If the answer is not in the context or history, reply with:
-"I'm not able to answer based on the available information."
-
-Do not hallucinate or invent facts.
-"""
+from api.prompts.prompts import SYSTEM_INSTRUCTION
 
 def build_prompt(user_query: str, context: str, memory: ConversationBufferMemory) -> str:
     """
