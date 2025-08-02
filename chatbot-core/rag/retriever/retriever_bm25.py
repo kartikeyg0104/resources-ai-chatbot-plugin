@@ -33,7 +33,20 @@ def perform_keyword_search(query, logger, source_name, top_k=5):
 
     return data, scores
 
-def search_bm25_index(query, index, metadata, logger, top_k=5):
+def search_bm25_index(query, index, metadata, logger, top_k):
+    """
+    Perform the effective sparse research, using a sparse retriever.
+
+    Args:
+        query (str): The input query string.
+        index (SparseRetriever): The built index on which we're searching.
+        metadata (List[dict]): Metadata entries associated with each stored vector.
+        logger (logging.Logger): Logger for warnings and file-level updates.
+        top_k (int): Number of top results to retrieve.
+    
+    Returns:
+        tuple[list[dict], list[float]]: Retrieved data and similarity scores.
+    """
     search_results, scores = [], []
     metadata_by_id = {item["id"]: item for item in metadata}
     relevant_chunks = index.search(
