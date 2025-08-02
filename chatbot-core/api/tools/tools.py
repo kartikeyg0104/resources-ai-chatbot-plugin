@@ -3,7 +3,11 @@ Definition of the tools avaialable to the Agent.
 """
 
 from typing import Optional
+import heapq
 from rag.retriever.retrieve import get_relevant_documents
+from rag.retriever.retriever_bm25 import perform_keyword_search
+from api.models.embedding_model import EMBEDDING_MODEL
+from api.tools.utils import get_scores, extract_chunks_content
 
 def search_plugin_docs(query: str, keywords: str, logger, plugin_name: Optional[str] = None) -> str:
     """
@@ -18,22 +22,34 @@ def search_plugin_docs(query: str, keywords: str, logger, plugin_name: Optional[
     Returns:
         str: The result of the research of the plugin search tool.
     """
-    ## Semantic research
-    data_retrieved, scores = get_relevant_documents(
+    top_k_chunks = []
+    data_retrieved_semantic, scores_semantic = get_relevant_documents(
         query,
         EMBEDDING_MODEL,
         logger=logger,
-        source_name="plugins",
-        top_k=30
+        source_name="plugins",# Parametrize
+        top_k=15# Parametrize
     )
-    print("DATA RETRIEVED")
-    print(data_retrieved)
-    print("SCORES RETRIEVED")
-    print(scores)
-    ## Keyword based research
+    data_retrieved_keyword, scores_keyword = perform_keyword_search(
+        keywords,
+        logger,
+        source_name="plugins",# Parametrize
+        top_k=15# Parametrize
+    )
+    
+    scores = get_scores([c["id"] for c in data_retrieved_semantic], scores_semantic,
+                        [c["id"] for c in data_retrieved_keyword], scores_keyword)
 
-    ## Name-based
-    return "Nothing relevant"
+    combined_results = data_retrieved_semantic + data_retrieved_keyword
+    lookup_by_id = {item["id"]: item for item in combined_results}
+
+    heapq.heapify(scores) ###TODO The scores should be inverted in sign to exploit it as a max heap
+    i = 0
+    while i < 5 and len(scores) > 0:# Parametrize
+        item = heapq.heappop(scores)
+        top_k_chunks.append(lookup_by_id.get(item[1]))
+
+    return extract_chunks_content(top_k_chunks, logger)
 
 def search_jenkins_docs(query: str) -> str:
     """
@@ -58,12 +74,3 @@ def search_community_threads(query: str) -> str:
     if query:
         pass
     return "Nothing relevant"
-
-import logging
-from rag.embedding.embedding_utils import load_embedding_model
-
-logger = logging.getLogger("MY_LOGGER")
-
-EMBEDDING_MODEL = load_embedding_model("sentence-transformers/all-MiniLM-L6-v2", logger)
-
-search_plugin_docs("How to install Jenkins on Linux?", "", logger)

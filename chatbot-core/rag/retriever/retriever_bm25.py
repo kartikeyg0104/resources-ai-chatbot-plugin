@@ -2,8 +2,8 @@
 Query interface for retrieving the most relevant embedded text chunks using a Sparse Retriever.
 """
 
-from rag.retriever.retriever_utils import load_vector_index, search_index
-from rag.embedding.BM25_indexer import get_indexer
+from rag.retriever.retriever_utils import load_vector_index
+from rag.embedding.BM25_indexer import indexer
 
 def perform_keyword_search(query, logger, source_name, top_k=5):
     """
@@ -22,14 +22,13 @@ def perform_keyword_search(query, logger, source_name, top_k=5):
     if not query.strip():
         logger.warning("Empty query received.")
         return [], []
-    indexer = get_indexer()
     index = indexer.get(source_name)
     _, metadata = load_vector_index(logger, source_name)
 
     if not index or not metadata:
         return [], []
 
-    data, scores = search_index(query, index, metadata, logger, top_k)
+    data, scores = search_bm25_index(query, index, metadata, logger, top_k)
 
     return data, scores
 
@@ -55,10 +54,9 @@ def search_bm25_index(query, index, metadata, logger, top_k):
         cutoff=top_k,
     )
 
-    match = metadata_by_id.get(chunk["id"])
     for chunk in relevant_chunks:
         scores.append(chunk["score"])
-        match = next((m for m in metadata if m["id"] == chunk["id"]), None)
+        match = metadata_by_id.get(chunk["id"])
         if match:
             search_results.append(match)
         else:

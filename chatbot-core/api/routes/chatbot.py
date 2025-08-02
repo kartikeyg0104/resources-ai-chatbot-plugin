@@ -7,6 +7,7 @@ the chat service logic.
 """
 
 from fastapi import APIRouter, HTTPException, Response, status
+import logging
 from api.models.schemas import (
     ChatRequest,
     ChatResponse,
@@ -19,6 +20,7 @@ from api.services.memory import (
     delete_session,
     session_exists
 )
+from api.tools.tools import search_plugin_docs
 
 router = APIRouter()
 
@@ -75,3 +77,9 @@ def delete_chat(session_id: str):
     if not delete_session(session_id):
         raise HTTPException(status_code=404, detail="Session not found.")
     return DeleteResponse(message=f"Session {session_id} deleted.")
+
+@router.get("/test", response_model=SessionResponse, status_code=status.HTTP_201_CREATED)
+def start_chat():
+    logger = logging.getLogger("MY_LOGGER")
+    search_plugin_docs("How to install Jenkins on Linux?", "Install Jenkins Linux", logger)
+    return SessionResponse(session_id="Test endpoint")

@@ -64,11 +64,9 @@ class BM25Indexer:
             self.logger.warning("Index '%s' not found or failed to load: %s", index_name, str(e))
             return None
 
-@lru_cache(maxsize=1)
-def get_indexer():
-    return BM25Indexer(
+indexer = BM25Indexer(
         index_configs=[
-            {"index_name": "plugin_docs", "file_path": "data/processed/chunks_plugin_docs.jsonl"},
+            {"index_name": "plugins", "file_path": "data/processed/chunks_plugin_docs.jsonl"},
         ],
         logger= LoggerFactory.instance().get_logger("bm25indexer")
     )

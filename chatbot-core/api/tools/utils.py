@@ -2,6 +2,7 @@
 Utilities for the tools package.
 """
 
+import re
 from types import MappingProxyType
 from api.tools.tools import (
     search_community_threads,
@@ -9,6 +10,11 @@ from api.tools.tools import (
     search_plugin_docs,
     search_stackoverflow_threads
 )
+from api.config.loader import CONFIG
+from api.services.chat_service import make_placeholder_replacer
+
+retrieval_config = CONFIG["retrieval"]
+CODE_BLOCK_PLACEHOLDER_PATTERN = r"\[\[(?:CODE_BLOCK|CODE_SNIPPET)_(\d+)\]\]"
 
 TOOL_REGISTRY = MappingProxyType({
     "search_plugin_docs": search_plugin_docs,
@@ -94,3 +100,32 @@ def validate_tool_calls(tool_calls_parsed: list, logger) -> bool:
                     valid = False
 
     return valid
+
+def get_scores(chunks, second_chunk_list):
+    """
+    Given two chunk
+    """
+    ## TODO
+    pass
+
+def extract_chunks_content(chunks, logger):
+    context_texts = []
+    for item in chunks:
+        item_id = item.get("id", "")
+        text = item.get("chunk_text", "")
+        if not item_id:
+            logger.warning("Id of retrieved context not found. Skipping element.")
+            continue
+        if text:
+            code_iter = iter(item.get("code_blocks", []))
+            replace = make_placeholder_replacer(code_iter, item_id)
+            text = re.sub(CODE_BLOCK_PLACEHOLDER_PATTERN, replace, text)
+
+            context_texts.append(text)
+        else:
+            logger.warning("Text of chunk with ID %s is missing", item_id)
+    return (
+        "\n\n".join(context_texts)
+        if context_texts
+        else retrieval_config["empty_context_message"]
+    )
