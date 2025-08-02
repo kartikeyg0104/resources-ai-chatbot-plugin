@@ -33,17 +33,19 @@ class BM25Indexer:
                 do_acronyms_normalization=True,
                 do_punctuation_removal=True
             )
+            try:
+                sr = sr.index_file(
+                    path=config["file_path"],
+                    show_progress=True,
+                    callback=lambda doc: {
+                        "id": doc["id"],
+                        "text": doc["chunk_text"],
+                    }
+                )
 
-            sr = sr.index_file(
-                path=config["file_path"],
-                show_progress=True,
-                callback=lambda doc: {
-                    "id": doc["id"],
-                    "text": doc["chunk_text"],
-                }
-            )
-
-            self.retrievers[index_name] = sr
+                self.retrievers[index_name] = sr
+            except Exception as e:
+                self.logger("Error in creating the index for %s. Error: %s", index_name, str(e))
 
     def get(self, index_name: str):
         """
