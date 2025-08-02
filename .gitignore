@@ -18,6 +18,7 @@ chatbot-core/.env/
 # Data collection results
 chatbot-core/data/**/*.csv
 chatbot-core/data/**/*.json
+chatbot-core/data/**/*.jsonl
 
 # Embeddings
 chatbot-core/data/embeddings/*
