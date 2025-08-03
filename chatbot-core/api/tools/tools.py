@@ -7,7 +7,7 @@ import heapq
 from rag.retriever.retrieve import get_relevant_documents
 from rag.retriever.retriever_bm25 import perform_keyword_search
 from api.models.embedding_model import EMBEDDING_MODEL
-from api.tools.utils import get_scores, extract_chunks_content
+from api.tools.utils import get_inverted_scores, extract_chunks_content
 
 def search_plugin_docs(query: str, keywords: str, logger, plugin_name: Optional[str] = None) -> str:
     """
@@ -37,13 +37,13 @@ def search_plugin_docs(query: str, keywords: str, logger, plugin_name: Optional[
         top_k=15# Parametrize
     )
     
-    scores = get_scores([c["id"] for c in data_retrieved_semantic], scores_semantic,
+    scores = get_inverted_scores([c["id"] for c in data_retrieved_semantic], scores_semantic,
                         [c["id"] for c in data_retrieved_keyword], scores_keyword)
 
     combined_results = data_retrieved_semantic + data_retrieved_keyword
     lookup_by_id = {item["id"]: item for item in combined_results}
 
-    heapq.heapify(scores) ###TODO The scores should be inverted in sign to exploit it as a max heap
+    heapq.heapify(scores)
     i = 0
     while i < 5 and len(scores) > 0:# Parametrize
         item = heapq.heappop(scores)

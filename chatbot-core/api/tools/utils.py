@@ -12,6 +12,8 @@ from api.tools.tools import (
 )
 from api.config.loader import CONFIG
 from api.services.chat_service import make_placeholder_replacer
+from sklearn.preprocessing import MinMaxScaler
+
 
 retrieval_config = CONFIG["retrieval"]
 CODE_BLOCK_PLACEHOLDER_PATTERN = r"\[\[(?:CODE_BLOCK|CODE_SNIPPET)_(\d+)\]\]"
@@ -101,12 +103,33 @@ def validate_tool_calls(tool_calls_parsed: list, logger) -> bool:
 
     return valid
 
-def get_scores(chunks, second_chunk_list):
+def get_inverted_scores(semantic_chunk_ids, semantic_scores, keyword_chunk_ids, keyword_scores):
     """
-    Given two chunk
+    Given two list of chunk ids and the respective scores, it combines the two scores, providing
+    a unique ranking.
     """
-    ## TODO
-    pass
+    semantic_map = {semantic_chunk_ids[i]:semantic_scores[i] for i in range(len(semantic_chunk_ids))}
+    keyword_map = {keyword_chunk_ids[i]:keyword_scores[i] for i in range(len(keyword_chunk_ids))}
+
+    all_chunk_ids = set(semantic_map.keys()).union(keyword_map.keys())
+
+    default_keyword = min(keyword_map.values()) if keyword_map else 0
+    default_semantic = max(semantic_map.values()) if semantic_map else 1.5
+
+    keyword_vals = [keyword_map.get(cid, default_keyword) for cid in all_chunk_ids]
+    semantic_vals = [semantic_map.get(cid, default_semantic) for cid in all_chunk_ids]
+
+    scaler = MinMaxScaler()
+    keyword_norm = scaler.fit_transform([[v] for v in keyword_vals])
+    semantic_inverted = [max(semantic_vals) - v for v in semantic_vals]
+    semantic_norm = scaler.fit_transform([[v] for v in semantic_inverted])
+
+    final_scores = [
+        [float(-1 * (0.5 * keyword_norm[i][0] + 0.5 * semantic_norm[i][0])), cid]
+        for i, cid in enumerate(all_chunk_ids)
+    ]
+
+    return final_scores
 
 def extract_chunks_content(chunks, logger):
     context_texts = []
