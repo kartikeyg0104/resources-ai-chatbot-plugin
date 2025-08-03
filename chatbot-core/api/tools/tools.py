@@ -63,6 +63,7 @@ def search_plugin_docs(query: str, keywords: str, logger, plugin_name: Optional[
     while i < retrieval_config["top_k_plugins"] and len(scores) > 0:
         item = heapq.heappop(scores)
         top_k_chunks.append(lookup_by_id.get(item[1]))
+        i += 1
 
     return extract_chunks_content(top_k_chunks, logger)
 

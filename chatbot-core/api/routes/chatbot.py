@@ -81,5 +81,6 @@ def delete_chat(session_id: str):
 @router.get("/test", response_model=SessionResponse, status_code=status.HTTP_201_CREATED)
 def start_chat():
     logger = logging.getLogger("MY_LOGGER")
-    search_plugin_docs("How to install Jenkins on Linux?", "Install Jenkins Linux", logger)
+    results = search_plugin_docs("What is the blueocean plugin?", "What blueocean plugin", logger)
+    print(results)
     return SessionResponse(session_id="Test endpoint")
