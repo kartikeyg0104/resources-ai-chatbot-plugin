@@ -4,6 +4,7 @@ Query interface for retrieving the most relevant embedded text chunks using a Sp
 
 from rag.retriever.retriever_utils import load_vector_index
 from rag.embedding.BM25_indexer import indexer
+from api.config.loader import CONFIG
 
 def perform_keyword_search(query, logger, source_name, top_k=5):
     """
@@ -30,7 +31,10 @@ def perform_keyword_search(query, logger, source_name, top_k=5):
 
     data, scores = search_bm25_index(query, index, metadata, logger, top_k)
 
-    return data, scores
+    filtered = [(d, s) for d, s in zip(data, scores) if s >= CONFIG["retrieval"]["keyword_threshold"]]
+    filtered_data, filtered_scores = zip(*filtered) if filtered else ([], [])
+
+    return list(filtered_data), list(filtered_scores)
 
 def search_bm25_index(query, index, metadata, logger, top_k):
     """

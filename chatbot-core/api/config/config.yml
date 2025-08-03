@@ -20,6 +20,8 @@ retrieval:
   top_k_plugins: 5
   top_k_semantic: 20
   top_k_keyword: 20
+  semantic_threshold: 1.5
+  keyword_threshold: 2
   empty_context_message: "No context available."
   max_reformulate_iterations: 1
 
