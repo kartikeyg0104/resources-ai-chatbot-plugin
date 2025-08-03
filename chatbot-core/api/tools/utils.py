@@ -7,26 +7,12 @@ import os
 import re
 from types import MappingProxyType
 from typing import List, Tuple, Dict
-from api.tools.tools import (
-    search_community_threads,
-    search_jenkins_docs,
-    search_plugin_docs,
-    search_stackoverflow_threads
-)
 from api.config.loader import CONFIG
-from api.services.chat_service import make_placeholder_replacer
 from sklearn.preprocessing import MinMaxScaler
 
 
 retrieval_config = CONFIG["retrieval"]
 CODE_BLOCK_PLACEHOLDER_PATTERN = r"\[\[(?:CODE_BLOCK|CODE_SNIPPET)_(\d+)\]\]"
-
-TOOL_REGISTRY = MappingProxyType({
-    "search_plugin_docs": search_plugin_docs,
-    "search_jenkins_docs": search_jenkins_docs,
-    "search_stackoverflow_threads": search_stackoverflow_threads,
-    "search_community_threads": search_community_threads,
-})
 
 TOOL_SIGNATURES = MappingProxyType({
     "search_plugin_docs": {"plugin_name": str, "query": str},
@@ -173,7 +159,7 @@ def extract_chunks_content(chunks: List[Dict], logger) -> str:
             continue
         if text:
             code_iter = iter(item.get("code_blocks", []))
-            replace = make_placeholder_replacer(code_iter, item_id)
+            replace = make_placeholder_replacer(code_iter, item_id, logger)
             text = re.sub(CODE_BLOCK_PLACEHOLDER_PATTERN, replace, text)
 
             context_texts.append(text)
@@ -234,3 +220,23 @@ def filter_retrieved_data(
     keyword_filtered_data = [item for item in keyword_data if tokenize(item["metadata"]["title"]) == tokenize(plugin_name)]
 
     return semantic_filtered_data, keyword_filtered_data
+
+def make_placeholder_replacer(code_iter, item_id, logger):
+    """
+    Returns a function to replace code block placeholders in retrieved text
+    with actual code snippets from the original document.
+
+    Args:
+        code_iter (iterator): Iterator over code snippets.
+        item_id (str): The ID of the document chunk (used for logging).
+
+    Returns:
+        Callable[[re.Match], str]: A function to replace placeholders.
+    """
+    def replace(_match):
+        try:
+            return next(code_iter)
+        except StopIteration:
+            logger.warning("More placeholders than code blocks in chunk with ID %s", item_id)
+            return "[MISSING_CODE]"
+    return replace

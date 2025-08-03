@@ -3,6 +3,7 @@ Definition of the tools avaialable to the Agent.
 """
 
 from typing import Optional
+from types import MappingProxyType
 import heapq
 from rag.retriever.retrieve import get_relevant_documents
 from rag.retriever.retriever_bm25 import perform_keyword_search
@@ -88,3 +89,10 @@ def search_community_threads(query: str) -> str:
     if query:
         pass
     return "Nothing relevant"
+
+TOOL_REGISTRY = MappingProxyType({
+    "search_plugin_docs": search_plugin_docs,
+    "search_jenkins_docs": search_jenkins_docs,
+    "search_stackoverflow_threads": search_stackoverflow_threads,
+    "search_community_threads": search_community_threads,
+})
