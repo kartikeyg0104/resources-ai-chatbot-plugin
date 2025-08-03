@@ -186,6 +186,15 @@ def extract_chunks_content(chunks: List[Dict], logger) -> str:
     )
 
 def is_valid_plugin(plugin_name: str) -> bool:
+    """
+    Checks whether the given plugin name exists in the list of known plugin names.
+
+    Args:
+        plugin_name (str): The name of the plugin to validate.
+
+    Returns:
+        bool: True if the plugin exists in the list, False otherwise.
+    """
     def tokenize(item: str) -> str:
         item = item.replace('-', '')
         return item.replace(' ', '').lower()
@@ -205,6 +214,18 @@ def filter_retrieved_data(
     keyword_data: List[Dict],
     plugin_name: str
 ) -> Tuple[List[Dict], List[Dict]]:
+    """
+    Filters semantic and keyword search results to only include items whose title
+    matches the given plugin name.
+
+    Args:
+        semantic_data (List[Dict]): List of retrieved chunks from semantic search.
+        keyword_data (List[Dict]): List of retrieved chunks from keyword search.
+        plugin_name (str): The plugin name to filter against.
+
+    Returns:
+        Tuple[List[Dict], List[Dict]]: Filtered semantic and keyword data.
+    """
     def tokenize(item: str) -> str:
         item = item.replace('-', '')
         return item.replace(' ', '').lower()
