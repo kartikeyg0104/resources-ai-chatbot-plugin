@@ -7,7 +7,12 @@ import heapq
 from rag.retriever.retrieve import get_relevant_documents
 from rag.retriever.retriever_bm25 import perform_keyword_search
 from api.models.embedding_model import EMBEDDING_MODEL
-from api.tools.utils import get_inverted_scores, extract_chunks_content
+from api.tools.utils import (
+    get_inverted_scores,
+    extract_chunks_content,
+    filter_retrieved_data,
+    is_valid_plugin
+)
 from api.config.loader import CONFIG
 
 retrieval_config = CONFIG["retrieval"]
@@ -40,9 +45,12 @@ def search_plugin_docs(query: str, keywords: str, logger, plugin_name: Optional[
         top_k=retrieval_config["top_k_keyword"]
     )
 
-    if plugin_name:
-        data_retrieved_semantic, data_retrieved_keyword = filter_retrieved_data(data_retrieved_semantic, data_retrieved_keyword)
-    
+    if plugin_name and is_valid_plugin(plugin_name):
+        data_retrieved_semantic, data_retrieved_keyword = filter_retrieved_data(
+            data_retrieved_semantic,
+            data_retrieved_keyword
+        )
+
     scores = get_inverted_scores([c["id"] for c in data_retrieved_semantic], scores_semantic,
                         [c["id"] for c in data_retrieved_keyword], scores_keyword)
 

@@ -2,9 +2,11 @@
 Utilities for the tools package.
 """
 
+import json
+import os
 import re
 from types import MappingProxyType
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from api.tools.tools import (
     search_community_threads,
     search_jenkins_docs,
@@ -150,7 +152,7 @@ def get_inverted_scores(
 
     return final_scores
 
-def extract_chunks_content(chunks, logger):
+def extract_chunks_content(chunks: List[Dict], logger) -> str:
     """
     Builds a single context string from a list of chunks by replacing code block
     placeholders with actual code blocks.
@@ -182,3 +184,32 @@ def extract_chunks_content(chunks, logger):
         if context_texts
         else retrieval_config["empty_context_message"]
     )
+
+def is_valid_plugin(plugin_name: str) -> bool:
+    def tokenize(item: str) -> str:
+        item = item.replace('-', '')
+        return item.replace(' ', '').lower()
+    list_plugin_names_path = os.path.join(os.path.abspath(__file__),
+                                          "..", "..", "data", "raw", "plugin_names.json")
+    with open(list_plugin_names_path, "r", encoding="utf-8") as f:
+        list_plugin_names = json.load(f)
+    
+    for name in list_plugin_names:
+        if tokenize(plugin_name) == tokenize(name):
+            return True
+ 
+    return False
+
+def filter_retrieved_data(
+    semantic_data: List[Dict],
+    keyword_data: List[Dict],
+    plugin_name: str
+) -> Tuple[List[Dict], List[Dict]]:
+    def tokenize(item: str) -> str:
+        item = item.replace('-', '')
+        return item.replace(' ', '').lower()
+
+    semantic_filtered_data = [item for item in semantic_data if tokenize(item["metadata"]["title"]) == tokenize(plugin_name)]
+    keyword_filtered_data = [item for item in keyword_data if tokenize(item["metadata"]["title"]) == tokenize(plugin_name)]
+
+    return semantic_filtered_data, keyword_filtered_data
