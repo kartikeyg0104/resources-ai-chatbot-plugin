@@ -4,6 +4,7 @@ Utilities for the tools package.
 
 import re
 from types import MappingProxyType
+from typing import List, Tuple
 from api.tools.tools import (
     search_community_threads,
     search_jenkins_docs,
@@ -103,10 +104,28 @@ def validate_tool_calls(tool_calls_parsed: list, logger) -> bool:
 
     return valid
 
-def get_inverted_scores(semantic_chunk_ids, semantic_scores, keyword_chunk_ids, keyword_scores):
+def get_inverted_scores(
+    semantic_chunk_ids: List[str],
+    semantic_scores: List[float],
+    keyword_chunk_ids: List[str],
+    keyword_scores: List[float],
+) -> List[Tuple[float, str]]:
     """
-    Given two list of chunk ids and the respective scores, it combines the two scores, providing
-    a unique ranking.
+    Combines keyword and semantic search scores into a single, normalized ranking.
+    Higher original scores are better for keyword scores; lower scores are better for semantic scores.
+    Missing values are penalized by assigning them the worst possible score.
+
+    Scores are normalized to [0, 1], averaged with equal weight (50% each), and then inverted (multiplied by -1),
+    making them suitable for the later use as a max-heap.
+
+    Args:
+        semantic_chunk_ids (List[str]): Chunk IDs returned from semantic search.
+        semantic_scores (List[float]): Corresponding semantic scores (lower is better).
+        keyword_chunk_ids (List[str]): Chunk IDs returned from keyword search.
+        keyword_scores (List[float]): Corresponding keyword scores (higher is better).
+
+    Returns:
+        List[Tuple[float, str]]: A list of (inverted_score, chunk_id)
     """
     semantic_map = {semantic_chunk_ids[i]:semantic_scores[i] for i in range(len(semantic_chunk_ids))}
     keyword_map = {keyword_chunk_ids[i]:keyword_scores[i] for i in range(len(keyword_chunk_ids))}
@@ -132,6 +151,17 @@ def get_inverted_scores(semantic_chunk_ids, semantic_scores, keyword_chunk_ids, 
     return final_scores
 
 def extract_chunks_content(chunks, logger):
+    """
+    Builds a single context string from a list of chunks by replacing code block
+    placeholders with actual code blocks.
+
+    Args:
+        chunks (List[Dict]): List of chunk dictionaries.
+        logger (logging.Logger): Logger for warning messages.
+
+    Returns:
+        str: Combined chunk texts, or a fallback message if none are valid.
+    """
     context_texts = []
     for item in chunks:
         item_id = item.get("id", "")

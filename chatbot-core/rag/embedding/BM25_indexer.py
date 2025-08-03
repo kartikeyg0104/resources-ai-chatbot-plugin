@@ -1,4 +1,7 @@
-from functools import lru_cache
+"""
+Module for the Sparse Retriever Class.
+"""
+
 from retriv import SparseRetriever
 from utils import LoggerFactory
 

@@ -8,6 +8,9 @@ from rag.retriever.retrieve import get_relevant_documents
 from rag.retriever.retriever_bm25 import perform_keyword_search
 from api.models.embedding_model import EMBEDDING_MODEL
 from api.tools.utils import get_inverted_scores, extract_chunks_content
+from api.config.loader import CONFIG
+
+retrieval_config = CONFIG["retrieval"]
 
 def search_plugin_docs(query: str, keywords: str, logger, plugin_name: Optional[str] = None) -> str:
     """
@@ -27,15 +30,18 @@ def search_plugin_docs(query: str, keywords: str, logger, plugin_name: Optional[
         query,
         EMBEDDING_MODEL,
         logger=logger,
-        source_name="plugins",# Parametrize
-        top_k=15# Parametrize
+        source_name=CONFIG["tool_names"]["plugins"],
+        top_k=retrieval_config["top_k_semantic"]
     )
     data_retrieved_keyword, scores_keyword = perform_keyword_search(
         keywords,
         logger,
-        source_name="plugins",# Parametrize
-        top_k=15# Parametrize
+        source_name=CONFIG["tool_names"]["plugins"],
+        top_k=retrieval_config["top_k_keyword"]
     )
+
+    if plugin_name:
+        data_retrieved_semantic, data_retrieved_keyword = filter_retrieved_data(data_retrieved_semantic, data_retrieved_keyword)
     
     scores = get_inverted_scores([c["id"] for c in data_retrieved_semantic], scores_semantic,
                         [c["id"] for c in data_retrieved_keyword], scores_keyword)
@@ -45,7 +51,7 @@ def search_plugin_docs(query: str, keywords: str, logger, plugin_name: Optional[
 
     heapq.heapify(scores)
     i = 0
-    while i < 5 and len(scores) > 0:# Parametrize
+    while i < retrieval_config["top_k_plugins"] and len(scores) > 0:
         item = heapq.heappop(scores)
         top_k_chunks.append(lookup_by_id.get(item[1]))
 
