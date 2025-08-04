@@ -1,3 +1,7 @@
+"""
+Utils function to convert a json file into a jsonl format.
+"""
+
 import json
 import os
 

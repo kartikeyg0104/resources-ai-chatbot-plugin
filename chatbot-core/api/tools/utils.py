@@ -100,11 +100,11 @@ def get_inverted_scores(
 ) -> List[Tuple[float, str]]:
     """
     Combines keyword and semantic search scores into a single, normalized ranking.
-    Higher original scores are better for keyword scores; lower scores are better for semantic scores.
-    Missing values are penalized by assigning them the worst possible score.
-
-    Scores are normalized to [0, 1], averaged with equal weight (50% each), and then inverted (multiplied by -1),
-    making them suitable for the later use as a max-heap.
+    Higher original scores are better for keyword scores; lower scores are better 
+    for semantic scores. Missing values are penalized by assigning them the worst 
+    possible score. Scores are normalized to [0, 1], averaged with equal weight 
+    (50% each), and then inverted (multiplied by -1), making them suitable for the 
+    later use as a max-heap.
 
     Args:
         semantic_chunk_ids (List[str]): Chunk IDs returned from semantic search.
@@ -115,8 +115,10 @@ def get_inverted_scores(
     Returns:
         List[Tuple[float, str]]: A list of (inverted_score, chunk_id)
     """
-    semantic_map = {semantic_chunk_ids[i]:semantic_scores[i] for i in range(len(semantic_chunk_ids))}
-    keyword_map = {keyword_chunk_ids[i]:keyword_scores[i] for i in range(len(keyword_chunk_ids))}
+    semantic_map = {semantic_chunk_ids[i]:semantic_scores[i]
+                    for i in range(len(semantic_chunk_ids))}
+    keyword_map = {keyword_chunk_ids[i]:keyword_scores[i]
+                   for i in range(len(keyword_chunk_ids))}
 
     all_chunk_ids = set(semantic_map.keys()).union(keyword_map.keys())
 
@@ -131,12 +133,10 @@ def get_inverted_scores(
     semantic_inverted = [max(semantic_vals) - v for v in semantic_vals]
     semantic_norm = scaler.fit_transform([[v] for v in semantic_inverted])
 
-    final_scores = [
+    return [
         [float(-1 * (0.5 * keyword_norm[i][0] + 0.5 * semantic_norm[i][0])), cid]
         for i, cid in enumerate(all_chunk_ids)
     ]
-
-    return final_scores
 
 def extract_chunks_content(chunks: List[Dict], logger) -> str:
     """
@@ -188,11 +188,11 @@ def is_valid_plugin(plugin_name: str) -> bool:
                                           "..", "..", "data", "raw", "plugin_names.json")
     with open(list_plugin_names_path, "r", encoding="utf-8") as f:
         list_plugin_names = json.load(f)
-    
+
     for name in list_plugin_names:
         if tokenize(plugin_name) == tokenize(name):
             return True
- 
+
     return False
 
 def filter_retrieved_data(
@@ -216,8 +216,10 @@ def filter_retrieved_data(
         item = item.replace('-', '')
         return item.replace(' ', '').lower()
 
-    semantic_filtered_data = [item for item in semantic_data if tokenize(item["metadata"]["title"]) == tokenize(plugin_name)]
-    keyword_filtered_data = [item for item in keyword_data if tokenize(item["metadata"]["title"]) == tokenize(plugin_name)]
+    semantic_filtered_data = [item for item in semantic_data
+                              if tokenize(item["metadata"]["title"]) == tokenize(plugin_name)]
+    keyword_filtered_data = [item for item in keyword_data
+                             if tokenize(item["metadata"]["title"]) == tokenize(plugin_name)]
 
     return semantic_filtered_data, keyword_filtered_data
 

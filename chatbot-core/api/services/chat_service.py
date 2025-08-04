@@ -293,7 +293,7 @@ def _get_query_context_relevance(query: str, context: str):
 
     return relevance_score
 
-
+# pylint: disable=duplicate-code
 def retrieve_context(user_input: str) -> str:
     """
     Retrieves the most relevant document chunks for a user query
@@ -310,6 +310,7 @@ def retrieve_context(user_input: str) -> str:
         user_input,
         EMBEDDING_MODEL,
         logger=logger,
+        source_name="plugins",
         top_k=retrieval_config["top_k"]
     )
     if not data_retrieved:

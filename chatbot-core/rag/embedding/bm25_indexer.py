@@ -5,7 +5,11 @@ Module for the Sparse Retriever Class.
 from retriv import SparseRetriever
 from utils import LoggerFactory
 
+# pylint: disable=too-few-public-methods
 class BM25Indexer:
+    """
+    Class that represents the indexer for the bm25 Sparse Retriever.
+    """
     def __init__(self, index_configs, logger):
         """
         Initialize with a list of index configurations.
@@ -47,7 +51,7 @@ class BM25Indexer:
                 )
 
                 self.retrievers[index_name] = sr
-            except Exception as e:
+            except Exception as e: # pylint: disable=broad-exception-caught
                 self.logger("Error in creating the index for %s. Error: %s", index_name, str(e))
 
     def get(self, index_name: str):
@@ -58,12 +62,12 @@ class BM25Indexer:
         """
         if index_name in self.retrievers:
             return self.retrievers[index_name]
-        
+
         try:
             sr = SparseRetriever.load(index_name)
             self.retrievers[index_name] = sr
             return sr
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-exception-caught
             self.logger.warning("Index '%s' not found or failed to load: %s", index_name, str(e))
             return None
 

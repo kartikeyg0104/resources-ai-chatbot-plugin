@@ -32,7 +32,8 @@ def get_relevant_documents(query, model, logger, source_name, top_k=5):
     query_vector = embed_documents([query], model, logger)[0]
     data, scores = search_index(query_vector, index, metadata, logger, top_k)
 
-    filtered = [(d, s) for d, s in zip(data, scores) if s <= CONFIG["retrieval"]["semantic_threshold"]]
+    filtered = [(d, s) for d, s in zip(data, scores)
+                if s <= CONFIG["retrieval"]["semantic_threshold"]]
     filtered_data, filtered_scores = zip(*filtered) if filtered else ([], [])
 
     return list(filtered_data), list(filtered_scores)

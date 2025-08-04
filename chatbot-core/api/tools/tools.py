@@ -49,7 +49,8 @@ def search_plugin_docs(query: str, keywords: str, logger, plugin_name: Optional[
     if plugin_name and is_valid_plugin(plugin_name):
         data_retrieved_semantic, data_retrieved_keyword = filter_retrieved_data(
             data_retrieved_semantic,
-            data_retrieved_keyword
+            data_retrieved_keyword,
+            plugin_name
         )
 
     scores = get_inverted_scores([c["id"] for c in data_retrieved_semantic], scores_semantic,
