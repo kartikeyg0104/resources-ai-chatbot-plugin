@@ -7,8 +7,8 @@ import os
 import re
 from types import MappingProxyType
 from typing import List, Tuple, Dict
-from api.config.loader import CONFIG
 from sklearn.preprocessing import MinMaxScaler
+from api.config.loader import CONFIG
 
 
 retrieval_config = CONFIG["retrieval"]

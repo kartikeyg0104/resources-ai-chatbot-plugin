@@ -3,6 +3,7 @@ Module for the Sparse Retriever Class.
 """
 
 from retriv import SparseRetriever
+from api.config.loader import CONFIG
 from utils import LoggerFactory
 
 # pylint: disable=too-few-public-methods
@@ -18,42 +19,51 @@ class BM25Indexer:
         self.logger = logger
         self.index_configs = index_configs
         self.retrievers = {}
-        self._create_indexes()
 
-    def _create_indexes(self):
+    def build(self):
         """
-        Creates and stores indexes based on the given configurations.
+        Builds and stores retrievers by indexing the provided files.
         """
         for config in self.index_configs:
-            index_name = config["index_name"]
+            retriever = self._index_config(config)
+            if retriever:
+                self.retrievers[config["index_name"]] = retriever
 
-            sr = SparseRetriever(
-                index_name=index_name,
-                model="bm25",
-                min_df=1,
-                tokenizer="whitespace",
-                stemmer="english",
-                stopwords="english",
-                do_lowercasing=True,
-                do_ampersand_normalization=True,
-                do_special_chars_normalization=True,
-                do_acronyms_normalization=True,
-                do_punctuation_removal=True
+    def _index_config(self, config):
+        """
+        Indexes a single file and returns a SparseRetriever object.
+        """
+        index_name = config["index_name"]
+        file_path = config["file_path"]
+
+        sr = SparseRetriever(
+            index_name=index_name,
+            model="bm25",
+            min_df=1,
+            tokenizer="whitespace",
+            stemmer="english",
+            stopwords="english",
+            do_lowercasing=True,
+            do_ampersand_normalization=True,
+            do_special_chars_normalization=True,
+            do_acronyms_normalization=True,
+            do_punctuation_removal=True
+        )
+        try:
+            sr = sr.index_file(
+                path=file_path,
+                show_progress=True,
+                callback=lambda doc: {
+                    "id": doc["id"],
+                    "text": doc["chunk_text"],
+                }
             )
-            try:
-                sr = sr.index_file(
-                    path=config["file_path"],
-                    show_progress=True,
-                    callback=lambda doc: {
-                        "id": doc["id"],
-                        "text": doc["chunk_text"],
-                    }
-                )
 
-                self.retrievers[index_name] = sr
-            except Exception as e: # pylint: disable=broad-exception-caught
-                self.logger.error("Error in creating the index for %s. Error: %s",
-                                  index_name, str(e))
+            return sr
+        except Exception as e: # pylint: disable=broad-exception-caught
+            self.logger.error("Error in creating the index for %s. Error: %s",
+                                index_name, str(e))
+            return None
 
     def get(self, index_name: str):
         """
@@ -78,3 +88,6 @@ indexer = BM25Indexer(
         ],
         logger= LoggerFactory.instance().get_logger("bm25indexer")
     )
+
+if not CONFIG["is_test_mode"]:
+    indexer.build()
