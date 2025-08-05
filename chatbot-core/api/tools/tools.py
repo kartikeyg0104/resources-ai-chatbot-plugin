@@ -39,12 +39,16 @@ def search_plugin_docs(query: str, keywords: str, logger, plugin_name: Optional[
         source_name=CONFIG["tool_names"]["plugins"],
         top_k=retrieval_config["top_k_semantic"]
     )
-    data_retrieved_keyword, scores_keyword = perform_keyword_search(
+    keyword_results = perform_keyword_search(
         keywords,
         logger,
         source_name=CONFIG["tool_names"]["plugins"],
+        keyword_threshold= retrieval_config["keyword_threshold"],
         top_k=retrieval_config["top_k_keyword"]
     )
+
+    data_retrieved_keyword = [item["chunk"] for item in keyword_results]
+    scores_keyword = [item["score"] for item in keyword_results]
 
     if plugin_name and is_valid_plugin(plugin_name):
         data_retrieved_semantic, data_retrieved_keyword = filter_retrieved_data(

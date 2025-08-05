@@ -6,7 +6,7 @@ from rag.retriever.retriever_utils import load_vector_index
 from rag.embedding.bm25_indexer import indexer
 from api.config.loader import CONFIG
 
-def perform_keyword_search(query, logger, source_name, top_k=5):
+def perform_keyword_search(query, logger, source_name, keyword_threshold, top_k=5):
     """
     Retrieve the top-k most relevant chunks for a given natural language query
     performing a keyword based search.
@@ -15,6 +15,7 @@ def perform_keyword_search(query, logger, source_name, top_k=5):
         query (str): The input query string.
         logger (logging.Logger): Logger for warnings and file-level updates.
         source_name (str): The source name that we want to consider.
+        keyword_threshold (float): Minimum score required to keep a result.
         top_k (int): Number of top results to retrieve. Defaults to 5.
 
     Returns:
@@ -31,11 +32,11 @@ def perform_keyword_search(query, logger, source_name, top_k=5):
 
     data, scores = search_bm25_index(query, index, metadata, logger, top_k)
 
-    filtered = [(d, s) for d, s in zip(data, scores)
-                if s >= CONFIG["retrieval"]["keyword_threshold"]]
-    filtered_data, filtered_scores = zip(*filtered) if filtered else ([], [])
-
-    return list(filtered_data), list(filtered_scores)
+    return [
+        {"chunk": d, "score": s}
+        for d, s in zip(data, scores)
+        if s >= keyword_threshold
+    ]
 
 def search_bm25_index(query, index, metadata, logger, top_k):
     """
