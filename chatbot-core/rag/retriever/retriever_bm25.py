@@ -22,12 +22,12 @@ def perform_keyword_search(query, logger, source_name, keyword_threshold, top_k=
     """
     if not query.strip():
         logger.warning("Empty query received.")
-        return [], []
+        return []
     index = indexer.get(source_name)
     _, metadata = load_vector_index(logger, source_name)
 
     if not index or not metadata:
-        return [], []
+        return []
 
     data, scores = search_bm25_index(query, index, metadata, logger, top_k)
 
