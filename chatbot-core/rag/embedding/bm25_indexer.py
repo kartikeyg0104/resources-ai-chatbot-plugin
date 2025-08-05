@@ -52,7 +52,7 @@ class BM25Indexer:
 
                 self.retrievers[index_name] = sr
             except Exception as e: # pylint: disable=broad-exception-caught
-                self.logger("Error in creating the index for %s. Error: %s", index_name, str(e))
+                self.logger.error("Error in creating the index for %s. Error: %s", index_name, str(e))
 
     def get(self, index_name: str):
         """
