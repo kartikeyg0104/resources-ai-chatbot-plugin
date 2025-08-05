@@ -1,7 +1,6 @@
 annotated-types==0.7.0
 anyio==4.9.0
 astroid==3.3.10
-autofaiss==2.17.0
 beautifulsoup4==4.13.4
 certifi==2025.4.26
 charset-normalizer==3.4.2
@@ -40,7 +39,7 @@ matplotlib==3.10.3
 mccabe==0.7.0
 mpmath==1.3.0
 networkx==3.4.2
-numpy==1.26.4
+numpy==2.2.6
 nvidia-cublas-cu12==12.6.4.1
 nvidia-cuda-cupti-cu12==12.6.80
 nvidia-cuda-nvrtc-cu12==12.6.77
