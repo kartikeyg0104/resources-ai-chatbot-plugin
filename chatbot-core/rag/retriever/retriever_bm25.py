@@ -4,7 +4,6 @@ Query interface for retrieving the most relevant embedded text chunks using a Sp
 
 from rag.retriever.retriever_utils import load_vector_index
 from rag.embedding.bm25_indexer import indexer
-from api.config.loader import CONFIG
 
 def perform_keyword_search(query, logger, source_name, keyword_threshold, top_k=5):
     """
@@ -19,7 +18,7 @@ def perform_keyword_search(query, logger, source_name, keyword_threshold, top_k=
         top_k (int): Number of top results to retrieve. Defaults to 5.
 
     Returns:
-        tuple[list[dict], list[float]]: Retrieved data and similarity scores.
+        list[dict]: A list of dictionaries, each containing a retrieved chunk and its score.
     """
     if not query.strip():
         logger.warning("Empty query received.")
