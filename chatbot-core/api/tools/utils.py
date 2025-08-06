@@ -6,7 +6,7 @@ import json
 import os
 import re
 from types import MappingProxyType
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Optional
 from sklearn.preprocessing import MinMaxScaler
 from api.config.loader import CONFIG
 
@@ -97,13 +97,14 @@ def get_inverted_scores(
     semantic_scores: List[float],
     keyword_chunk_ids: List[str],
     keyword_scores: List[float],
+    semantic_weight: Optional[float] = 0.5,
 ) -> List[Tuple[float, str]]:
     """
     Combines keyword and semantic search scores into a single, normalized ranking.
     Higher original scores are better for keyword scores; lower scores are better 
     for semantic scores. Missing values are penalized by assigning them the worst 
-    possible score. Scores are normalized to [0, 1], averaged with equal weight 
-    (50% each), and then inverted (multiplied by -1), making them suitable for the 
+    possible score. Scores are normalized to [0, 1], averaged with the semantic
+    weight, and then inverted (multiplied by -1), making them suitable for the 
     later use as a max-heap.
 
     Args:
@@ -111,10 +112,13 @@ def get_inverted_scores(
         semantic_scores (List[float]): Corresponding semantic scores (lower is better).
         keyword_chunk_ids (List[str]): Chunk IDs returned from keyword search.
         keyword_scores (List[float]): Corresponding keyword scores (higher is better).
+        semantic_weight (float): Importance weight assigned to the semantic score.
 
     Returns:
         List[Tuple[float, str]]: A list of (inverted_score, chunk_id)
     """
+    if not (0 <= semantic_weight <= 1):
+        semantic_weight = 0.5
     semantic_map = {semantic_chunk_ids[i]:semantic_scores[i]
                     for i in range(len(semantic_chunk_ids))}
     keyword_map = {keyword_chunk_ids[i]:keyword_scores[i]
@@ -134,7 +138,7 @@ def get_inverted_scores(
     semantic_norm = scaler.fit_transform([[v] for v in semantic_inverted])
 
     return [
-        [float(-1 * (0.5 * keyword_norm[i][0] + 0.5 * semantic_norm[i][0])), cid]
+        [float(-1 * ((1 - semantic_weight) * keyword_norm[i][0] + semantic_weight * semantic_norm[i][0])), cid]
         for i, cid in enumerate(all_chunk_ids)
     ]
 

@@ -72,13 +72,51 @@ def search_plugin_docs(query: str, keywords: str, logger, plugin_name: Optional[
 
     return extract_chunks_content(top_k_chunks, logger)
 
-def search_jenkins_docs(query: str) -> str:
+def search_jenkins_docs(query: str, keywords: str, logger) -> str:
     """
-    Docs Search tool
+    Search tool for the Jenkins docs. Exploits both a sparse and dense search, resulting in a 
+    hybrid search.
+
+    Args:
+        query (str): The user query.
+        keywords (str): Keywords extracted from the user query.
+    
+    Returns:
+        str: The result of the research of the docs search tool.
     """
-    if query:
-        pass
-    return "Nothing relevant"
+    top_k_chunks = []
+    data_retrieved_semantic, scores_semantic = get_relevant_documents(
+        query,
+        EMBEDDING_MODEL,
+        logger=logger,
+        source_name=CONFIG["tool_names"]["jenkins_docs"],
+        top_k=retrieval_config["top_k_semantic"]
+    )
+    keyword_results = perform_keyword_search(
+        keywords,
+        logger,
+        source_name=CONFIG["tool_names"]["jenkins_docs"],
+        keyword_threshold= retrieval_config["keyword_threshold"],
+        top_k=retrieval_config["top_k_keyword"]
+    )
+
+    data_retrieved_keyword = [item["chunk"] for item in keyword_results]
+    scores_keyword = [item["score"] for item in keyword_results]
+
+    scores = get_inverted_scores([c["id"] for c in data_retrieved_semantic], scores_semantic,
+                        [c["id"] for c in data_retrieved_keyword], scores_keyword)
+
+    combined_results = data_retrieved_semantic + data_retrieved_keyword
+    lookup_by_id = {item["id"]: item for item in combined_results}
+
+    heapq.heapify(scores)
+    i = 0
+    while i < retrieval_config["top_k_docs"] and len(scores) > 0:
+        item = heapq.heappop(scores)
+        top_k_chunks.append(lookup_by_id.get(item[1]))
+        i += 1
+
+    return extract_chunks_content(top_k_chunks, logger)
 
 def search_stackoverflow_threads(query: str) -> str:
     """
