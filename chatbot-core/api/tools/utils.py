@@ -95,6 +95,7 @@ def validate_tool_calls(tool_calls_parsed: list, logger) -> bool:
 
     return valid
 
+# pylint: disable=too-many-locals
 def get_inverted_scores(
     semantic_chunk_ids: List[str],
     semantic_scores: List[float],
@@ -120,7 +121,7 @@ def get_inverted_scores(
     Returns:
         List[Tuple[float, str]]: A list of (inverted_score, chunk_id)
     """
-    if not (0 <= semantic_weight <= 1):
+    if not 0 <= semantic_weight <= 1:
         semantic_weight = 0.5
     semantic_map = {semantic_chunk_ids[i]:semantic_scores[i]
                     for i in range(len(semantic_chunk_ids))}
@@ -141,7 +142,8 @@ def get_inverted_scores(
     semantic_norm = scaler.fit_transform([[v] for v in semantic_inverted])
 
     return [
-        [float(-1 * ((1 - semantic_weight) * keyword_norm[i][0] + semantic_weight * semantic_norm[i][0])), cid]
+        [float(-1 * ((1 - semantic_weight) * keyword_norm[i][0] +
+                     semantic_weight * semantic_norm[i][0])), cid]
         for i, cid in enumerate(all_chunk_ids)
     ]
 
@@ -285,6 +287,8 @@ def retrieve_documents(query: str, keywords: str, logger, source_name: str, embe
 
     return data_retrieved_semantic, scores_semantic, data_retrieved_keyword, scores_keyword
 
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-positional-arguments
 def extract_top_chunks(
     data_retrieved_semantic,
     scores_semantic,
