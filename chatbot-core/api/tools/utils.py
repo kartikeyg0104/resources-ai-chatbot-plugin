@@ -5,10 +5,13 @@ Utilities for the tools package.
 import json
 import os
 import re
+import heapq
 from types import MappingProxyType
 from typing import List, Tuple, Dict, Optional
 from sklearn.preprocessing import MinMaxScaler
 from api.config.loader import CONFIG
+from rag.retriever.retrieve import get_relevant_documents
+from rag.retriever.retriever_bm25 import perform_keyword_search
 
 
 retrieval_config = CONFIG["retrieval"]
@@ -246,3 +249,78 @@ def make_placeholder_replacer(code_iter, item_id, logger):
             logger.warning("More placeholders than code blocks in chunk with ID %s", item_id)
             return "[MISSING_CODE]"
     return replace
+
+def retrieve_documents(query: str, keywords: str, logger, source_name: str, embedding_model):
+    """
+    Retrieve documents using both semantic and keyword-based methods.
+
+    Args:
+        query (str): The user query.
+        keywords (str): Keywords extracted from the user query.
+        logger: Logger object.
+        source_name (str): Source name to search from.
+        embedding_model : The sentence transformer model used for embeddings converting.
+
+    Returns:
+        Tuple: (data_retrieved_semantic, scores_semantic, data_retrieved_keyword, scores_keyword)
+    """
+    data_retrieved_semantic, scores_semantic = get_relevant_documents(
+        query,
+        embedding_model,
+        logger=logger,
+        source_name=source_name,
+        top_k=retrieval_config["top_k_semantic"]
+    )
+
+    keyword_results = perform_keyword_search(
+        keywords,
+        logger,
+        source_name=source_name,
+        keyword_threshold=retrieval_config["keyword_threshold"],
+        top_k=retrieval_config["top_k_keyword"]
+    )
+
+    data_retrieved_keyword = [item["chunk"] for item in keyword_results]
+    scores_keyword = [item["score"] for item in keyword_results]
+
+    return data_retrieved_semantic, scores_semantic, data_retrieved_keyword, scores_keyword
+
+def extract_top_chunks(
+    data_retrieved_semantic,
+    scores_semantic,
+    data_retrieved_keyword,
+    scores_keyword,
+    top_k: int,
+    logger
+) -> str:
+    """
+    Combine semantic and keyword results, sort by scores, and extract top chunks.
+
+    Args:
+        data_retrieved_semantic: List of semantic chunks.
+        scores_semantic: Corresponding semantic scores.
+        data_retrieved_keyword: List of keyword chunks.
+        scores_keyword: Corresponding keyword scores.
+        top_k (int): Number of top results to extract.
+        logger: Logger object.
+
+    Returns:
+        str: Extracted content from top chunks.
+    """
+    scores = get_inverted_scores(
+        [c["id"] for c in data_retrieved_semantic], scores_semantic,
+        [c["id"] for c in data_retrieved_keyword], scores_keyword
+    )
+
+    combined_results = data_retrieved_semantic + data_retrieved_keyword
+    lookup_by_id = {item["id"]: item for item in combined_results}
+
+    heapq.heapify(scores)
+    top_k_chunks = []
+    i = 0
+    while i < top_k and len(scores) > 0:
+        item = heapq.heappop(scores)
+        top_k_chunks.append(lookup_by_id.get(item[1]))
+        i += 1
+
+    return extract_chunks_content(top_k_chunks, logger)
