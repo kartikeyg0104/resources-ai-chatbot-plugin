@@ -10,7 +10,7 @@ from types import MappingProxyType
 from typing import List, Tuple, Dict, Optional
 from api.config.loader import CONFIG
 from rag.retriever.retrieve import get_relevant_documents
-from rag.retriever.retriever_bm25 import perform_keyword_search
+from rag.retriever.retriever_bm25 import perform_keyword_search_from_source
 
 
 retrieval_config = CONFIG.get("retrieval", {})
@@ -287,7 +287,7 @@ def retrieve_documents(query: str, keywords: str, logger, source_name: str, embe
         top_k=retrieval_config["top_k_semantic"]
     )
 
-    keyword_results = perform_keyword_search(
+    keyword_results = perform_keyword_search_from_source(
         keywords,
         logger,
         source_name=source_name,
