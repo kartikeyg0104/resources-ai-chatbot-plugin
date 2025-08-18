@@ -8,13 +8,12 @@ import re
 import heapq
 from types import MappingProxyType
 from typing import List, Tuple, Dict, Optional
-from sklearn.preprocessing import MinMaxScaler
 from api.config.loader import CONFIG
 from rag.retriever.retrieve import get_relevant_documents
-from rag.retriever.retriever_bm25 import perform_keyword_search
+from rag.retriever.retriever_bm25 import perform_keyword_search_from_source
 
 
-retrieval_config = CONFIG["retrieval"]
+retrieval_config = CONFIG.get("retrieval", {})
 CODE_BLOCK_PLACEHOLDER_PATTERN = r"\[\[(?:CODE_BLOCK|CODE_SNIPPET)_(\d+)\]\]"
 
 TOOL_SIGNATURES = MappingProxyType({
@@ -136,16 +135,30 @@ def get_inverted_scores(
     keyword_vals = [keyword_map.get(cid, default_keyword) for cid in all_chunk_ids]
     semantic_vals = [semantic_map.get(cid, default_semantic) for cid in all_chunk_ids]
 
-    scaler = MinMaxScaler()
-    keyword_norm = scaler.fit_transform([[v] for v in keyword_vals])
-    semantic_inverted = [max(semantic_vals) - v for v in semantic_vals]
-    semantic_norm = scaler.fit_transform([[v] for v in semantic_inverted])
+    keyword_norm = _min_max_normalize(keyword_vals)
+    sem_max = max(semantic_vals) if semantic_vals else 1.0
+    semantic_inverted = [sem_max - v for v in semantic_vals]
+    semantic_norm = _min_max_normalize(semantic_inverted)
 
     return [
-        [float(-1 * ((1 - semantic_weight) * keyword_norm[i][0] +
-                     semantic_weight * semantic_norm[i][0])), cid]
+        [float(-1 * ((1 - semantic_weight) * keyword_norm[i] +
+                     semantic_weight * semantic_norm[i])), cid]
         for i, cid in enumerate(all_chunk_ids)
     ]
+
+def _min_max_normalize(values: List[float]) -> List[float]:
+    """
+    Normalize a list of floats to [0, 1].
+    If all values are equal, returns a list of 0.5 (neutral scale).
+    """
+    if not values:
+        return []
+    vmin = min(values)
+    vmax = max(values)
+    if vmax == vmin:
+        return [0.5 for _ in values]
+    rng = vmax - vmin
+    return [(v - vmin) / rng for v in values]
 
 def extract_chunks_content(chunks: List[Dict], logger) -> str:
     """
@@ -274,7 +287,7 @@ def retrieve_documents(query: str, keywords: str, logger, source_name: str, embe
         top_k=retrieval_config["top_k_semantic"]
     )
 
-    keyword_results = perform_keyword_search(
+    keyword_results = perform_keyword_search_from_source(
         keywords,
         logger,
         source_name=source_name,
@@ -295,7 +308,8 @@ def extract_top_chunks(
     data_retrieved_keyword,
     scores_keyword,
     top_k: int,
-    logger
+    logger,
+    semantic_weight: Optional[float] = 0.5
 ) -> str:
     """
     Combine semantic and keyword results, sort by scores, and extract top chunks.
@@ -307,13 +321,15 @@ def extract_top_chunks(
         scores_keyword: Corresponding keyword scores.
         top_k (int): Number of top results to extract.
         logger: Logger object.
+        semantic_weight (float): Importance weight assigned to the semantic score.
 
     Returns:
         str: Extracted content from top chunks.
     """
     scores = get_inverted_scores(
         [c["id"] for c in data_retrieved_semantic], scores_semantic,
-        [c["id"] for c in data_retrieved_keyword], scores_keyword
+        [c["id"] for c in data_retrieved_keyword], scores_keyword,
+        semantic_weight
     )
 
     combined_results = data_retrieved_semantic + data_retrieved_keyword
