@@ -27,6 +27,8 @@ def perform_keyword_search_from_source(query, logger, source_name, keyword_thres
         return []
     return perform_keyword_search(query, logger, index, metadata, keyword_threshold, top_k)
 
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-positional-arguments
 def perform_keyword_search(query, logger, index, metadata, keyword_threshold, top_k=5):
     """
     Retrieve the top-k most relevant chunks for a given natural language query
