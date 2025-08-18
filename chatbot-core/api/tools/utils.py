@@ -8,7 +8,6 @@ import re
 import heapq
 from types import MappingProxyType
 from typing import List, Tuple, Dict, Optional
-from sklearn.preprocessing import MinMaxScaler
 from api.config.loader import CONFIG
 from rag.retriever.retrieve import get_relevant_documents
 from rag.retriever.retriever_bm25 import perform_keyword_search
@@ -136,17 +135,30 @@ def get_inverted_scores(
     keyword_vals = [keyword_map.get(cid, default_keyword) for cid in all_chunk_ids]
     semantic_vals = [semantic_map.get(cid, default_semantic) for cid in all_chunk_ids]
 
-    scaler = MinMaxScaler()
-    keyword_norm = scaler.fit_transform([[v] for v in keyword_vals])
+    keyword_norm = _min_max_normalize(keyword_vals)
     sem_max = max(semantic_vals) if semantic_vals else 1.0
     semantic_inverted = [sem_max - v for v in semantic_vals]
-    semantic_norm = scaler.fit_transform([[v] for v in semantic_inverted])
+    semantic_norm = _min_max_normalize(semantic_inverted)
 
     return [
         [float(-1 * ((1 - semantic_weight) * keyword_norm[i][0] +
                      semantic_weight * semantic_norm[i][0])), cid]
         for i, cid in enumerate(all_chunk_ids)
     ]
+
+def _min_max_normalize(values: List[float]) -> List[float]:
+    """
+    Normalize a list of floats to [0, 1].
+    If all values are equal, returns a list of 0.5 (neutral scale).
+    """
+    if not values:
+        return []
+    vmin = min(values)
+    vmax = max(values)
+    if vmax == vmin:
+        return [0.5 for _ in values]
+    rng = vmax - vmin
+    return [(v - vmin) / rng for v in values]
 
 def extract_chunks_content(chunks: List[Dict], logger) -> str:
     """
