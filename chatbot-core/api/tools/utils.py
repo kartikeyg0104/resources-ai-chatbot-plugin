@@ -141,8 +141,8 @@ def get_inverted_scores(
     semantic_norm = _min_max_normalize(semantic_inverted)
 
     return [
-        [float(-1 * ((1 - semantic_weight) * keyword_norm[i][0] +
-                     semantic_weight * semantic_norm[i][0])), cid]
+        [float(-1 * ((1 - semantic_weight) * keyword_norm[i] +
+                     semantic_weight * semantic_norm[i])), cid]
         for i, cid in enumerate(all_chunk_ids)
     ]
 
