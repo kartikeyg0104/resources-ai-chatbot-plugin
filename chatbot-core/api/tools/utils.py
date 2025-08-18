@@ -138,7 +138,8 @@ def get_inverted_scores(
 
     scaler = MinMaxScaler()
     keyword_norm = scaler.fit_transform([[v] for v in keyword_vals])
-    semantic_inverted = [max(semantic_vals) - v for v in semantic_vals]
+    sem_max = max(semantic_vals) if semantic_vals else 1.0
+    semantic_inverted = [sem_max - v for v in semantic_vals]
     semantic_norm = scaler.fit_transform([[v] for v in semantic_inverted])
 
     return [
