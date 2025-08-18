@@ -14,7 +14,7 @@ from rag.retriever.retrieve import get_relevant_documents
 from rag.retriever.retriever_bm25 import perform_keyword_search
 
 
-retrieval_config = CONFIG["retrieval"]
+retrieval_config = CONFIG.get("retrieval", {})
 CODE_BLOCK_PLACEHOLDER_PATTERN = r"\[\[(?:CODE_BLOCK|CODE_SNIPPET)_(\d+)\]\]"
 
 TOOL_SIGNATURES = MappingProxyType({
