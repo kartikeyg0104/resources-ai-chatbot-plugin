@@ -1,6 +1,80 @@
 import fetchMock from "jest-fetch-mock";
 import { callChatbotApi } from "../utils/callChatbotApi";
 import { API_BASE_URL } from "../config";
+import { openChatbotStream } from "../utils/callChatbotApi";
+
+class MockWebSocket {
+  static OPEN = 1;
+  static CLOSED = 3;
+  readyState = 0;
+  url: string;
+  onopen: (() => void) | null = null;
+  onmessage: ((ev: MessageEvent) => void) | null = null;
+  onerror: ((ev: Event) => void) | null = null;
+  onclose: ((ev: CloseEvent) => void) | null = null;
+  sent: string[] = [];
+  private listeners: Record<string, Function[]> = {};
+  constructor(url: string) {
+    this.url = url;
+    ;(global as any).__lastWS = this;
+    setTimeout(() => {
+      this.readyState = MockWebSocket.OPEN;
+      this.onopen && this.onopen();
+      this.dispatchEvent("open", {});
+    }, 0);
+  }
+  addEventListener(type: string, handler: any) {
+    if (!this.listeners[type]) this.listeners[type] = [];
+    this.listeners[type].push(handler);
+  }
+  removeEventListener(type: string, handler: any) {
+    if (!this.listeners[type]) return;
+    this.listeners[type] = this.listeners[type].filter((h) => h !== handler);
+  }
+  dispatchEvent(type: string, event: any) {
+    (this.listeners[type] || []).forEach((h) => h(event));
+  }
+  send(data: string) {
+    this.sent.push(data);
+  }
+  close() {
+    this.readyState = MockWebSocket.CLOSED;
+    this.onclose && this.onclose({} as CloseEvent);
+    this.dispatchEvent("close", {});
+  }
+}
+
+// @ts-ignore
+global.WebSocket = MockWebSocket;
+
+test("openChatbotStream streams tokens and end", (done) => {
+  const tokens: string[] = [];
+  const { send } = openChatbotStream(
+    "session-123",
+    (msg) => {
+      if (msg.type === "token") tokens.push(msg.token);
+      if (msg.type === "end") {
+        expect(tokens.join("")).toBe("hello world");
+        done();
+      }
+    },
+  );
+
+  // The send should not throw even if not yet open
+  send("hi");
+
+  const getWS = () => (global as any).__lastWS as MockWebSocket;
+  const dispatch = (payload: any) => {
+    const ws = getWS();
+    ws.onmessage && ws.onmessage({ data: JSON.stringify(payload) } as MessageEvent);
+  };
+
+  setTimeout(() => {
+    dispatch({ token: "hello " });
+    dispatch({ token: "world" });
+    dispatch({ end: true });
+  }, 1);
+});
 
 describe("callChatbotApi", () => {
   beforeEach(() => {

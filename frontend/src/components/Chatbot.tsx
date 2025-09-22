@@ -5,6 +5,7 @@ import {
   fetchChatbotReply,
   createChatSession,
   deleteChatSession,
+  streamChatbotReply,
 } from "../api/chatbot";
 import { Header } from "./Header";
 import { Messages } from "./Messages";
@@ -17,6 +18,7 @@ import {
   loadChatbotLastSessionId,
 } from "../utils/chatbotStorage";
 import { v4 as uuidv4 } from "uuid";
+import { ENABLE_WS_STREAMING } from "../config";
 
 /**
  * Chatbot is the core component responsible for managing the chatbot display.
@@ -121,6 +123,22 @@ export const Chatbot = () => {
     );
   };
 
+  const updateLastBotMessageText = (updater: (prev: string) => string) => {
+    setSessions((prevSessions) =>
+      prevSessions.map((session) => {
+        if (session.id !== currentSessionId) return session;
+        const messages = [...session.messages];
+        for (let i = messages.length - 1; i >= 0; i--) {
+          if (messages[i].sender === "jenkins-bot") {
+            messages[i] = { ...messages[i], text: updater(messages[i].text) };
+            break;
+          }
+        }
+        return { ...session, messages };
+      }),
+    );
+  };
+
   /**
    * Handles the send process in a chat session.
    */
@@ -150,15 +168,66 @@ export const Chatbot = () => {
     );
     appendMessageToCurrentSession(userMessage);
 
-    const botReply = await fetchChatbotReply(currentSessionId!, trimmed);
-    setSessions((prevSessions) =>
-      prevSessions.map((session) =>
-        session.id === currentSessionId
-          ? { ...session, isLoading: false }
-          : session,
-      ),
-    );
-    appendMessageToCurrentSession(botReply);
+    if (!ENABLE_WS_STREAMING) {
+      const botReply = await fetchChatbotReply(currentSessionId!, trimmed);
+      setSessions((prevSessions) =>
+        prevSessions.map((session) =>
+          session.id === currentSessionId
+            ? { ...session, isLoading: false }
+            : session,
+        ),
+      );
+      appendMessageToCurrentSession(botReply);
+      return;
+    }
+
+    // Streaming path
+    const botMessage: Message = { id: uuidv4(), sender: "jenkins-bot", text: "" };
+    appendMessageToCurrentSession(botMessage);
+
+    let closed = false;
+    const handleEnd = () => {
+      if (closed) return;
+      closed = true;
+      setSessions((prevSessions) =>
+        prevSessions.map((session) =>
+          session.id === currentSessionId
+            ? { ...session, isLoading: false }
+            : session,
+        ),
+      );
+    };
+
+    try {
+      const { close } = streamChatbotReply(
+        currentSessionId,
+        trimmed,
+        (token) => updateLastBotMessageText((prev) => prev + token),
+        handleEnd,
+        (err) => {
+          console.error("Stream error:", err);
+        },
+      );
+
+      // Safety timeout to ensure we do not keep loading forever
+      setTimeout(() => {
+        if (!closed) {
+          close();
+          handleEnd();
+        }
+      }, 1000 * 60 * 5);
+    } catch (e) {
+      // Fallback to REST
+      const botReply = await fetchChatbotReply(currentSessionId!, trimmed);
+      updateLastBotMessageText(() => botReply.text);
+      setSessions((prevSessions) =>
+        prevSessions.map((session) =>
+          session.id === currentSessionId
+            ? { ...session, isLoading: false }
+            : session,
+        ),
+      );
+    }
   };
 
   const getChatLoading = (): boolean => {

@@ -3,6 +3,7 @@ import { getChatbotText } from "../data/chatbotTexts";
 import { v4 as uuidv4 } from "uuid";
 import { CHATBOT_API_TIMEOUTS_MS } from "../config";
 import { callChatbotApi } from "../utils/callChatbotApi";
+import { openChatbotStream, type StreamMessage } from "../utils/callChatbotApi";
 
 /**
  * Send a request to the backend to create a new chat session and returns the id of the
@@ -54,6 +55,30 @@ export const fetchChatbotReply = async (
 
   const botReply = data.reply || getChatbotText("errorMessage");
   return createBotMessage(botReply);
+};
+
+/**
+ * Start a WebSocket stream for token-by-token reply.
+ * Returns helpers to manage the stream and a function to create a bot message.
+ */
+export const streamChatbotReply = (
+  sessionId: string,
+  userMessage: string,
+  onToken: (token: string) => void,
+  onEnd?: () => void,
+  onError?: (error: string) => void,
+) => {
+  const { send, close, socket } = openChatbotStream(
+    sessionId,
+    (msg: StreamMessage) => {
+      if (msg.type === "token") onToken(msg.token);
+      if (msg.type === "end") onEnd && onEnd();
+      if (msg.type === "error") onError && onError(msg.error);
+    },
+  );
+
+  send(userMessage);
+  return { close, socket };
 };
 
 /**
